@@ -5,6 +5,7 @@ import android.graphics.fonts.Font
 import android.graphics.fonts.FontStyle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -76,18 +78,27 @@ fun MyComposeApp() {
         }
         Spacer(modifier = Modifier.height(50.dp))
         Text(text = "Mis Cuestionarios: ",
-            modifier = Modifier.fillMaxWidth().offset(x = 15.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset(x = 15.dp),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = poppinsFamily,
             )
 
         Row (
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.SpaceAround,
+
         ) {
-            favQuiz()
+            favQuiz(imageResource = R.drawable.rectanglewhite, title = "Título")
+            favQuiz(imageResource = R.drawable.rectanglewhite, title = "Título")
+            favQuiz(imageResource = R.drawable.rectanglewhite, title = "Título")
+            favQuiz(imageResource = R.drawable.rectanglewhite, title = "Título")
+            favQuiz(imageResource = R.drawable.rectanglewhite, title = "Título")
         }
     }
     
