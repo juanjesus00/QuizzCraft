@@ -81,6 +81,14 @@ fun MyComposeApp() {
             fontWeight = FontWeight.Bold,
             fontFamily = poppinsFamily,
             )
+
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            favQuiz()
+        }
     }
     
 
