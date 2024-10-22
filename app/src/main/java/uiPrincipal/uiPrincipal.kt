@@ -68,16 +68,18 @@ fun MyComposeApp() {
                     .clip(RoundedCornerShape(100.dp)),
                 contentScale = ContentScale.Crop //recorta la imagen si no esta muy cuadrada
             )
+
             IconButton(onClick = { /*Hamburguer*/ },
                 ) {
                    Image(
                        painterResource(id = R.drawable.menu),
                        contentDescription = "Menu",
-                       modifier = Modifier.size(30.dp))
+                       modifier = Modifier.size(30.dp)
+                   )
             }
         }
         Spacer(modifier = Modifier.height(50.dp))
-        Text(text = "Mis Cuestionarios: ",
+        Text(text = "Mis Cuestionarios:",
             modifier = Modifier
                 .fillMaxWidth()
                 .offset(x = 15.dp),
