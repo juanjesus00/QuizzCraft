@@ -38,10 +38,9 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, ){
 
         ) {
         //falta poner un for cuando tengamos la base de datos conectada
-        favQuiz(imageResource = R.drawable.rectanglewhite, title = titleQuiz)
-        favQuiz(imageResource = R.drawable.rectanglewhite, title = titleQuiz)
-        favQuiz(imageResource = R.drawable.rectanglewhite, title = titleQuiz)
-        favQuiz(imageResource = R.drawable.rectanglewhite, title = titleQuiz)
-        favQuiz(imageResource = R.drawable.rectanglewhite, title = titleQuiz)
+        for (i in 1..5){
+            favQuiz(imageResource = R.drawable.huppty, title = titleQuiz)
+        }
+
     }
 }

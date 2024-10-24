@@ -5,11 +5,15 @@ package header
 import android.widget.PopupMenu
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
@@ -32,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import com.example.myapplication.R
 
 
@@ -57,6 +62,8 @@ fun getHeader(){
                 .clip(RoundedCornerShape(100.dp)),
             contentScale = ContentScale.Crop //recorta la imagen si no esta muy cuadrada
         )
+
+
         Box{
             IconButton(onClick = { expanded = !expanded },
             ) {
@@ -66,40 +73,65 @@ fun getHeader(){
                     modifier = Modifier.size(30.dp)
                 )
             }
-            MaterialTheme(
-                colorScheme = MaterialTheme.colorScheme.copy(
-                    surface = Color.Transparent // Color de fondo personalizado
-                ),
-                shapes = MaterialTheme.shapes.copy(
-                    medium = RoundedCornerShape(20.dp) // Uso de dp en lugar de f
-                )
-            ) {
-                Box (
-
-                ){
-
-                }
-                /*DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)// Aplicar el color y la forma personalizada
-                ){
-                    DropdownMenuItem(text = { Text(text = "hello")}, onClick = { expanded = false}, modifier = Modifier.clip(RoundedCornerShape(20.dp)))
-                }*/
+            Box{
+                CustomPopupMenu(expanded = expanded, onDismissRequest = {expanded = false})
             }
-
-            /*DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }, // Cierra el menú al hacer clic fuera
-                modifier = Modifier.size(200.dp).clip(RoundedCornerShape(20.dp)),
-            ) {
-                DropdownMenuItem(text = { Text(text = "hello")}, onClick = { expanded = false}, modifier = Modifier.clip(RoundedCornerShape(20.dp)))
-            }*/
-
 
         }
 
     }
 }
 
+@Composable
+fun CustomPopupMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit
+) {
+    if (expanded) {
+        Popup(
+            alignment = Alignment.TopEnd, // Posición del popup en la pantalla
+            onDismissRequest = onDismissRequest
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFF212325), shape = RoundedCornerShape(16.dp)) // Personaliza el fondo y las esquinas redondeadas
+                    .size(150.dp)
+            ) {
+                Column (
+                    modifier = Modifier.fillMaxSize().padding(start = 10.dp),
+                    verticalArrangement = Arrangement.SpaceAround,
+                    horizontalAlignment = Alignment.Start
+                ){
+                    // Opción 1 del menú
+                    popupInformation(icon = R.drawable.solar_user_bold, text = "Iniciar sesión")
+                    popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Registrarse")
+                    popupInformation(icon = R.drawable.ligth_mode, text = "Modo claro")
 
+
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun popupInformation(icon: Int, text: String){
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .clickable { /*nada*/ },
+            color = Color(0xFFB18F4F)
+        )
+
+        Image(
+            painterResource(id = icon ),
+            contentDescription = text,
+        )
+    }
+}

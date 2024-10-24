@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,7 @@ fun favQuiz(imageResource: Int, title: String){
                     modifier = Modifier
                         .size(width = 150.dp, height = 75.dp)
                         .clip(RoundedCornerShape(topStart = 100.dp, topEnd = 100.dp)),
-                    contentScale = ContentScale.Crop //recorta la imagen si no esta muy cuadrada
+                    contentScale = Crop //recorta la imagen si no esta muy cuadrada
                 )
                 Text(
                     text = title,
@@ -61,7 +62,7 @@ fun favQuiz(imageResource: Int, title: String){
                 Image(
                     painter = painterResource(id = R.drawable.trespuntos),
                     contentDescription = "Menu tres puntos",
-                    contentScale = ContentScale.Crop //recorta la imagen si no esta muy cuadrada
+                    contentScale = Crop //recorta la imagen si no esta muy cuadrada
                 )
             }
 
