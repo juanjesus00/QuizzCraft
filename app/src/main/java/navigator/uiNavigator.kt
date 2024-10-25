@@ -30,9 +30,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.zIndex
 import com.example.myapplication.R
-import header.CustomPopupMenu
-import header.popupInformation
+
+import menuHamburguesa.CustomPopupMenu
 
 @Composable
 fun uiNavigator(){
@@ -81,7 +82,11 @@ fun printImage(imageResource: Int, description: String){
     }
 
     if (description == "options"){
-        CustomPopupMenu(expanded = expanded, onDismissRequest = { expanded = false})
+        //Box (modifier = Modifier.zIndex(1f).offset(y = 100.dp)){
+
+        //}
+        CustomPopupMenu(expanded = expanded, onDismissRequest = { expanded = false}, color = 0xFFEBEBEC.toInt(), size = 350)
+
     }
 }
 

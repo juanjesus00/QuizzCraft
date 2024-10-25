@@ -38,7 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.example.myapplication.R
-
+import menuHamburguesa.CustomPopupMenu
 
 
 @Composable
@@ -74,7 +74,7 @@ fun getHeader(){
                 )
             }
             Box{
-                CustomPopupMenu(expanded = expanded, onDismissRequest = {expanded = false})
+                CustomPopupMenu(expanded = expanded, onDismissRequest = {expanded = false}, color = 0xFF212325.toInt(), size = 150)
             }
 
         }
@@ -82,56 +82,3 @@ fun getHeader(){
     }
 }
 
-@Composable
-fun CustomPopupMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit
-) {
-    if (expanded) {
-        Popup(
-            alignment = Alignment.TopEnd, // Posición del popup en la pantalla
-            onDismissRequest = onDismissRequest
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(Color(0xFF212325), shape = RoundedCornerShape(16.dp)) // Personaliza el fondo y las esquinas redondeadas
-                    .size(150.dp)
-            ) {
-                Column (
-                    modifier = Modifier.fillMaxSize().padding(start = 10.dp),
-                    verticalArrangement = Arrangement.SpaceAround,
-                    horizontalAlignment = Alignment.Start
-                ){
-                    // Opción 1 del menú
-                    popupInformation(icon = R.drawable.solar_user_bold, text = "Iniciar sesión")
-                    popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Registrarse")
-                    popupInformation(icon = R.drawable.ligth_mode, text = "Modo claro")
-
-
-
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun popupInformation(icon: Int, text: String){
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier
-                .clickable { /*nada*/ },
-            color = Color(0xFFB18F4F)
-        )
-
-        Image(
-            painterResource(id = icon ),
-            contentDescription = text,
-        )
-    }
-}
