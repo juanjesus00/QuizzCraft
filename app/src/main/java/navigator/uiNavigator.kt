@@ -2,17 +2,22 @@ package navigator
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,15 +29,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import com.example.myapplication.R
 import header.CustomPopupMenu
 import header.popupInformation
 
 @Composable
 fun uiNavigator(){
-    var expanded by remember {
-        mutableStateOf(false)
-    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,22 +52,25 @@ fun uiNavigator(){
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ){
-            printImage(imageResource = R.drawable.house , description = "home", expanded = expanded)
-            printImage(imageResource = R.drawable.moreoptions , description = "options", expanded = expanded)
-            printImage(imageResource = R.drawable.lupa , description = "search", expanded = expanded)
+            printImage(imageResource = R.drawable.house , description = "home")
+            printImage(imageResource = R.drawable.moreoptions , description = "options")
+            printImage(imageResource = R.drawable.lupa , description = "search")
         }
     }
 }
 
 @Composable
-fun printImage(imageResource: Int, description: String, expanded: Boolean){
-    var expanded2 = expanded
+fun printImage(imageResource: Int, description: String){
+    var expanded by remember {
+        mutableStateOf(false)
+    }
     IconButton(
         onClick = {
             when(description){
                 "home" -> print("home")
-                "options" -> print("options")//CustomPopupMenu(expanded = expanded2, onDismissRequest = { expanded2 = false})
+                "options" -> expanded = !expanded
                 "search" -> print("search")
+                else -> print("opcion incorrecta")
             }
         }
     ) {
@@ -71,6 +78,10 @@ fun printImage(imageResource: Int, description: String, expanded: Boolean){
             painterResource(id = imageResource),
             contentDescription = description
         )
+    }
+
+    if (description == "options"){
+        CustomPopupMenu(expanded = expanded, onDismissRequest = { expanded = false})
     }
 }
 
