@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,8 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
+import header.CustomPopupMenu
+import header.popupInformation
+
 @Composable
 fun uiNavigator(){
+    var expanded by remember {
+        mutableStateOf(false)
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,17 +48,24 @@ fun uiNavigator(){
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ){
-            printImage(imageResource = R.drawable.house , description = "home")
-            printImage(imageResource = R.drawable.moreoptions , description = "options")
-            printImage(imageResource = R.drawable.lupa , description = "search")
+            printImage(imageResource = R.drawable.house , description = "home", expanded = expanded)
+            printImage(imageResource = R.drawable.moreoptions , description = "options", expanded = expanded)
+            printImage(imageResource = R.drawable.lupa , description = "search", expanded = expanded)
         }
     }
 }
 
 @Composable
-fun printImage(imageResource: Int, description: String){
+fun printImage(imageResource: Int, description: String, expanded: Boolean){
+    var expanded2 = expanded
     IconButton(
-        onClick = { /*TODO*/ }
+        onClick = {
+            when(description){
+                "home" -> print("home")
+                "options" -> print("options")//CustomPopupMenu(expanded = expanded2, onDismissRequest = { expanded2 = false})
+                "search" -> print("search")
+            }
+        }
     ) {
         Image(
             painterResource(id = imageResource),
