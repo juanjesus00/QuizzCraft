@@ -57,6 +57,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.5.0")  // Librerías esenciales de Compose
     implementation("androidx.compose.material3:material3:1.2.0")  // Material Design en Compose
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")  // Previews de UI en Compose
+    implementation("androidx.navigation:navigation-compose:2.8.3")
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")  // Herramientas de depuración
     implementation("io.coil-kt:coil-compose:2.0.0")
 }

@@ -2,22 +2,16 @@ package navigator
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,13 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.zIndex
 import com.example.myapplication.R
 
 import menuHamburguesa.CustomPopupMenu
+import routes.NavigationActions
 
 @Composable
-fun uiNavigator(){
+fun uiNavigator(navigationActions: NavigationActions) {
 
     Box(
         modifier = Modifier
@@ -53,15 +47,18 @@ fun uiNavigator(){
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ){
-            printImage(imageResource = R.drawable.house , description = "home")
-            printImage(imageResource = R.drawable.moreoptions , description = "options")
-            printImage(imageResource = R.drawable.lupa , description = "search")
+            printImage(imageResource = R.drawable.house , description = "home",navigationActions)
+            Box {
+                printImage(imageResource = R.drawable.moreoptions , description = "options",navigationActions)
+            }
+
+            printImage(imageResource = R.drawable.lupa , description = "search",navigationActions)
         }
     }
 }
 
 @Composable
-fun printImage(imageResource: Int, description: String){
+fun printImage(imageResource: Int, description: String, navigationActions: NavigationActions){
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -82,12 +79,18 @@ fun printImage(imageResource: Int, description: String){
     }
 
     if (description == "options"){
-        //Box (modifier = Modifier.zIndex(1f).offset(y = 100.dp)){
+        Popup (){
+            Box (modifier = Modifier.fillMaxWidth().offset(x = -(75).dp, y = 350.dp)){
+                CustomPopupMenu(expanded = expanded,
+                    onDismissRequest = { expanded = false},
+                    color = 0xFFEBEBEC.toInt(),
+                    size = 250,
+                    type = "navigator",
+                    navigationActions = navigationActions
+                )
+            }
+        }
 
-        //}
-        CustomPopupMenu(expanded = expanded, onDismissRequest = { expanded = false}, color = 0xFFEBEBEC.toInt(), size = 350)
 
     }
 }
-
-

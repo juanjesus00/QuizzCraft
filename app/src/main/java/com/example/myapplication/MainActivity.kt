@@ -3,8 +3,13 @@ package com.example.myapplication
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.ui.graphics.BlendMode.Companion.Screen
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import routes.NavigationActions
+import routes.Routes
+import uiLogin.LoginScreen
+import uiRegister.RegisterScreen
 import uiPrincipal.MyComposeApp
 
 class MainActivity : ComponentActivity() {
@@ -12,7 +17,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MyComposeApp()
+            val navController = rememberNavController()
+            val navigationActions = NavigationActions(navController)
+            NavHost(navController = navController, startDestination = Routes.HOME){
+                composable(Routes.HOME){ MyComposeApp(navigationActions) }
+                composable(Routes.LOGIN) { LoginScreen(navigationActions) }
+                composable(Routes.SING_IN) { RegisterScreen(navigationActions) }
+            }
+
         }
 
     }

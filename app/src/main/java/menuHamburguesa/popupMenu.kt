@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.zIndex
+import routes.NavigationActions
 import com.example.myapplication.R
 
 @Composable
@@ -28,38 +28,60 @@ fun CustomPopupMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     color: Int,
-    size: Int
+    size: Int,
+    type: String,
+    navigationActions: NavigationActions
 ) {
     if (expanded) {
-        Popup(
-            alignment = Alignment.TopEnd, // Posición del popup en la pantalla
-            onDismissRequest = onDismissRequest
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(Color(color), shape = RoundedCornerShape(16.dp)) // Personaliza el fondo y las esquinas redondeadas
-                    .size(size.dp)
+        if(type == "header"){
+            Popup(
+                alignment = Alignment.TopEnd, // Posición del popup en la pantalla
+                onDismissRequest = onDismissRequest
             ) {
-                Column (
-                    modifier = Modifier.fillMaxSize().padding(start = 10.dp),
-                    verticalArrangement = Arrangement.SpaceAround,
-                    horizontalAlignment = Alignment.Start
-                ){
-                    // Opción 1 del menú
-                    popupInformation(icon = R.drawable.solar_user_bold, text = "Iniciar sesión")
-                    popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Registrarse")
-                    popupInformation(icon = R.drawable.ligth_mode, text = "Modo claro")
-
-
-
+                Box(
+                    modifier = Modifier
+                        .background(Color(color), shape = RoundedCornerShape(16.dp)) // Personaliza el fondo y las esquinas redondeadas
+                        .size(size.dp)
+                ) {
+                    Column (
+                        modifier = Modifier.fillMaxSize().padding(start = 10.dp),
+                        verticalArrangement = Arrangement.SpaceAround,
+                        horizontalAlignment = Alignment.Start
+                    ){
+                        popupInformation(icon = R.drawable.solar_user_bold, text = "Iniciar sesión",navigationActions)
+                        popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Registrarse",navigationActions)
+                        popupInformation(icon = R.drawable.ligth_mode, text = "Modo claro",navigationActions)
+                    }
+                }
+            }
+        }else if(type == "navigator"){
+            Popup(
+                alignment = Alignment.TopEnd, // Posición del popup en la pantalla
+                onDismissRequest = onDismissRequest
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(Color(color), shape = RoundedCornerShape(16.dp)) // Personaliza el fondo y las esquinas redondeadas
+                        .size(size.dp)
+                ) {
+                    Column (
+                        modifier = Modifier.fillMaxSize().padding(start = 10.dp),
+                        verticalArrangement = Arrangement.SpaceAround,
+                        horizontalAlignment = Alignment.Start
+                    ){
+                        popupInformation(icon = R.drawable.solar_user_bold, text = "¿Qué quieres hacer?",navigationActions)
+                        popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Elección",navigationActions)
+                        popupInformation(icon = R.drawable.ligth_mode, text = "Interactivo",navigationActions)
+                    }
                 }
             }
         }
+
     }
 }
 
 @Composable
-fun popupInformation(icon: Int, text: String){
+fun popupInformation(icon: Int, text: String, navigationActions: NavigationActions){
     Row (
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -68,7 +90,13 @@ fun popupInformation(icon: Int, text: String){
         Text(
             text = text,
             modifier = Modifier
-                .clickable { /*nada*/ },
+                .clickable {
+                    when(text){
+                        "Iniciar sesión" -> navigationActions.navigateToLogin()
+                        "Registrarse" -> navigationActions.navigateToRegister()
+                        else -> print("opcion no valida")
+                    }
+                           },
             color = Color(0xFFB18F4F)
         )
 

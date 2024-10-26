@@ -23,6 +23,7 @@ import com.example.myapplication.R
 import header.getHeader
 import kotlinx.coroutines.launch
 import navigator.uiNavigator
+import routes.NavigationActions
 
 
 val poppinsFamily = FontFamily(
@@ -33,7 +34,7 @@ val poppinsFamily = FontFamily(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MyComposeApp() {
+fun MyComposeApp(navigationActions: NavigationActions) {
     val scrollState = rememberScrollState()
     var showBars by remember { mutableStateOf(true) }
     var previousScrollOffset by remember { mutableStateOf(0) }
@@ -54,7 +55,7 @@ fun MyComposeApp() {
     Scaffold(
         topBar = {
             AnimatedVisibility(visible = showBars) {
-                getHeader()
+                getHeader(navigationActions)
             }
         },
         bottomBar = {
@@ -62,7 +63,7 @@ fun MyComposeApp() {
                 Box (
                     modifier =  Modifier.offset(y = (-10).dp)
                 ){
-                    uiNavigator()
+                    uiNavigator(navigationActions)
                 }
             }
         }
