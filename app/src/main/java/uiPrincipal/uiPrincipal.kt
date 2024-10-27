@@ -16,14 +16,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.myapplication.R
 import header.getHeader
 import kotlinx.coroutines.launch
 import navigator.uiNavigator
+import quizcraft.uiQuizCraft
 import routes.NavigationActions
+import routes.Routes
+import uiLogin.LoginScreen
+import uiRegister.RegisterScreen
 
 
 val poppinsFamily = FontFamily(
@@ -34,11 +43,12 @@ val poppinsFamily = FontFamily(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MyComposeApp(navigationActions: NavigationActions) {
+fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostController) {
     val scrollState = rememberScrollState()
     var showBars by remember { mutableStateOf(true) }
     var previousScrollOffset by remember { mutableStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     LaunchedEffect(scrollState.value) {
         coroutineScope.launch {
             val currentOffset = scrollState.value
@@ -70,7 +80,6 @@ fun MyComposeApp(navigationActions: NavigationActions) {
     ) {
         getPrincipalMidSection(scrollState = scrollState, navigationActions)
     }
-
 }
 
 

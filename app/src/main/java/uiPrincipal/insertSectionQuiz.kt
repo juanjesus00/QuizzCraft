@@ -40,7 +40,7 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
         ) {
         //falta poner un for cuando tengamos la base de datos conectada
         for (i in 1..5){
-            favQuiz(imageResource = R.drawable.huppty, title = titleQuiz, navigationActions)
+            favQuiz(imageResource = R.drawable.huppty, title = titleQuiz, titleSection = titleSection, navigationActions)
         }
 
     }

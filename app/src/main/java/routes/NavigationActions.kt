@@ -15,5 +15,8 @@ class NavigationActions (private val navController: NavController){
     fun navigateToRegister() {
         navController.navigate(Routes.SING_IN)
     }
+    fun navigateToQuizCraft() {
+        navController.navigate(Routes.CRAFT)
+    }
 
 }

@@ -91,15 +91,15 @@ fun CustomPopupMenu(
                             fontFamily = poppinsFamily,
                             color = Color(0xFF212325)
                         )
-                        popupInformationNavigator(padding = 0, text = "Elección", icon = R.drawable.elecction)
-                        popupInformationNavigator(padding = 10, text = "Interacción", icon = R.drawable.interactivo)
+                        popupInformationNavigator(padding = 0, text = "Elección", icon = R.drawable.elecction, navigationActions)
+                        popupInformationNavigator(padding = 10, text = "Interacción", icon = R.drawable.interactivo, navigationActions)
 
                     }
                 }
             }
         }else if(type == "CrudQuiz"){
             Popup(
-                alignment = Alignment.TopEnd, // Posición del popup en la pantalla
+                alignment = Alignment.CenterEnd, // Posición del popup en la pantalla
                 onDismissRequest = onDismissRequest
             ) {
                 Box(
@@ -108,7 +108,7 @@ fun CustomPopupMenu(
                             Color(color),
                             shape = RoundedCornerShape(16.dp)
                         ) // Personaliza el fondo y las esquinas redondeadas
-                        .size(size.dp)
+                        .size(width = (size / 2).dp, height = size.dp)
                 ) {
                     Column (
                         modifier = Modifier
@@ -117,9 +117,8 @@ fun CustomPopupMenu(
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.Start
                     ){
-                        popupInformation(icon = R.drawable.solar_user_bold, text = "Iniciar sesión",navigationActions)
-                        popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Registrarse",navigationActions)
-                        popupInformation(icon = R.drawable.ligth_mode, text = "Modo claro",navigationActions)
+                        Image(painterResource(id = R.drawable.basura), contentDescription = "Eliminar")
+                        Image(painterResource(id = R.drawable.editar), contentDescription = "Editar")
                     }
                 }
             }
@@ -128,12 +127,18 @@ fun CustomPopupMenu(
     }
 }
 @Composable
-fun popupInformationNavigator(padding: Int, text: String, icon: Int){
+fun popupInformationNavigator(padding: Int, text: String, icon: Int, navigationActions: NavigationActions){
     Row (
         modifier = Modifier
             .background(Color(0xFF212325), shape = RoundedCornerShape(20.dp))
             .size(height = 70.dp, width = 200.dp)
-            .clickable { /*algo*/ }
+            .clickable {
+                when(text){
+                    "Elección" -> navigationActions.navigateToQuizCraft()
+                    "Interactivo" -> print("proximamente")
+                    else -> print("opcion no valida")
+                }
+            }
             .padding(padding.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround

@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
@@ -34,7 +35,7 @@ import menuHamburguesa.CustomPopupMenu
 import routes.NavigationActions
 
 @Composable
-fun favQuiz(imageResource: Int, title: String, navigationActions: NavigationActions){
+fun favQuiz(imageResource: Int, title: String, titleSection: String,navigationActions: NavigationActions){
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -72,7 +73,7 @@ fun favQuiz(imageResource: Int, title: String, navigationActions: NavigationActi
                     color = Color(0xFFFFFFFF)
                 )
             }
-            Box {
+            Box (modifier = Modifier.alpha(if (titleSection == "Mis Cuestionarios:") 1f else 0f)){
                 IconButton(onClick = {expanded = !expanded},
                     modifier = Modifier.padding(bottom = 100.dp),
                 ) {
@@ -82,7 +83,7 @@ fun favQuiz(imageResource: Int, title: String, navigationActions: NavigationActi
                         contentScale = Crop //recorta la imagen si no esta muy cuadrada
                     )
                 }
-                Box (modifier = Modifier.offset(x = 120.dp, y = -(50).dp)){
+                Box (/*modifier = Modifier.offset(x = 70.dp, y = -(50).dp)*/){
                     CustomPopupMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false},
