@@ -68,7 +68,7 @@ fun MyComposeApp(navigationActions: NavigationActions) {
             }
         }
     ) {
-        getPrincipalMidSection(scrollState = scrollState)
+        getPrincipalMidSection(scrollState = scrollState, navigationActions)
     }
 
 }

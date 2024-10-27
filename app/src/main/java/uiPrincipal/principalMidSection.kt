@@ -10,9 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import routes.NavigationActions
 
 @Composable
-fun getPrincipalMidSection(scrollState: ScrollState){
+fun getPrincipalMidSection(scrollState: ScrollState, navigationActions: NavigationActions){
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -23,15 +24,15 @@ fun getPrincipalMidSection(scrollState: ScrollState){
         ){
 
         /*INSERTAMOS LOS QUIZ FAVORITOS*/
-        insertSectionQuiz(titleSection = "Mis Cuestionarios:", titleQuiz = "Titulo")
+        insertSectionQuiz(titleSection = "Mis Cuestionarios:", titleQuiz = "Titulo", navigationActions)
 
         /*iNSERTAMOS LOS QUIZ MAS RECIENTES*/
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo")
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo")
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo")
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo")
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo")
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo")
+        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
+        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
+        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
+        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
+        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
+        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
 
 
     }

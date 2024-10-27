@@ -91,59 +91,35 @@ fun CustomPopupMenu(
                             fontFamily = poppinsFamily,
                             color = Color(0xFF212325)
                         )
+                        popupInformationNavigator(padding = 0, text = "Elección", icon = R.drawable.elecction)
+                        popupInformationNavigator(padding = 10, text = "Interacción", icon = R.drawable.interactivo)
 
-                        Row (
-                            modifier = Modifier
-                                .background(Color(0xFF212325), shape = RoundedCornerShape(20.dp))
-                                .size(height = 70.dp, width = 200.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = "Elección",
-                                modifier = Modifier
-                                /*.clickable {
-                                    when(text){
-                                        "Iniciar sesión" -> navigationActions.navigateToLogin()
-                                        "Registrarse" -> navigationActions.navigateToRegister()
-                                        else -> print("opcion no valida")
-                                    }
-                                }*/,
-                                color = Color(0xFFB18F4F),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = poppinsFamily,
-                                fontSize = 15.sp
-                            )
-                        }
-
-                        Row (
-                            modifier = Modifier
-                                .background(Color(0xFF212325),shape = RoundedCornerShape(20.dp))
-                                .size(height = 70.dp, width = 200.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-
-                        ) {
-                            Text(
-                                text = "Interacción",
-                                modifier = Modifier
-                                    /*.clickable {
-                                        when(text){
-                                            "Iniciar sesión" -> navigationActions.navigateToLogin()
-                                            "Registrarse" -> navigationActions.navigateToRegister()
-                                            else -> print("opcion no valida")
-                                        }
-                                    }*/,
-                                color = Color(0xFFB18F4F),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = poppinsFamily,
-                                fontSize = 15.sp
-                            )
-                        }
-
-
-
-
+                    }
+                }
+            }
+        }else if(type == "CrudQuiz"){
+            Popup(
+                alignment = Alignment.TopEnd, // Posición del popup en la pantalla
+                onDismissRequest = onDismissRequest
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            Color(color),
+                            shape = RoundedCornerShape(16.dp)
+                        ) // Personaliza el fondo y las esquinas redondeadas
+                        .size(size.dp)
+                ) {
+                    Column (
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 10.dp),
+                        verticalArrangement = Arrangement.SpaceAround,
+                        horizontalAlignment = Alignment.Start
+                    ){
+                        popupInformation(icon = R.drawable.solar_user_bold, text = "Iniciar sesión",navigationActions)
+                        popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Registrarse",navigationActions)
+                        popupInformation(icon = R.drawable.ligth_mode, text = "Modo claro",navigationActions)
                     }
                 }
             }
@@ -151,7 +127,34 @@ fun CustomPopupMenu(
 
     }
 }
-
+@Composable
+fun popupInformationNavigator(padding: Int, text: String, icon: Int){
+    Row (
+        modifier = Modifier
+            .background(Color(0xFF212325), shape = RoundedCornerShape(20.dp))
+            .size(height = 70.dp, width = 200.dp)
+            .clickable { /*algo*/ }
+            .padding(padding.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        Box (modifier = Modifier
+            .size(50.dp)
+            .background(Color.White, shape = RoundedCornerShape(50.dp))
+            .clickable { /*algo*/ }, contentAlignment = Alignment.Center){
+            Image(painterResource(id = icon), contentDescription = text)
+        }
+        Text(
+            text = text,
+            modifier = Modifier
+            .clickable {/*algo*/},
+            color = Color(0xFFB18F4F),
+            fontWeight = FontWeight.Bold,
+            fontFamily = poppinsFamily,
+            fontSize = 15.sp
+        )
+    }
+}
 @Composable
 fun popupInformation(icon: Int, text: String, navigationActions: NavigationActions){
     Row (

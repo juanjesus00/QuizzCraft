@@ -16,9 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import routes.NavigationActions
 
 @Composable
-fun insertSectionQuiz(titleSection: String, titleQuiz: String, ){
+fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions: NavigationActions){
     Spacer(modifier = Modifier.height(50.dp))
     Text(
         text = titleSection,
@@ -39,7 +40,7 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, ){
         ) {
         //falta poner un for cuando tengamos la base de datos conectada
         for (i in 1..5){
-            favQuiz(imageResource = R.drawable.huppty, title = titleQuiz)
+            favQuiz(imageResource = R.drawable.huppty, title = titleQuiz, navigationActions)
         }
 
     }
