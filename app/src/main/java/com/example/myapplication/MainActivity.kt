@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.HOME){ MyComposeApp(navigationActions, navController) }
                 composable(Routes.LOGIN) { LoginScreen(navigationActions) }
                 composable(Routes.SING_IN) { RegisterScreen(navigationActions) }
-                composable(Routes.CRAFT) { uiQuizCraft(navigationActions) }
+                composable(Routes.CRAFT) { MyComposeApp(navigationActions, navController) }
             }
 
         }

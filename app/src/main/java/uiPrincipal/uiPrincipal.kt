@@ -16,13 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.myapplication.R
 import header.getHeader
@@ -31,8 +28,6 @@ import navigator.uiNavigator
 import quizcraft.uiQuizCraft
 import routes.NavigationActions
 import routes.Routes
-import uiLogin.LoginScreen
-import uiRegister.RegisterScreen
 
 
 val poppinsFamily = FontFamily(
@@ -78,7 +73,12 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             }
         }
     ) {
-        getPrincipalMidSection(scrollState = scrollState, navigationActions)
+        if(currentRoute == Routes.HOME){
+            getPrincipalMidSection(scrollState = scrollState, navigationActions, navController)
+        }else if(currentRoute == Routes.CRAFT){
+            uiQuizCraft(navigationActions = navigationActions, scrollState)
+        }
+
     }
 }
 
