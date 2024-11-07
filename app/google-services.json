@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1074117218604",
+    "project_id": "quizcraft-342d2",
+    "storage_bucket": "quizcraft-342d2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1074117218604:android:3ea65310bbba0558c8dc89",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1074117218604-it9mlufe66sldtihomg5s4vae1jum1o5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZHAOiAlXPAFx3sDDJvFtW3m0bDL1qruo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1074117218604-it9mlufe66sldtihomg5s4vae1jum1o5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

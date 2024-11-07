@@ -1,5 +1,6 @@
 package uiLogin
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -18,17 +19,21 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
@@ -37,7 +42,7 @@ import uiPrincipal.poppinsFamily
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreen(navigationActions: NavigationActions) {
+fun LoginScreen(navigationActions: NavigationActions, loginBackend: loginbacked) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -45,20 +50,22 @@ fun LoginScreen(navigationActions: NavigationActions) {
             .padding(32.dp)
 
     ) {
-        Login(Modifier.align(Alignment.Center))
+        Login(Modifier.align(Alignment.Center), navigationActions, loginBackend)
     }
 }
 
 @Composable
-fun Login(modifier: Modifier) {
+fun Login(modifier: Modifier, navigationActions: NavigationActions, loginBackend: loginbacked) {
     Column(modifier = modifier) {
         ImageLogo(Modifier.align(Alignment.CenterHorizontally))
-        BoxField(Modifier.align(Alignment.CenterHorizontally))
+        BoxField(Modifier.align(Alignment.CenterHorizontally), navigationActions, loginBackend)
     }
 }
 
 @Composable
-fun BoxField(modifier: Modifier) {
+fun BoxField(modifier: Modifier, navigationActions: NavigationActions, loginBackend: loginbacked) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -69,13 +76,13 @@ fun BoxField(modifier: Modifier) {
 
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
-        UserField()
+        UserField(username) {username = it}
         Spacer(modifier = Modifier.padding(8.dp))
-        PasswordField()
+        PasswordField(password) {password = it}
         Spacer(modifier = Modifier.padding(2.dp))
-        RegisterSection()
+        RegisterSection(navigationActions)
         Spacer(modifier = Modifier.padding(2.dp))
-        LoginButton()
+        LoginButton(loginBackend, username, password)
         Spacer(modifier = Modifier.padding(8.dp))
         GoogleIcon()
 
@@ -93,10 +100,10 @@ fun GoogleIcon() {
 }
 
 @Composable
-fun UserField() {
+fun UserField(username: String, onUsernameChange: (String) -> Unit) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = username,
+        onValueChange = onUsernameChange,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
@@ -116,10 +123,10 @@ fun UserField() {
 }
 
 @Composable
-fun PasswordField() {
+fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = password,
+        onValueChange = onPasswordChange,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
@@ -139,7 +146,7 @@ fun PasswordField() {
 }
 
 @Composable
-fun RegisterSection() {
+fun RegisterSection(navigationActions: NavigationActions) {
     Button(
         onClick = {},
         modifier = Modifier.height(48.dp),
@@ -151,15 +158,31 @@ fun RegisterSection() {
 }
 
 @Composable
-fun LoginButton() {
+fun LoginButton(loginBackend: loginbacked, username: String, password: String) {
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
     Button(
-        onClick = {},
+        onClick = {
+            isLoading = true
+            loginBackend.signIn(
+                email = username,
+                password = password,
+                onSuccess = {
+                    isLoading = false
+                    Toast.makeText(context, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show()
+                },
+                onFailure = { error ->
+                    isLoading = false
+                    Toast.makeText(context, "Error: $error", Toast.LENGTH_SHORT).show()
+                }
+            )
+        },
         shape = RoundedCornerShape(20),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 
     ) {
         Text(
-            text = "Iniciar Sesión",
+            text = if (isLoading) "Cargando..." else "Iniciar Sesión",
             fontWeight = FontWeight.Bold,
             fontFamily = poppinsFamily,
             fontSize = 16.sp
