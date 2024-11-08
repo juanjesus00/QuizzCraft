@@ -18,12 +18,17 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,11 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import routes.NavigationActions
+import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun RegisterScreen(navigationActions: NavigationActions) {
+fun RegisterScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -44,20 +50,23 @@ fun RegisterScreen(navigationActions: NavigationActions) {
             .padding(32.dp)
 
     ) {
-        Register(Modifier.align(Alignment.Center))
+        Register(Modifier.align(Alignment.Center), viewModel, navigationActions)
     }
 }
 
 @Composable
-fun Register(modifier: Modifier) {
+fun Register(modifier: Modifier, viewModel: loginbacked, navigationActions: NavigationActions) {
     Column(modifier = modifier) {
         ImageLogo(Modifier.align(Alignment.CenterHorizontally))
-        BoxField(Modifier.align(Alignment.CenterHorizontally))
+        BoxField(Modifier.align(Alignment.CenterHorizontally), viewModel, navigationActions)
     }
 }
 
 @Composable
-fun BoxField(modifier: Modifier) {
+fun BoxField(modifier: Modifier, viewModel: loginbacked, navigationActions: NavigationActions) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -68,15 +77,15 @@ fun BoxField(modifier: Modifier) {
 
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
-        UserField()
+        UserField(name) {name = it}
         Spacer(modifier = Modifier.padding(8.dp))
-        PasswordField()
+        PasswordField(password) {password = it}
         Spacer(modifier = Modifier.padding(8.dp))
-        EmailField()
+        EmailField(username) {username = it}
         Spacer(modifier = Modifier.padding(2.dp))
         LoginSection()
         Spacer(modifier = Modifier.padding(2.dp))
-        RegisterButton()
+        RegisterButton(viewModel, username, password, name, navigationActions)
         Spacer(modifier = Modifier.padding(8.dp))
         GoogleIcon()
 
@@ -94,10 +103,10 @@ fun GoogleIcon() {
 }
 
 @Composable
-fun UserField() {
+fun UserField(name: String, function: (String) -> Unit) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = name,
+        onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
@@ -117,10 +126,10 @@ fun UserField() {
 }
 
 @Composable
-fun PasswordField() {
+fun PasswordField(password: String, function: (String) -> Unit) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = password,
+        onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
@@ -140,10 +149,10 @@ fun PasswordField() {
 }
 
 @Composable
-fun EmailField() {
+fun EmailField(username: String, function: (String) -> Unit) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = username,
+        onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
@@ -175,15 +184,28 @@ fun LoginSection() {
 }
 
 @Composable
-fun RegisterButton() {
+fun RegisterButton(
+    viewModel: loginbacked,
+    username: String,
+    password: String,
+    name: String,
+    navigationActions: NavigationActions
+) {
+    var isLoading by remember { mutableStateOf(false) }
+    var context = LocalContext.current
     Button(
-        onClick = {},
+        onClick = {
+            isLoading = !isLoading
+            viewModel.register(email = username, password = password, context = context ){
+                navigationActions.navigateToHome()
+            }
+        },
         shape = RoundedCornerShape(20),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 
     ) {
         Text(
-            text = "Registrarse",
+            text = if (isLoading) "Cargando..." else "Registrarse",
             fontWeight = FontWeight.Bold,
             fontFamily = poppinsFamily,
             fontSize = 16.sp

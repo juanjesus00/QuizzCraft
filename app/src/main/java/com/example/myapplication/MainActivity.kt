@@ -19,14 +19,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        loginBackend = loginbacked(this)
+
 
         setContent {
             val navController = rememberNavController()
             val navigationActions = NavigationActions(navController)
             NavHost(navController = navController, startDestination = Routes.HOME){
                 composable(Routes.HOME){ MyComposeApp(navigationActions, navController) }
-                composable(Routes.LOGIN) { LoginScreen(navigationActions, loginBackend) }
+                composable(Routes.LOGIN) { LoginScreen(navigationActions) }
                 composable(Routes.SING_IN) { RegisterScreen(navigationActions) }
                 composable(Routes.CRAFT) { MyComposeApp(navigationActions, navController) }
             }

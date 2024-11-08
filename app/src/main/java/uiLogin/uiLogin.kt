@@ -1,6 +1,5 @@
 package uiLogin
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -42,7 +41,7 @@ import uiPrincipal.poppinsFamily
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreen(navigationActions: NavigationActions, loginBackend: loginbacked) {
+fun LoginScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -50,20 +49,20 @@ fun LoginScreen(navigationActions: NavigationActions, loginBackend: loginbacked)
             .padding(32.dp)
 
     ) {
-        Login(Modifier.align(Alignment.Center), navigationActions, loginBackend)
+        Login(Modifier.align(Alignment.Center), navigationActions, viewModel)
     }
 }
 
 @Composable
-fun Login(modifier: Modifier, navigationActions: NavigationActions, loginBackend: loginbacked) {
+fun Login(modifier: Modifier, navigationActions: NavigationActions, viewModel: loginbacked) {
     Column(modifier = modifier) {
         ImageLogo(Modifier.align(Alignment.CenterHorizontally))
-        BoxField(Modifier.align(Alignment.CenterHorizontally), navigationActions, loginBackend)
+        BoxField(Modifier.align(Alignment.CenterHorizontally), navigationActions, viewModel)
     }
 }
 
 @Composable
-fun BoxField(modifier: Modifier, navigationActions: NavigationActions, loginBackend: loginbacked) {
+fun BoxField(modifier: Modifier, navigationActions: NavigationActions, viewModel: loginbacked) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     Column(
@@ -82,7 +81,7 @@ fun BoxField(modifier: Modifier, navigationActions: NavigationActions, loginBack
         Spacer(modifier = Modifier.padding(2.dp))
         RegisterSection(navigationActions)
         Spacer(modifier = Modifier.padding(2.dp))
-        LoginButton(loginBackend, username, password, navigationActions)
+        LoginButton(username, password, navigationActions, viewModel)
         Spacer(modifier = Modifier.padding(8.dp))
         GoogleIcon()
 
@@ -159,30 +158,22 @@ fun RegisterSection(navigationActions: NavigationActions) {
 
 @Composable
 fun LoginButton(
-    loginBackend: loginbacked,
     username: String,
     password: String,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    viewModel: loginbacked
 ) {
-    val context = LocalContext.current
     var isLoading by remember { mutableStateOf(false) }
     Button(
         onClick = {
-            isLoading = true
-            loginBackend.signIn(
+            isLoading = !isLoading
+            viewModel.signIn(
                 email = username,
-                password = password,
-                onSuccess = {
-                    isLoading = false
-                    Toast.makeText(context, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show()
+                password = password
+            ){
+                navigationActions.navigateToHome()
+            }
 
-                },
-                onFailure = { error ->
-                    isLoading = false
-                    Toast.makeText(context, "Error: $error", Toast.LENGTH_SHORT).show()
-                }
-            )
-            navigationActions.navigateToHome()
         },
         shape = RoundedCornerShape(20),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
