@@ -1,5 +1,4 @@
 package uiLogin
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -18,6 +17,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,14 +31,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
-//@Preview(showBackground = true, showSystemUi = true)
+
+
 @Composable
 fun LoginScreen(navigationActions: NavigationActions) {
     Box(
@@ -69,9 +72,9 @@ fun BoxField(modifier: Modifier) {
 
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
-        UserField()
+        Field('u')
         Spacer(modifier = Modifier.padding(8.dp))
-        PasswordField()
+        Field('p')
         Spacer(modifier = Modifier.padding(2.dp))
         RegisterSection()
         Spacer(modifier = Modifier.padding(2.dp))
@@ -93,46 +96,38 @@ fun GoogleIcon() {
 }
 
 @Composable
-fun UserField() {
-    TextField(
-        value = "",
-        onValueChange = {},
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        placeholder = {
-            Text(
-                text = "Nombre de usuario",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        singleLine = true,
-        maxLines = 1,
-    )
-}
+fun Field(fieldtype: Char) {
+    var placeholdertext = ""
+    var keyboardtype = KeyboardType.Text
 
-@Composable
-fun PasswordField() {
+    if (fieldtype == 'u') {
+        placeholdertext = "Nombre de Usuario"
+        keyboardtype = KeyboardType.Text
+    } else if (fieldtype == 'p') {
+        placeholdertext = "Contraseña"
+        keyboardtype = KeyboardType.Password
+    } else {
+        placeholdertext = "Email"
+        keyboardtype = KeyboardType.Email
+    }
+
+    var text by remember { mutableStateOf("") }
     TextField(
-        value = "",
-        onValueChange = {},
+        value = text,
+        onValueChange = { text = it },
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
             Text(
-                text = "Contraseña",
+                text = placeholdertext,
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 color = Color(0xFFC49450)
             )
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardtype),
         singleLine = true,
         maxLines = 1,
     )

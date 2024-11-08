@@ -19,4 +19,12 @@ class NavigationActions (private val navController: NavController){
         navController.navigate(Routes.CRAFT)
     }
 
+    fun navigateToUserInfo() {
+        navController.navigate(Routes.USERINFO)
+    }
+
+    fun navigateToEditUser() {
+        navController.navigate(Routes.EDITUSER)
+    }
+
 }

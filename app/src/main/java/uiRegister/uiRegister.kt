@@ -18,6 +18,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,9 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.R
 import routes.NavigationActions
+import routes.Routes
 import uiPrincipal.poppinsFamily
+
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -68,11 +75,11 @@ fun BoxField(modifier: Modifier) {
 
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
-        UserField()
+        Field('u')
         Spacer(modifier = Modifier.padding(8.dp))
-        PasswordField()
+        Field('p')
         Spacer(modifier = Modifier.padding(8.dp))
-        EmailField()
+        Field('e')
         Spacer(modifier = Modifier.padding(2.dp))
         LoginSection()
         Spacer(modifier = Modifier.padding(2.dp))
@@ -94,69 +101,44 @@ fun GoogleIcon() {
 }
 
 @Composable
-fun UserField() {
-    TextField(
-        value = "",
-        onValueChange = {},
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        placeholder = {
-            Text(
-                text = "Nombre de usuario",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        singleLine = true,
-        maxLines = 1,
-    )
-}
+fun Field(fieldtype: Char) {
+    val placeholdertext: String
+    val keyboardtype: KeyboardType
 
-@Composable
-fun PasswordField() {
-    TextField(
-        value = "",
-        onValueChange = {},
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        placeholder = {
-            Text(
-                text = "Contraseña",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true,
-        maxLines = 1,
-    )
-}
+    when (fieldtype) {
+        'u' -> {
+            placeholdertext = "Nombre de Usuario"
+            keyboardtype = KeyboardType.Text
+        }
 
-@Composable
-fun EmailField() {
+        'p' -> {
+            placeholdertext = "Contraseña"
+            keyboardtype = KeyboardType.Password
+        }
+
+        else -> {
+            placeholdertext = "Email"
+            keyboardtype = KeyboardType.Email
+        }
+    }
+
+    var text by remember { mutableStateOf("") }
     TextField(
-        value = "",
-        onValueChange = {},
+        value = text,
+        onValueChange = { text = it },
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
             Text(
-                text = "Email",
+                text = placeholdertext,
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 color = Color(0xFFC49450)
             )
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardtype),
         singleLine = true,
         maxLines = 1,
     )
@@ -177,7 +159,7 @@ fun LoginSection() {
 @Composable
 fun RegisterButton() {
     Button(
-        onClick = {},
+        onClick = { },
         shape = RoundedCornerShape(20),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 

@@ -5,4 +5,6 @@ object Routes {
     const val LOGIN = "login"
     const val SING_IN = "sing_in"
     const val CRAFT = "craft"
+    const val USERINFO = "user_info"
+    const val EDITUSER = "edit_user"
 }

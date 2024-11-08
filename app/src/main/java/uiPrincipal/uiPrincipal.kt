@@ -28,6 +28,8 @@ import navigator.uiNavigator
 import quizcraft.uiQuizCraft
 import routes.NavigationActions
 import routes.Routes
+import uiEditUser.EditUserScreen
+import uiUserInfo.UserInfoScreen
 
 
 val poppinsFamily = FontFamily(
@@ -77,6 +79,10 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             getPrincipalMidSection(scrollState = scrollState, navigationActions, navController)
         }else if(currentRoute == Routes.CRAFT){
             uiQuizCraft(navigationActions = navigationActions, scrollState)
+        }else if (currentRoute == Routes.USERINFO) {
+            UserInfoScreen(navigationActions)
+        }else if (currentRoute == Routes.EDITUSER) {
+            EditUserScreen(navigationActions)
         }
 
     }
