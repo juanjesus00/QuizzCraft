@@ -82,7 +82,7 @@ fun BoxField(modifier: Modifier, navigationActions: NavigationActions, loginBack
         Spacer(modifier = Modifier.padding(2.dp))
         RegisterSection(navigationActions)
         Spacer(modifier = Modifier.padding(2.dp))
-        LoginButton(loginBackend, username, password)
+        LoginButton(loginBackend, username, password, navigationActions)
         Spacer(modifier = Modifier.padding(8.dp))
         GoogleIcon()
 
@@ -158,7 +158,12 @@ fun RegisterSection(navigationActions: NavigationActions) {
 }
 
 @Composable
-fun LoginButton(loginBackend: loginbacked, username: String, password: String) {
+fun LoginButton(
+    loginBackend: loginbacked,
+    username: String,
+    password: String,
+    navigationActions: NavigationActions
+) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(false) }
     Button(
@@ -170,12 +175,14 @@ fun LoginButton(loginBackend: loginbacked, username: String, password: String) {
                 onSuccess = {
                     isLoading = false
                     Toast.makeText(context, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show()
+
                 },
                 onFailure = { error ->
                     isLoading = false
                     Toast.makeText(context, "Error: $error", Toast.LENGTH_SHORT).show()
                 }
             )
+            navigationActions.navigateToHome()
         },
         shape = RoundedCornerShape(20),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
