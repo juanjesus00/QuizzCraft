@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.CRAFT) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.USERINFO) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.EDITUSER) { MyComposeApp(navigationActions, navController) }
+                composable(Routes.EDITQUIZ) { MyComposeApp(navigationActions, navController) }
                 }
 
         }

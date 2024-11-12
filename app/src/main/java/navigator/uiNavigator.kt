@@ -65,7 +65,7 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
     IconButton(
         onClick = {
             when(description){
-                "home" -> print("home")
+                "home" -> (navigationActions.navigateToHome())
                 "options" -> expanded = !expanded
                 "search" -> print("search")
                 else -> print("opcion incorrecta")

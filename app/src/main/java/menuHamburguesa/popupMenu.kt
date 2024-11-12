@@ -1,4 +1,5 @@
 package menuHamburguesa
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,7 +39,7 @@ fun CustomPopupMenu(
     navigationActions: NavigationActions
 ) {
     if (expanded) {
-        if(type == "header"){
+        if (type == "header") {
             Popup(
                 alignment = Alignment.TopEnd, // Posición del popup en la pantalla
                 onDismissRequest = onDismissRequest
@@ -51,20 +52,32 @@ fun CustomPopupMenu(
                         ) // Personaliza el fondo y las esquinas redondeadas
                         .size(size.dp)
                 ) {
-                    Column (
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(start = 10.dp),
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.Start
-                    ){
-                        popupInformation(icon = R.drawable.solar_user_bold, text = "Iniciar sesión",navigationActions)
-                        popupInformation(icon = R.drawable.ph_sign_in_bold, text = "Registrarse",navigationActions)
-                        popupInformation(icon = R.drawable.ligth_mode, text = "Modo claro",navigationActions)
+                    ) {
+                        popupInformation(
+                            icon = R.drawable.solar_user_bold,
+                            text = "Iniciar sesión",
+                            navigationActions
+                        )
+                        popupInformation(
+                            icon = R.drawable.ph_sign_in_bold,
+                            text = "Registrarse",
+                            navigationActions
+                        )
+                        popupInformation(
+                            icon = R.drawable.ligth_mode,
+                            text = "Modo claro",
+                            navigationActions
+                        )
                     }
                 }
             }
-        }else if(type == "navigator"){
+        } else if (type == "navigator") {
             Popup(
                 alignment = Alignment.TopEnd, // Posición del popup en la pantalla
                 onDismissRequest = onDismissRequest
@@ -77,12 +90,12 @@ fun CustomPopupMenu(
                         ) // Personaliza el fondo y las esquinas redondeadas
                         .size(size.dp)
                 ) {
-                    Column (
+                    Column(
                         modifier = Modifier
                             .fillMaxSize(),
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
+                    ) {
                         Text(
                             text = "¿Qué quieres hacer?",
                             fontSize = 18.sp,
@@ -90,13 +103,23 @@ fun CustomPopupMenu(
                             fontFamily = poppinsFamily,
                             color = Color(0xFF212325)
                         )
-                        popupInformationNavigator(padding = 0, text = "Elección", icon = R.drawable.elecction, navigationActions)
-                        popupInformationNavigator(padding = 10, text = "Interacción", icon = R.drawable.interactivo, navigationActions)
+                        popupInformationNavigator(
+                            padding = 0,
+                            text = "Elección",
+                            icon = R.drawable.elecction,
+                            navigationActions
+                        )
+                        popupInformationNavigator(
+                            padding = 10,
+                            text = "Interacción",
+                            icon = R.drawable.interactivo,
+                            navigationActions
+                        )
 
                     }
                 }
             }
-        }else if(type == "CrudQuiz"){
+        } else if (type == "CrudQuiz") {
             Popup(
                 alignment = Alignment.CenterEnd, // Posición del popup en la pantalla
                 onDismissRequest = onDismissRequest
@@ -109,15 +132,24 @@ fun CustomPopupMenu(
                         ) // Personaliza el fondo y las esquinas redondeadas
                         .size(width = (size / 2).dp, height = size.dp)
                 ) {
-                    Column (
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(start = 10.dp),
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.Start
-                    ){
-                        Image(painterResource(id = R.drawable.basura), contentDescription = "Eliminar")
-                        Image(painterResource(id = R.drawable.editar), contentDescription = "Editar")
+                    ) {
+                        Image(
+                            painterResource(id = R.drawable.basura),
+                            contentDescription = "Eliminar",
+                            modifier = Modifier.clickable {  }
+
+                        )
+                        Image(
+                            painterResource(id = R.drawable.editar),
+                            contentDescription = "Editar",
+                            modifier = Modifier.clickable { navigationActions.navigateToEditQuiz() }
+                        )
                     }
                 }
             }
@@ -125,14 +157,20 @@ fun CustomPopupMenu(
 
     }
 }
+
 @Composable
-fun popupInformationNavigator(padding: Int, text: String, icon: Int, navigationActions: NavigationActions){
-    Row (
+fun popupInformationNavigator(
+    padding: Int,
+    text: String,
+    icon: Int,
+    navigationActions: NavigationActions
+) {
+    Row(
         modifier = Modifier
             .background(Color(0xFF212325), shape = RoundedCornerShape(20.dp))
             .size(height = 70.dp, width = 200.dp)
             .clickable {
-                when(text){
+                when (text) {
                     "Elección" -> navigationActions.navigateToQuizCraft()
                     "Interactivo" -> print("proximamente")
                     else -> print("opcion no valida")
@@ -142,16 +180,17 @@ fun popupInformationNavigator(padding: Int, text: String, icon: Int, navigationA
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        Box (modifier = Modifier
+        Box(modifier = Modifier
             .size(50.dp)
             .background(Color.White, shape = RoundedCornerShape(50.dp))
-            .clickable { /*algo*/ }, contentAlignment = Alignment.Center){
+            .clickable { /*algo*/ }, contentAlignment = Alignment.Center
+        ) {
             Image(painterResource(id = icon), contentDescription = text)
         }
         Text(
             text = text,
             modifier = Modifier
-            .clickable {/*algo*/},
+                .clickable {/*algo*/ },
             color = Color(0xFFB18F4F),
             fontWeight = FontWeight.Bold,
             fontFamily = poppinsFamily,
@@ -159,9 +198,10 @@ fun popupInformationNavigator(padding: Int, text: String, icon: Int, navigationA
         )
     }
 }
+
 @Composable
-fun popupInformation(icon: Int, text: String, navigationActions: NavigationActions){
-    Row (
+fun popupInformation(icon: Int, text: String, navigationActions: NavigationActions) {
+    Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
@@ -170,17 +210,17 @@ fun popupInformation(icon: Int, text: String, navigationActions: NavigationActio
             text = text,
             modifier = Modifier
                 .clickable {
-                    when(text){
+                    when (text) {
                         "Iniciar sesión" -> navigationActions.navigateToLogin()
                         "Registrarse" -> navigationActions.navigateToRegister()
                         else -> print("opcion no valida")
                     }
-                           },
+                },
             color = Color(0xFFB18F4F)
         )
 
         Image(
-            painterResource(id = icon ),
+            painterResource(id = icon),
             contentDescription = text,
         )
     }

@@ -27,4 +27,8 @@ class NavigationActions (private val navController: NavController){
         navController.navigate(Routes.EDITUSER)
     }
 
+    fun navigateToEditQuiz() {
+        navController.navigate(Routes.EDITQUIZ)
+    }
+
 }

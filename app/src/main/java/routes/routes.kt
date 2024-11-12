@@ -7,4 +7,5 @@ object Routes {
     const val CRAFT = "craft"
     const val USERINFO = "user_info"
     const val EDITUSER = "edit_user"
+    const val EDITQUIZ = "edit_quiz"
 }

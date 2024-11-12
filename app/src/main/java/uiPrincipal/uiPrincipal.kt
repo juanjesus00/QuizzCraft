@@ -28,6 +28,7 @@ import navigator.uiNavigator
 import quizcraft.uiQuizCraft
 import routes.NavigationActions
 import routes.Routes
+import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
 import uiUserInfo.UserInfoScreen
 
@@ -83,6 +84,8 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             UserInfoScreen(navigationActions)
         }else if (currentRoute == Routes.EDITUSER) {
             EditUserScreen(navigationActions)
+        }else if (currentRoute == Routes.EDITQUIZ) {
+            EditQuizScreen(navigationActions, scrollState = scrollState)
         }
 
     }
