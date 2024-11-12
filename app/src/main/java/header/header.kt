@@ -23,6 +23,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.R
 import menuHamburguesa.CustomPopupMenu
 import routes.NavigationActions
@@ -40,6 +43,7 @@ fun getHeader(navigationActions: NavigationActions) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+
 
         Image(
             painter = painterResource(id = R.drawable.foto),
@@ -74,4 +78,3 @@ fun getHeader(navigationActions: NavigationActions) {
 
     }
 }
-

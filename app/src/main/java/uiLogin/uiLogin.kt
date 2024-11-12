@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import header.headerBack
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -161,7 +162,8 @@ fun LoginButton(
     username: String,
     password: String,
     navigationActions: NavigationActions,
-    viewModel: loginbacked
+    viewModel: loginbacked,
+    viewModelHeader: headerBack = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     var isLoading by remember { mutableStateOf(false) }
     Button(
@@ -172,6 +174,7 @@ fun LoginButton(
                 password = password
             ){
                 navigationActions.navigateToHome()
+                viewModelHeader.islogged.value = true
             }
 
         },

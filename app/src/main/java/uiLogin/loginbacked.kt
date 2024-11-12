@@ -7,8 +7,8 @@ import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 
@@ -22,6 +22,7 @@ class loginbacked: ViewModel() {
                     if (task.isSuccessful) {
                         Log.d("Loginbackend", "Inicio de sesión exitoso")
                         onSuccess()
+
                     } else {
                         Log.d("Loginbackend", "Error al iniciar sesion: ${task.result.toString()}")
                     }
