@@ -23,10 +23,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.R
+import com.google.firebase.auth.FirebaseAuth
 import menuHamburguesa.CustomPopupMenu
 import routes.NavigationActions
 
@@ -43,21 +41,32 @@ fun getHeader(navigationActions: NavigationActions) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
+            Image(
+                painter = painterResource(id = R.drawable.foto),
+                contentDescription = "Imagen De ejemplo",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(100.dp))
+                    .clickable { navigationActions.navigateToUserInfo() },
+                contentScale = ContentScale.Crop
+            )
+        }else{
+            Image(
+                painter = painterResource(id = R.drawable.huppty),
+                contentDescription = "Imagen De ejemplo",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(100.dp))
+                    .clickable { navigationActions.navigateToUserInfo() },
+                contentScale = ContentScale.Crop
+            )
+        }
 
-
-        Image(
-            painter = painterResource(id = R.drawable.foto),
-            contentDescription = "Imagen De ejemplo",
-            modifier = Modifier
-                .size(60.dp)
-                .clip(RoundedCornerShape(100.dp))
-                .clickable { navigationActions.navigateToUserInfo() },
-            contentScale = ContentScale.Crop
-        )
 
 
         Box{
-            IconButton(onClick = { expanded = !expanded },
+            IconButton(onClick = { expanded = true },
             ) {
                 Image(
                     painterResource(id = R.drawable.menu),
@@ -66,7 +75,8 @@ fun getHeader(navigationActions: NavigationActions) {
                 )
             }
             Box{
-                CustomPopupMenu(expanded = expanded,
+                CustomPopupMenu(
+                    expanded = expanded,
                     onDismissRequest = {expanded = false},
                     color = 0xFF212325.toInt(),
                     size = 150,

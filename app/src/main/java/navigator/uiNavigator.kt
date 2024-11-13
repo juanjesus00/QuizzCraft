@@ -81,7 +81,8 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
     if (description == "options"){
         Popup (){
             Box (modifier = Modifier.fillMaxWidth().offset(x = -(75).dp, y = 350.dp)){
-                CustomPopupMenu(expanded = expanded,
+                CustomPopupMenu(
+                    expanded = expanded,
                     onDismissRequest = { expanded = false},
                     color = 0xFFEBEBEC.toInt(),
                     size = 250,

@@ -38,9 +38,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
+import generateTextTest
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -63,6 +66,7 @@ fun uiQuizCraft(navigationActions: NavigationActions, scrollState: ScrollState) 
         FileUploader2(image = R.drawable.document, size = 100, typeFile = "application/*", text = "Generar con texto")
         InsertTexField(text = text, inputLabel = "#Tags", size = 56)
         InsertTexField(text = text, inputLabel = "Descripción", size = 150)
+        ButtonCreate()
     }
 
 }
@@ -178,4 +182,21 @@ fun FileUploader(image: Int, size: Int, typeFile: String) {
 
     }
     Spacer(modifier = Modifier.height(50.dp))
+}
+
+@Composable
+fun ButtonCreate() {
+    Button(
+        shape = RoundedCornerShape(20),
+        onClick = { generateTextTest() },
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
+    ) {
+        Text(
+            "CREAR",
+            fontWeight = FontWeight.Bold,
+            fontFamily = poppinsFamily,
+            fontSize = 24.sp,
+            color = Color(0xFFB18F4F)
+        )
+    }
 }

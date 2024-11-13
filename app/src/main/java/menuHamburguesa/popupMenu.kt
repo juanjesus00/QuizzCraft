@@ -9,16 +9,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import routes.NavigationActions
 import com.example.myapplication.R
+import com.google.firebase.auth.FirebaseAuth
 import uiPrincipal.poppinsFamily
 
 @Composable
@@ -59,16 +58,20 @@ fun CustomPopupMenu(
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.Start
                     ) {
-                        popupInformation(
-                            icon = R.drawable.solar_user_bold,
-                            text = "Iniciar sesión",
-                            navigationActions
-                        )
-                        popupInformation(
-                            icon = R.drawable.ph_sign_in_bold,
-                            text = "Registrarse",
-                            navigationActions
-                        )
+                        if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
+                            popupInformation(
+                                icon = R.drawable.solar_user_bold,
+                                text = "Iniciar sesión",
+                                navigationActions
+                            )
+                            popupInformation(
+                                icon = R.drawable.ph_sign_in_bold,
+                                text = "Registrarse",
+                                navigationActions
+                            )
+                        }else{
+                            popupInformation(icon = R.drawable.log_out, text = "Cerrar sesión", navigationActions = navigationActions)
+                        }
                         popupInformation(
                             icon = R.drawable.ligth_mode,
                             text = "Modo claro",
@@ -200,7 +203,11 @@ fun popupInformationNavigator(
 }
 
 @Composable
-fun popupInformation(icon: Int, text: String, navigationActions: NavigationActions) {
+fun popupInformation(
+    icon: Int,
+    text: String,
+    navigationActions: NavigationActions
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -213,6 +220,7 @@ fun popupInformation(icon: Int, text: String, navigationActions: NavigationActio
                     when (text) {
                         "Iniciar sesión" -> navigationActions.navigateToLogin()
                         "Registrarse" -> navigationActions.navigateToRegister()
+                        "Cerrar sesión" -> FirebaseAuth.getInstance().signOut()
                         else -> print("opcion no valida")
                     }
                 },

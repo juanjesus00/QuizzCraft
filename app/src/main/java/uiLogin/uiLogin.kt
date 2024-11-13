@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -64,7 +63,7 @@ fun Login(modifier: Modifier, navigationActions: NavigationActions, viewModel: l
 }
 
 @Composable
-fun BoxField(modifier: Modifier, navigationActions: NavigationActions, viewModel: loginbacked) {
+fun BoxField(modifier: Modifier, navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     Column(
@@ -101,17 +100,17 @@ fun GoogleIcon() {
 }
 
 @Composable
-fun UserField() {
+fun UserField(username: String, function: (String) -> Unit) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = username,
+        onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
             Text(
-                text = placeholdertext,
+                text = "Nombre de usuario",
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 color = Color(0xFFC49450)
@@ -124,10 +123,10 @@ fun UserField() {
 }
 
 @Composable
-fun PasswordField() {
+fun PasswordField(password: String, function: (String) -> Unit) {
     TextField(
-        value = "",
-        onValueChange = {},
+        value = password,
+        onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
@@ -149,7 +148,7 @@ fun PasswordField() {
 @Composable
 fun RegisterSection(navigationActions: NavigationActions) {
     Button(
-        onClick = {},
+        onClick = {navigationActions.navigateToRegister()},
         modifier = Modifier.height(48.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
 
@@ -163,8 +162,7 @@ fun LoginButton(
     username: String,
     password: String,
     navigationActions: NavigationActions,
-    viewModel: loginbacked,
-    viewModelHeader: headerBack = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: loginbacked
 ) {
     var isLoading by remember { mutableStateOf(false) }
     Button(
@@ -175,7 +173,6 @@ fun LoginButton(
                 password = password
             ){
                 navigationActions.navigateToHome()
-                viewModelHeader.islogged.value = true
             }
 
         },

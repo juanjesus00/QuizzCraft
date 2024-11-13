@@ -9,4 +9,6 @@ object Routes {
     const val EDITUSER = "edit_user"
     const val EDITQUIZ = "edit_quiz"
     const val INFOQUIZ = "info_quiz"
+    const val GAME = "game"
+    const val RESULT = "result"
 }

@@ -18,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.myapplication.R
 import header.getHeader
+import header.headerBack
 import kotlinx.coroutines.launch
 import navigator.uiNavigator
 import quizcraft.uiQuizCraft
@@ -29,8 +31,9 @@ import routes.NavigationActions
 import routes.Routes
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
-import uiInfoQuiz.InfoQuiz
+import uiGame.GameScreen
 import uiInfoQuiz.InfoQuizScreen
+import uiResult.ResultScreen
 import uiUserInfo.UserInfoScreen
 
 
@@ -69,7 +72,7 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         },
         bottomBar = {
             AnimatedVisibility(visible = showBars) {
-git                Box(
+                Box(
                     modifier = Modifier.offset(y = (-10).dp)
                 ) {
                     uiNavigator(navigationActions)
@@ -89,6 +92,10 @@ git                Box(
             EditQuizScreen(navigationActions, scrollState = scrollState)
         } else if (currentRoute == Routes.INFOQUIZ) {
             InfoQuizScreen(navigationActions, scrollState = scrollState)
+        } else if (currentRoute == Routes.GAME) {
+            GameScreen(navigationActions, scrollState = scrollState, 'i')
+        } else if (currentRoute == Routes.RESULT) {
+            ResultScreen(navigationActions, scrollState = scrollState)
         }
 
     }

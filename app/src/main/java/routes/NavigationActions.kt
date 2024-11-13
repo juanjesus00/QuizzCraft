@@ -5,7 +5,10 @@ import androidx.navigation.NavController
 class NavigationActions (private val navController: NavController){
 
     fun navigateToHome() {
-        navController.navigate(Routes.HOME)
+        navController.navigate(Routes.HOME){
+            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 
     fun navigateToLogin() {
@@ -33,6 +36,14 @@ class NavigationActions (private val navController: NavController){
 
     fun navigateToInfoQuiz() {
         navController.navigate(Routes.INFOQUIZ)
+    }
+
+    fun navigateToGame() {
+        navController.navigate(Routes.GAME)
+    }
+
+    fun navigateToResult() {
+        navController.navigate(Routes.RESULT)
     }
 
 }
