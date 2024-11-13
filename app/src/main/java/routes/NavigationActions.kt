@@ -31,4 +31,8 @@ class NavigationActions (private val navController: NavController){
         navController.navigate(Routes.EDITQUIZ)
     }
 
+    fun navigateToInfoQuiz() {
+        navController.navigate(Routes.INFOQUIZ)
+    }
+
 }

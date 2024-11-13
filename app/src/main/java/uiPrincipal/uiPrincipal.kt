@@ -1,7 +1,6 @@
 package uiPrincipal
 
 
-
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
@@ -30,6 +29,8 @@ import routes.NavigationActions
 import routes.Routes
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
+import uiInfoQuiz.InfoQuiz
+import uiInfoQuiz.InfoQuizScreen
 import uiUserInfo.UserInfoScreen
 
 
@@ -68,24 +69,26 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         },
         bottomBar = {
             AnimatedVisibility(visible = showBars) {
-                Box (
-                    modifier =  Modifier.offset(y = (-10).dp)
-                ){
+git                Box(
+                    modifier = Modifier.offset(y = (-10).dp)
+                ) {
                     uiNavigator(navigationActions)
                 }
             }
         }
     ) {
-        if(currentRoute == Routes.HOME){
+        if (currentRoute == Routes.HOME) {
             getPrincipalMidSection(scrollState = scrollState, navigationActions, navController)
-        }else if(currentRoute == Routes.CRAFT){
+        } else if (currentRoute == Routes.CRAFT) {
             uiQuizCraft(navigationActions = navigationActions, scrollState)
-        }else if (currentRoute == Routes.USERINFO) {
+        } else if (currentRoute == Routes.USERINFO) {
             UserInfoScreen(navigationActions)
-        }else if (currentRoute == Routes.EDITUSER) {
+        } else if (currentRoute == Routes.EDITUSER) {
             EditUserScreen(navigationActions)
-        }else if (currentRoute == Routes.EDITQUIZ) {
+        } else if (currentRoute == Routes.EDITQUIZ) {
             EditQuizScreen(navigationActions, scrollState = scrollState)
+        } else if (currentRoute == Routes.INFOQUIZ) {
+            InfoQuizScreen(navigationActions, scrollState = scrollState)
         }
 
     }
