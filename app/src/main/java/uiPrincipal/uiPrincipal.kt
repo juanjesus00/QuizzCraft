@@ -18,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.myapplication.R
 import header.getHeader
+import header.headerBack
 import kotlinx.coroutines.launch
 import navigator.uiNavigator
 import quizcraft.uiQuizCraft
@@ -29,7 +31,6 @@ import routes.NavigationActions
 import routes.Routes
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
-import uiInfoQuiz.InfoQuiz
 import uiInfoQuiz.InfoQuizScreen
 import uiUserInfo.UserInfoScreen
 
@@ -69,7 +70,7 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         },
         bottomBar = {
             AnimatedVisibility(visible = showBars) {
-git                Box(
+                Box(
                     modifier = Modifier.offset(y = (-10).dp)
                 ) {
                     uiNavigator(navigationActions)

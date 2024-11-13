@@ -8,9 +8,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.auth.User
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
-
 
 class loginbacked: ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
@@ -32,7 +33,13 @@ class loginbacked: ViewModel() {
         }
     }
 
-    fun register(email: String, password: String, context: Context, onSuccess: () -> Unit) = viewModelScope.launch{
+    fun register(
+        email: String,
+        password: String,
+        context: Context,
+        name: String,
+        onSuccess: () -> Unit
+    ) = viewModelScope.launch{
         if (_loading.value == false){ //no se esta creando usuarios actualmente
             if(password.length < 6){
                 Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
@@ -42,6 +49,8 @@ class loginbacked: ViewModel() {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener{task ->
                         if (task.isSuccessful){
+                            //val displayName = task.result.user?.email?.split("@")?.get(0) se usara para login con google
+                            crateUser(name)
                             onSuccess()
                         }else{
                             Log.d("loginbackend", "La creacion de usuarios falló: ${task.result.toString()}")
@@ -51,6 +60,30 @@ class loginbacked: ViewModel() {
             }
 
         }
+    }
+
+    private fun crateUser(displayName: String?) {
+        val userId = auth.currentUser?.uid
+        /*val user = mutableMapOf<String, Any>()
+
+        user["user_id"] = userId.toString()
+        user["userName"] = displayName.toString()
+        user["PerfilImage"] = "semen"*/
+
+        val user = model.User(
+            userId = userId.toString(),
+            userName = displayName.toString(),
+            profileImageUrl = "",
+            id = null
+        ).toMap()
+
+        FirebaseFirestore.getInstance().collection("Usuarios")
+            .add(user)
+            .addOnSuccessListener {
+                Log.d("loginbackend", "Creado ${it.id}")
+            }.addOnFailureListener {
+                Log.d("loginbackend", "Error ${it}")
+            }
     }
 }
 
