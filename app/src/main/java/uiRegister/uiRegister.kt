@@ -35,10 +35,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.R
 import routes.NavigationActions
 import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
+
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -77,10 +79,13 @@ fun BoxField(modifier: Modifier, viewModel: loginbacked, navigationActions: Navi
 
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
+        Field('u')
         UserField(name) {name = it}
         Spacer(modifier = Modifier.padding(8.dp))
+        Field('p')
         PasswordField(password) {password = it}
         Spacer(modifier = Modifier.padding(8.dp))
+        Field('e')
         EmailField(username) {username = it}
         Spacer(modifier = Modifier.padding(2.dp))
         LoginSection()
@@ -127,16 +132,40 @@ fun UserField(name: String, function: (String) -> Unit) {
 
 @Composable
 fun PasswordField(password: String, function: (String) -> Unit) {
+fun Field(fieldtype: Char) {
+    val placeholdertext: String
+    val keyboardtype: KeyboardType
+
+    when (fieldtype) {
+        'u' -> {
+            placeholdertext = "Nombre de Usuario"
+            keyboardtype = KeyboardType.Text
+        }
+
+        'p' -> {
+            placeholdertext = "Contraseña"
+            keyboardtype = KeyboardType.Password
+        }
+
+        else -> {
+            placeholdertext = "Email"
+            keyboardtype = KeyboardType.Email
+        }
+    }
+
+    var text by remember { mutableStateOf("") }
     TextField(
         value = password,
         onValueChange = function,
+        value = text,
+        onValueChange = { text = it },
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
             Text(
-                text = "Contraseña",
+                text = placeholdertext,
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 color = Color(0xFFC49450)
@@ -166,6 +195,7 @@ fun EmailField(username: String, function: (String) -> Unit) {
             )
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardtype),
         singleLine = true,
         maxLines = 1,
     )
@@ -200,6 +230,7 @@ fun RegisterButton(
                 navigationActions.navigateToHome()
             }
         },
+        onClick = { },
         shape = RoundedCornerShape(20),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 

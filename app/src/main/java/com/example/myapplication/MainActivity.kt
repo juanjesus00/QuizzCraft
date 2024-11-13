@@ -31,7 +31,11 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.LOGIN) { LoginScreen(navigationActions) }
                 composable(Routes.SING_IN) { RegisterScreen(navigationActions) }
                 composable(Routes.CRAFT) { MyComposeApp(navigationActions, navController) }
-            }
+                composable(Routes.USERINFO) { MyComposeApp(navigationActions, navController) }
+                composable(Routes.EDITUSER) { MyComposeApp(navigationActions, navController) }
+                composable(Routes.EDITQUIZ) { MyComposeApp(navigationActions, navController) }
+                composable(Routes.INFOQUIZ) { MyComposeApp(navigationActions, navController) }
+                }
 
 
 

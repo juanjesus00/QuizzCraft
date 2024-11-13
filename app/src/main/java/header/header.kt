@@ -50,7 +50,8 @@ fun getHeader(navigationActions: NavigationActions) {
             contentDescription = "Imagen De ejemplo",
             modifier = Modifier
                 .size(60.dp)
-                .clip(RoundedCornerShape(100.dp)),
+                .clip(RoundedCornerShape(100.dp))
+                .clickable { navigationActions.navigateToUserInfo() },
             contentScale = ContentScale.Crop
         )
 

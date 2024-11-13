@@ -40,7 +40,8 @@ import header.headerBack
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
-//@Preview(showBackground = true, showSystemUi = true)
+
+
 @Composable
 fun LoginScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
     Box(
@@ -100,17 +101,17 @@ fun GoogleIcon() {
 }
 
 @Composable
-fun UserField(username: String, onUsernameChange: (String) -> Unit) {
+fun UserField() {
     TextField(
-        value = username,
-        onValueChange = onUsernameChange,
+        value = "",
+        onValueChange = {},
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
             Text(
-                text = "Nombre de usuario",
+                text = placeholdertext,
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 color = Color(0xFFC49450)
@@ -123,10 +124,10 @@ fun UserField(username: String, onUsernameChange: (String) -> Unit) {
 }
 
 @Composable
-fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
+fun PasswordField() {
     TextField(
-        value = password,
-        onValueChange = onPasswordChange,
+        value = "",
+        onValueChange = {},
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))

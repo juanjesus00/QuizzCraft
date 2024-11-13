@@ -2,6 +2,7 @@ package uiPrincipal
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,7 +54,8 @@ fun favQuiz(imageResource: Int, title: String, titleSection: String,navigationAc
                 modifier = Modifier
                     .size(150.dp)
                     .clip(RoundedCornerShape(100.dp))
-                    .background(Color(0xFF212325)),
+                    .background(Color(0xFF212325))
+                    .clickable { navigationActions.navigateToInfoQuiz() },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
