@@ -64,12 +64,6 @@ class loginbacked: ViewModel() {
 
     private fun crateUser(displayName: String?) {
         val userId = auth.currentUser?.uid
-        /*val user = mutableMapOf<String, Any>()
-
-        user["user_id"] = userId.toString()
-        user["userName"] = displayName.toString()
-        user["PerfilImage"] = "semen"*/
-
         val user = model.User(
             userId = userId.toString(),
             userName = displayName.toString(),

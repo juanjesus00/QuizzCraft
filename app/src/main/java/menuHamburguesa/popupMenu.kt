@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,11 +62,13 @@ fun CustomPopupMenu(
                                 icon = R.drawable.solar_user_bold,
                                 text = "Iniciar sesión",
                                 navigationActions
+
                             )
                             popupInformation(
                                 icon = R.drawable.ph_sign_in_bold,
                                 text = "Registrarse",
                                 navigationActions
+
                             )
                         }else{
                             popupInformation(icon = R.drawable.log_out, text = "Cerrar sesión", navigationActions = navigationActions)
@@ -76,6 +77,7 @@ fun CustomPopupMenu(
                             icon = R.drawable.ligth_mode,
                             text = "Modo claro",
                             navigationActions
+
                         )
                     }
                 }
@@ -220,7 +222,7 @@ fun popupInformation(
                     when (text) {
                         "Iniciar sesión" -> navigationActions.navigateToLogin()
                         "Registrarse" -> navigationActions.navigateToRegister()
-                        "Cerrar sesión" -> FirebaseAuth.getInstance().signOut()
+                        "Cerrar sesión" -> logOut(navigationActions)
                         else -> print("opcion no valida")
                     }
                 },
@@ -232,4 +234,9 @@ fun popupInformation(
             contentDescription = text,
         )
     }
+}
+
+fun logOut(navigationActions: NavigationActions) {
+    FirebaseAuth.getInstance().signOut()
+    navigationActions.navigateToHome()
 }
