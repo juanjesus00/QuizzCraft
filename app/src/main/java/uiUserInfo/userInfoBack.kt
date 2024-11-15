@@ -1,5 +1,6 @@
 package uiUserInfo
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,11 +16,12 @@ class userInfoBack : ViewModel(){
             db.collection("Usuarios").document(uid).get()
                 .addOnSuccessListener { document ->
                     if(document != null && document.exists()){
+                        //val user = arrayOf(document.getString("PerfilImage"), document.getString("userName"), document.getString("email"))
                         val user = model.User(
                             userId = document.getString("user_id").toString(),
+                            email = document.getString("email").toString(),
                             userName = document.getString("userName").toString(),
-                            profileImageUrl = document.getString("profileImage").toString(),
-                            id = null
+                            profileImageUrl = document.getString("PerfilImage").toString()
                         ).toMap()
                         onResult(user)
                     }else{

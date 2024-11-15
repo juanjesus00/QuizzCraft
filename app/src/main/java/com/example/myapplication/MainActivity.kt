@@ -36,10 +36,6 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.EDITQUIZ) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.INFOQUIZ) { MyComposeApp(navigationActions, navController) }
                 }
-
-
-
-
         }
 
     }

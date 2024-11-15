@@ -33,10 +33,11 @@ import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
 import menuHamburguesa.CustomPopupMenu
 import routes.NavigationActions
+import uiUserInfo.userInfoBack
 
 
 @Composable
-fun getHeader(navigationActions: NavigationActions, headerBack: headerBack = viewModel()) {
+fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack = viewModel()) {
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -60,8 +61,8 @@ fun getHeader(navigationActions: NavigationActions, headerBack: headerBack = vie
             )
         }else{
             LaunchedEffect(Unit) {
-                headerBack.getUserProfileImage { url ->
-                    profileImageUrl = url
+                viewModelUser.getInfoUser { url ->
+                    profileImageUrl = url?.get("PerfilImage") as? String
                 }
             }
 

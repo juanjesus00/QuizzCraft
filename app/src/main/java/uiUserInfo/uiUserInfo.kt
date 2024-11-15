@@ -1,6 +1,7 @@
 package uiUserInfo
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,12 +39,17 @@ import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun UserInfoScreen(navigationActions: NavigationActions, viewModelUser: userInfoBack = viewModel()) {
+fun UserInfoScreen(
+    navigationActions: NavigationActions,
+    viewModelUser: userInfoBack = viewModel(),
+    scrollState: ScrollState
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFE0D4C8))
             .padding(32.dp)
+            .verticalScroll(scrollState)
 
     ) {
         UserInfo(Modifier.align(Alignment.Center), navigationActions, viewModelUser)
@@ -53,23 +60,24 @@ fun UserInfoScreen(navigationActions: NavigationActions, viewModelUser: userInfo
 fun UserInfo(modifier: Modifier, navigationActions: NavigationActions, viewModelUser: userInfoBack) {
     var profileImageUrl by remember { mutableStateOf<String?>(null) }
     var userName by remember { mutableStateOf<String?>(null) }
-    //var userEmail by remember { mutableStateOf<String?>(null) }
+    var userEmail by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(Unit) {
         viewModelUser.getInfoUser { user ->
             profileImageUrl = user?.get("PerfilImage") as? String
             userName = user?.get("userName") as? String
+            userEmail = user?.get("email") as? String
         }
     }
     Column(modifier = modifier) {
         ImageProfile(Modifier.align(Alignment.CenterHorizontally), navigationActions, profileImageUrl)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'u', userName)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'u', userName, userEmail)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'e', userName)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'e', userName, userEmail)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'c', userName)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'c', userName, userEmail)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'r', userName)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'r', userName, userEmail)
     }
 }
 
@@ -111,15 +119,15 @@ fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions, profi
 }
 
 @Composable
-fun Field(modifier: Modifier, type: Char, userName: String?) {
+fun Field(modifier: Modifier, type: Char, userName: String?, userEmail: String?) {
 
     val text: String = when (type) {
-        'u' -> ({
-            userName
-        }).toString()
+        'u' -> {
+            userName.toString()
+        }
 
         'e' -> {
-            "Email"
+            userEmail.toString()
         }
 
         'c' -> {

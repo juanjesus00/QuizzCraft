@@ -1,7 +1,7 @@
 package model
 
 data class User(
-    val id: String?,
+    val email: String,
     val userId: String,
     val userName: String,
     val profileImageUrl: String
@@ -10,7 +10,8 @@ data class User(
         return mutableMapOf(
             "user_id" to this.userId,
             "userName" to this.userName,
-            "PerfilImage" to this.profileImageUrl
+            "PerfilImage" to this.profileImageUrl,
+            "email" to this.email
         )
     }
 }

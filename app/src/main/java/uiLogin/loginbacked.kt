@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
@@ -49,8 +48,7 @@ class loginbacked: ViewModel() {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener{task ->
                         if (task.isSuccessful){
-                            //val displayName = task.result.user?.email?.split("@")?.get(0) se usara para login con google
-                            crateUser(name)
+                            crateUser(name, email)
                             onSuccess()
                         }else{
                             Log.d("loginbackend", "La creacion de usuarios falló: ${task.result.toString()}")
@@ -62,19 +60,20 @@ class loginbacked: ViewModel() {
         }
     }
 
-    private fun crateUser(displayName: String?) {
+    private fun crateUser(displayName: String, email: String) {
         val userId = auth.currentUser?.uid
         val user = model.User(
             userId = userId.toString(),
-            userName = displayName.toString(),
+            userName = displayName,
             profileImageUrl = "",
-            id = null
+            email = email
         ).toMap()
 
         FirebaseFirestore.getInstance().collection("Usuarios")
-            .add(user)
+            .document(userId.toString())
+            .set(user)
             .addOnSuccessListener {
-                Log.d("loginbackend", "Creado ${it.id}")
+                Log.d("loginbackend", "Creado ${it}")
             }.addOnFailureListener {
                 Log.d("loginbackend", "Error ${it}")
             }
