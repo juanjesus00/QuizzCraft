@@ -14,6 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,12 +29,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.google.firebase.auth.FirebaseAuth
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun UserInfoScreen(navigationActions: NavigationActions) {
+fun UserInfoScreen(navigationActions: NavigationActions, viewModelUser: userInfoBack = viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -37,40 +45,59 @@ fun UserInfoScreen(navigationActions: NavigationActions) {
             .padding(32.dp)
 
     ) {
-        UserInfo(Modifier.align(Alignment.Center), navigationActions)
+        UserInfo(Modifier.align(Alignment.Center), navigationActions, viewModelUser)
     }
 }
 
 @Composable
-fun UserInfo(modifier: Modifier, navigationActions: NavigationActions) {
-
+fun UserInfo(modifier: Modifier, navigationActions: NavigationActions, viewModelUser: userInfoBack) {
+    var profileImageUrl by remember { mutableStateOf<String?>(null) }
+    var userName by remember { mutableStateOf<String?>(null) }
+    //var userEmail by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) {
+        viewModelUser.getInfoUser { user ->
+            profileImageUrl = user?.get("PerfilImage") as? String
+            userName = user?.get("userName") as? String
+        }
+    }
     Column(modifier = modifier) {
-        ImageProfile(Modifier.align(Alignment.CenterHorizontally), navigationActions)
+        ImageProfile(Modifier.align(Alignment.CenterHorizontally), navigationActions, profileImageUrl)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'u')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'u', userName)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'e')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'e', userName)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'c')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'c', userName)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'r')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'r', userName)
     }
 }
 
 @Composable
-fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions) {
+fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions, profileImageUrl: String?) {
     Box(
         modifier = modifier.size(208.dp)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.foto),
-            contentDescription = "ProfileImage",
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-                .size(208.dp)
-                .clip(RoundedCornerShape(100.dp))
-        )
-
+        if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
+            Image(
+                painter = painterResource(id = R.drawable.foto),
+                contentDescription = "ProfileImage",
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+                    .size(208.dp)
+                    .clip(RoundedCornerShape(100.dp))
+            )
+        }else{
+            AsyncImage(
+                model = profileImageUrl,
+                contentDescription = "Foto de perfil",
+                error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
+                modifier = modifier
+                    .size(208.dp)
+                    .clip(RoundedCornerShape(100.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
         Icon(
             painter = painterResource(id = R.drawable.editar),
             contentDescription = "EditProfile",
@@ -84,12 +111,12 @@ fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions) {
 }
 
 @Composable
-fun Field(modifier: Modifier, type: Char) {
+fun Field(modifier: Modifier, type: Char, userName: String?) {
 
     val text: String = when (type) {
-        'u' -> {
-            "Nombre de usuario"
-        }
+        'u' -> ({
+            userName
+        }).toString()
 
         'e' -> {
             "Email"
