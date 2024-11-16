@@ -61,23 +61,28 @@ fun UserInfo(modifier: Modifier, navigationActions: NavigationActions, viewModel
     var profileImageUrl by remember { mutableStateOf<String?>(null) }
     var userName by remember { mutableStateOf<String?>(null) }
     var userEmail by remember { mutableStateOf<String?>(null) }
+    var createdQuiz by remember { mutableStateOf<String?>(null) }
+    var passQuiz by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(Unit) {
         viewModelUser.getInfoUser { user ->
             profileImageUrl = user?.get("PerfilImage") as? String
             userName = user?.get("userName") as? String
             userEmail = user?.get("email") as? String
+            createdQuiz = user?.get("createdQuiz") as? String
+            passQuiz = user?.get("passQuiz") as? String
         }
     }
     Column(modifier = modifier) {
         ImageProfile(Modifier.align(Alignment.CenterHorizontally), navigationActions, profileImageUrl)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'u', userName, userEmail)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'u', userName, userEmail, createdQuiz, passQuiz)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'e', userName, userEmail)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'e', userName, userEmail, createdQuiz, passQuiz)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'c', userName, userEmail)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'c', userName, userEmail, createdQuiz, passQuiz)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'r', userName, userEmail)
+        Field(Modifier.align(Alignment.CenterHorizontally), 'r', userName, userEmail, createdQuiz, passQuiz)
     }
 }
 
@@ -119,7 +124,14 @@ fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions, profi
 }
 
 @Composable
-fun Field(modifier: Modifier, type: Char, userName: String?, userEmail: String?) {
+fun Field(
+    modifier: Modifier,
+    type: Char,
+    userName: String?,
+    userEmail: String?,
+    createdQuiz: String?,
+    passQuiz: String?
+) {
 
     val text: String = when (type) {
         'u' -> {
@@ -163,9 +175,18 @@ fun Field(modifier: Modifier, type: Char, userName: String?, userEmail: String?)
                 textAlign = TextAlign.Center
             )
 
-            if (type == 'c' || type == 'r') {
+            if (type == 'c') {
                 Text(
-                    text = "6",
+                    text = createdQuiz.toString(),
+                    color = Color(0xFFB18F4F),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 32.sp,
+                    fontFamily = poppinsFamily,
+                    modifier = Modifier.padding(horizontal = 30.dp, vertical = 5.dp)
+                )
+            }else if(type == 'r'){
+                Text(
+                    text = passQuiz.toString(),
                     color = Color(0xFFB18F4F),
                     fontWeight = FontWeight.Bold,
                     fontSize = 32.sp,

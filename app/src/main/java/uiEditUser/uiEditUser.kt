@@ -24,17 +24,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import quizcraft.FileUploader
 import routes.NavigationActions
+import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun EditUserScreen(navigationActions: NavigationActions) {
+fun EditUserScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -45,33 +48,45 @@ fun EditUserScreen(navigationActions: NavigationActions) {
         EditUser(
             Modifier
                 .align(Alignment.TopStart)
-                .padding(vertical = 64.dp), navigationActions
+                .padding(vertical = 64.dp), navigationActions, viewModel
         )
     }
 }
 
 @Composable
-fun EditUser(modifier: Modifier, navigationActions: NavigationActions) {
+fun EditUser(modifier: Modifier, navigationActions: NavigationActions, viewModel: loginbacked) {
+    var userName by remember { mutableStateOf("")}
+    var email by remember { mutableStateOf("")}
+    var password by remember { mutableStateOf("")}
+    var perfilImage by remember { mutableStateOf("")}
+
     Box(
         modifier = modifier
     ) {
         Column(modifier = modifier) {
             Spacer(modifier = Modifier.padding(12.dp))
-            Field('u')
+            UserField(userName) {userName = it}
             Spacer(modifier = Modifier.padding(12.dp))
-            Field('e')
+            EmailField(email) {email = it}
             Spacer(modifier = Modifier.padding(12.dp))
-            Field('p')
+            PasswordField(password) {password = it}
             Spacer(modifier = Modifier.padding(12.dp))
             FileUploader(image = R.drawable.camara, size = 128, typeFile = "image/*")
             Spacer(modifier = Modifier.padding(6.dp))
-            CancelAndAcceptButtons(navigationActions)
+            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password)
         }
     }
 }
 
 @Composable
-fun CancelAndAcceptButtons(navigationActions: NavigationActions) {
+fun CancelAndAcceptButtons(
+    navigationActions: NavigationActions,
+    viewModel: loginbacked,
+    userName: String,
+    email: String,
+    password: String
+) {
+    var context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -92,7 +107,14 @@ fun CancelAndAcceptButtons(navigationActions: NavigationActions) {
         }
         Button(
             shape = RoundedCornerShape(20),
-            onClick = { navigationActions.navigateToHome() },
+            onClick = {
+                viewModel.editUser(
+                    userName = userName,
+                    email = email,
+                    password = password,
+                    onSuccess = {navigationActions.navigateToHome()},
+                    context = context
+                ) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
             Text(
@@ -105,47 +127,71 @@ fun CancelAndAcceptButtons(navigationActions: NavigationActions) {
         }
     }
 }
-
-
 @Composable
-fun Field(fieldtype: Char) {
-    val placeholdertext: String
-    val keyboardtype: KeyboardType
-
-    when (fieldtype) {
-        'u' -> {
-            placeholdertext = "Nombre de Usuario"
-            keyboardtype = KeyboardType.Text
-        }
-
-        'p' -> {
-            placeholdertext = "Contraseña"
-            keyboardtype = KeyboardType.Password
-        }
-
-        else -> {
-            placeholdertext = "Email"
-            keyboardtype = KeyboardType.Email
-        }
-    }
-
-    var text by remember { mutableStateOf("") }
+fun UserField(name: String, function: (String) -> Unit) {
     TextField(
-        value = text,
-        onValueChange = { text = it },
+        value = name,
+        onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
             Text(
-                text = placeholdertext,
+                text = "Nombre de usuario",
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 color = Color(0xFFC49450)
             )
         },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardtype),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        singleLine = true,
+        maxLines = 1,
+    )
+}
+
+@Composable
+fun PasswordField(password: String, function: (String) -> Unit) {
+    TextField(
+        value = password,
+        onValueChange = function,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFFFFFFF)),
+        placeholder = {
+            Text(
+                text = "Contraseña",
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                color = Color(0xFFC49450)
+            )
+        },
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        singleLine = true,
+        maxLines = 1,
+    )
+}
+
+@Composable
+fun EmailField(username: String, function: (String) -> Unit) {
+    TextField(
+        value = username,
+        onValueChange = function,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFFFFFFF)),
+        placeholder = {
+            Text(
+                text = "Email",
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                color = Color(0xFFC49450)
+            )
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         singleLine = true,
         maxLines = 1,
     )

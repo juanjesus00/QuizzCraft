@@ -70,4 +70,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("androidx.compose.runtime:runtime-livedata:<version>")
+    implementation("com.google.firebase:firebase-auth:<latest_version>")
+
 }

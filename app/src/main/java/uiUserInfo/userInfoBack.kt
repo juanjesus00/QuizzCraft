@@ -21,7 +21,9 @@ class userInfoBack : ViewModel(){
                             userId = document.getString("user_id").toString(),
                             email = document.getString("email").toString(),
                             userName = document.getString("userName").toString(),
-                            profileImageUrl = document.getString("PerfilImage").toString()
+                            profileImageUrl = document.getString("PerfilImage").toString(),
+                            createdQuiz = document.getString("createdQuiz").toString(),
+                            passQuiz = document.getString("passQuiz").toString()
                         ).toMap()
                         onResult(user)
                     }else{

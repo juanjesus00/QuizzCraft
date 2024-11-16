@@ -4,9 +4,11 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -15,7 +17,13 @@ import kotlinx.coroutines.launch
 class loginbacked: ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
     private var _loading = MutableLiveData(false)
-    fun signIn(email: String, password: String, onSuccess: () -> Unit) = viewModelScope.launch {
+    fun signIn(
+        email: String,
+        password: String,
+        context: Context,
+        onSuccess: () -> Unit,
+        onErrorAction: () -> Unit
+    ) = viewModelScope.launch {
         try {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -25,7 +33,13 @@ class loginbacked: ViewModel() {
 
                     } else {
                         Log.d("Loginbackend", "Error al iniciar sesion: ${task.result.toString()}")
+
                     }
+                }
+                .addOnFailureListener { exception ->
+                    exception.printStackTrace()
+                    onErrorAction()
+                    Toast.makeText(context, "Inicio de se sesio erroneo la contraseña o el email son incorrectos", Toast.LENGTH_SHORT).show()
                 }
         } catch (e: Exception) {
             Log.d("Loginbackend", "Error de inicio: ${e.message}")
@@ -66,7 +80,9 @@ class loginbacked: ViewModel() {
             userId = userId.toString(),
             userName = displayName,
             profileImageUrl = "",
-            email = email
+            email = email,
+            createdQuiz = "0",
+            passQuiz = "0"
         ).toMap()
 
         FirebaseFirestore.getInstance().collection("Usuarios")
@@ -78,6 +94,40 @@ class loginbacked: ViewModel() {
                 Log.d("loginbackend", "Error ${it}")
             }
     }
+
+    fun editUser(userName: String, email: String, password: String, context: Context, onSuccess: () -> Unit) = viewModelScope.launch{
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (_loading.value == false){ //no se esta creando usuarios actualmente
+            if(password.length < 6){
+                Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+            }else{
+                _loading.value = true
+                currentUser?.let{ user ->
+                    val userUpdates = mapOf(
+                        "email" to email,
+                        "userName" to userName
+                    )
+                    val uid = user.uid
+                    val db = FirebaseFirestore.getInstance()
+                    db.collection("Usuarios").document(uid).update(userUpdates)
+                        .addOnSuccessListener { document ->
+                            Log.d("Firestore", "Usuario actualizado exitosamente")
+                            onSuccess()
+                        }
+                        .addOnFailureListener{ e ->
+                            Log.w("Firestore", "Error al actualizar el usuario", e)
+                        }
+                }
+
+            }
+
+        }
+    }
 }
+
+
+
+
+
 
 

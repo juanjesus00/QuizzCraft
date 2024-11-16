@@ -28,17 +28,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
-import header.headerBack
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -169,14 +167,19 @@ fun LoginButton(
     viewModel: loginbacked
 ) {
     var isLoading by remember { mutableStateOf(false) }
+    var context = LocalContext.current
     Button(
         onClick = {
             isLoading = !isLoading
             viewModel.signIn(
                 email = username,
-                password = password
-            ){
-                navigationActions.navigateToHome()
+                password = password,
+                context,
+                onSuccess = {
+                    navigationActions.navigateToHome()
+                }
+            ) {
+                navigationActions.navigateToLogin()
             }
 
         },
