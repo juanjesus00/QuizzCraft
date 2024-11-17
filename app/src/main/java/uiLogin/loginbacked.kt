@@ -1,6 +1,7 @@
 package uiLogin
 
 import android.content.Context
+import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import android.widget.Toast
@@ -12,6 +13,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 
 class loginbacked: ViewModel() {
@@ -95,7 +97,7 @@ class loginbacked: ViewModel() {
             }
     }
 
-    fun editUser(userName: String, email: String, password: String, context: Context, onSuccess: () -> Unit) = viewModelScope.launch{
+    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit) = viewModelScope.launch{
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (_loading.value == false){ //no se esta creando usuarios actualmente
             if(password.length < 6){
@@ -103,20 +105,52 @@ class loginbacked: ViewModel() {
             }else{
                 _loading.value = true
                 currentUser?.let{ user ->
-                    val userUpdates = mapOf(
-                        "email" to email,
-                        "userName" to userName
-                    )
                     val uid = user.uid
                     val db = FirebaseFirestore.getInstance()
-                    db.collection("Usuarios").document(uid).update(userUpdates)
-                        .addOnSuccessListener { document ->
-                            Log.d("Firestore", "Usuario actualizado exitosamente")
-                            onSuccess()
-                        }
-                        .addOnFailureListener{ e ->
-                            Log.w("Firestore", "Error al actualizar el usuario", e)
-                        }
+                    val storageRef = FirebaseStorage.getInstance().reference.child("userImage/$uid.jpg")
+                    if(selectImageUri != null && email != "" && userName != ""){
+                        storageRef.putFile(selectImageUri)
+                            .addOnSuccessListener { taskSnapshot ->
+                                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                                    val imageUri = uri.toString()
+
+                                    val userUpdates = mapOf(
+                                        "email" to email,
+                                        "userName" to userName,
+                                        "PerfilImage" to imageUri
+                                    )
+                                    db.collection("Usuarios").document(uid).update(userUpdates)
+                                        .addOnSuccessListener {
+                                            Log.d("Firestore", "Usuario actualizado exitosamente")
+                                            onSuccess()
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w("Firestore", "Error al actualizar el usuario", e)
+                                        }
+                                }.addOnFailureListener { e ->
+                                    Log.w("Storage", "Error al obtener la URL de descarga", e)
+                                }
+
+                            }.addOnFailureListener { e ->
+                                Log.w("Storage", "Error al subir la imagen", e)
+                            }
+                    }else if(email != "" && userName != ""){
+                        val userUpdates = mapOf(
+                            "email" to email,
+                            "userName" to userName
+                        )
+                        db.collection("Usuarios").document(uid).update(userUpdates)
+                            .addOnSuccessListener { document ->
+                                Log.d("Firestore", "Usuario actualizado exitosamente")
+                                onSuccess()
+                            }
+                            .addOnFailureListener{ e ->
+                                Log.w("Firestore", "Error al actualizar el usuario", e)
+                            }
+                    } else {
+                        Toast.makeText(context, "Almenos Rellena email y nombre de usuario", Toast.LENGTH_SHORT).show()
+                    }
+
                 }
 
             }

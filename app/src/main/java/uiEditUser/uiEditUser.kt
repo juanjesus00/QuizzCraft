@@ -1,6 +1,11 @@
 package uiEditUser
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +13,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -16,28 +23,36 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
-import quizcraft.FileUploader
 import routes.NavigationActions
 import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
+import uiUserInfo.userInfoBack
+import java.io.File
 
 @Composable
-fun EditUserScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun EditUserScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = androidx.lifecycle.viewmodel.compose.viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -48,17 +63,29 @@ fun EditUserScreen(navigationActions: NavigationActions, viewModel: loginbacked 
         EditUser(
             Modifier
                 .align(Alignment.TopStart)
-                .padding(vertical = 64.dp), navigationActions, viewModel
+                .padding(vertical = 64.dp), navigationActions, viewModel, viewModelUser
         )
     }
 }
 
 @Composable
-fun EditUser(modifier: Modifier, navigationActions: NavigationActions, viewModel: loginbacked) {
-    var userName by remember { mutableStateOf("")}
-    var email by remember { mutableStateOf("")}
+fun EditUser(
+    modifier: Modifier,
+    navigationActions: NavigationActions,
+    viewModel: loginbacked,
+    viewModelUser: userInfoBack
+) {
+    var userName by remember { mutableStateOf<String?>("")}
+    var email by remember { mutableStateOf<String?>("")}
     var password by remember { mutableStateOf("")}
-    var perfilImage by remember { mutableStateOf("")}
+    var perfilImage by remember { mutableStateOf(mutableStateOf<Uri?>(null))}
+
+    LaunchedEffect(Unit) {
+        viewModelUser.getInfoUser { user ->
+            userName = user?.get("userName") as? String
+            email = user?.get("email") as? String
+        }
+    }
 
     Box(
         modifier = modifier
@@ -71,9 +98,9 @@ fun EditUser(modifier: Modifier, navigationActions: NavigationActions, viewModel
             Spacer(modifier = Modifier.padding(12.dp))
             PasswordField(password) {password = it}
             Spacer(modifier = Modifier.padding(12.dp))
-            FileUploader(image = R.drawable.camara, size = 128, typeFile = "image/*")
+            photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
             Spacer(modifier = Modifier.padding(6.dp))
-            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password)
+            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage)
         }
     }
 }
@@ -82,9 +109,10 @@ fun EditUser(modifier: Modifier, navigationActions: NavigationActions, viewModel
 fun CancelAndAcceptButtons(
     navigationActions: NavigationActions,
     viewModel: loginbacked,
-    userName: String,
-    email: String,
-    password: String
+    userName: String?,
+    email: String?,
+    password: String,
+    perfilImage: MutableState<Uri?>
 ) {
     var context = LocalContext.current
     Row(
@@ -109,11 +137,12 @@ fun CancelAndAcceptButtons(
             shape = RoundedCornerShape(20),
             onClick = {
                 viewModel.editUser(
-                    userName = userName,
-                    email = email,
+                    userName = userName.toString(),
+                    email = email.toString(),
                     password = password,
                     onSuccess = {navigationActions.navigateToHome()},
-                    context = context
+                    context = context,
+                    selectImageUri = perfilImage.value
                 ) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
@@ -128,9 +157,9 @@ fun CancelAndAcceptButtons(
     }
 }
 @Composable
-fun UserField(name: String, function: (String) -> Unit) {
+fun UserField(name: String?, function: (String) -> Unit) {
     TextField(
-        value = name,
+        value = name.toString(),
         onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
@@ -175,9 +204,9 @@ fun PasswordField(password: String, function: (String) -> Unit) {
 }
 
 @Composable
-fun EmailField(username: String, function: (String) -> Unit) {
+fun EmailField(username: String?, function: (String) -> Unit) {
     TextField(
-        value = username,
+        value = username.toString(),
         onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
@@ -195,4 +224,105 @@ fun EmailField(username: String, function: (String) -> Unit) {
         singleLine = true,
         maxLines = 1,
     )
+}
+
+
+
+@Composable
+fun photoUploader(
+    image: Int,
+    image2: Int,
+    size: Int,
+    typeFile: String,
+    perfilImage: MutableState<Uri?>
+) {
+    //var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
+
+    // Crear un archivo temporal para la foto de la cámara
+    fun createImageFile(): Uri? {
+        val tmpFile = File.createTempFile("camera_image", ".jpg", context.cacheDir)
+        return FileProvider.getUriForFile(context, "${context.packageName}.provider", tmpFile)
+    }
+
+    // Lanzador para la cámara
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            perfilImage.value = imageUri.value
+        }
+    }
+
+    // Lanzador para la galería
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        perfilImage.value = uri
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Button(
+            onClick = {
+                // Mostrar un diálogo o menú para elegir entre galería o cámara
+                imageUri.value = createImageFile()
+                imageUri.value?.let {
+                    cameraLauncher.launch(it)
+                }
+            },
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier
+                .size(size.dp)
+                .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFEADEE6),
+            )
+        ) {
+            Box {
+                Image(
+                    painter = painterResource(id = image),
+                    contentDescription = "imagen de agregación",
+                    modifier = Modifier.alpha(if (perfilImage.value == null) 1f else 0f)
+                )
+                perfilImage.value?.let { uri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Selected Image",
+                        modifier = Modifier.clip(RoundedCornerShape(20.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
+
+        Button(
+            onClick = { galleryLauncher.launch(typeFile) }, // Seleccionar de la galería
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier
+                .size(size.dp)
+                .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFEADEE6),
+            )
+        ) {
+            Box {
+                Image(
+                    painter = painterResource(id = image2),
+                    contentDescription = "imagen de agregación",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .alpha(if (perfilImage.value == null) 1f else 0f)
+                )
+                perfilImage.value?.let { uri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Selected Image",
+                        modifier = Modifier.clip(RoundedCornerShape(20.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
+    }
+    Spacer(modifier = Modifier.height(50.dp))
 }

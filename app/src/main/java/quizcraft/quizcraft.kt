@@ -58,7 +58,7 @@ fun uiQuizCraft(navigationActions: NavigationActions, scrollState: ScrollState) 
         
     ) {
         InsertTexField(text = text, inputLabel = "Título del cuestionario", size = 56)
-        FileUploader(image = R.drawable.camara, size = 150, typeFile = "image/*")
+        FileUploader(image = R.drawable.galery_icon, size = 150, typeFile = "image/*")
         FileUploader2(image = R.drawable.multiple_choice, size = 100, typeFile = "application/*", text = "Generar con documento")
         FileUploader2(image = R.drawable.document, size = 100, typeFile = "application/*", text = "Generar con texto")
         InsertTexField(text = text, inputLabel = "#Tags", size = 56)
@@ -164,7 +164,7 @@ fun FileUploader(image: Int, size: Int, typeFile: String) {
             )
         ) {
             Box{
-                Image(painter = painterResource(id = image), contentDescription = "imagen de agregacion", modifier = Modifier.alpha(if(selectedImageUri == null) 1f else 0f))
+                Image(painter = painterResource(id = image), contentDescription = "imagen de agregacion", modifier = Modifier.size(50.dp).alpha(if(selectedImageUri == null) 1f else 0f))
                 selectedImageUri?.let { uri ->
                     Image(
                         painter = rememberAsyncImagePainter(uri),
