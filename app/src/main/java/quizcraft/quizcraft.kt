@@ -38,14 +38,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import api.OpenAIViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun uiQuizCraft(navigationActions: NavigationActions, scrollState: ScrollState) {
+fun uiQuizCraft(navigationActions: NavigationActions, scrollState: ScrollState, viewModelApi: OpenAIViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
     var text by remember { mutableStateOf("") }
     Column (
@@ -63,6 +66,7 @@ fun uiQuizCraft(navigationActions: NavigationActions, scrollState: ScrollState) 
         FileUploader2(image = R.drawable.document, size = 100, typeFile = "application/*", text = "Generar con texto")
         InsertTexField(text = text, inputLabel = "#Tags", size = 56)
         InsertTexField(text = text, inputLabel = "Descripción", size = 150)
+        AcceptButton(navigationActions = navigationActions, viewModelApi)
     }
 
 }
@@ -84,7 +88,10 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String) {
         Button(
             onClick = { launcher.launch(typeFile) }, //solo se seleccion una imagen
             shape = RoundedCornerShape(20.dp),
-            modifier = Modifier.width(282.dp).height(56.dp).border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
+            modifier = Modifier
+                .width(282.dp)
+                .height(56.dp)
+                .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFEADEE6),
             )
@@ -158,13 +165,17 @@ fun FileUploader(image: Int, size: Int, typeFile: String) {
         Button(
             onClick = { launcher.launch(typeFile) }, //solo se seleccion una imagen
             shape = RoundedCornerShape(20.dp),
-            modifier = Modifier.size(size.dp).border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
+            modifier = Modifier
+                .size(size.dp)
+                .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFEADEE6),
             )
         ) {
             Box{
-                Image(painter = painterResource(id = image), contentDescription = "imagen de agregacion", modifier = Modifier.size(50.dp).alpha(if(selectedImageUri == null) 1f else 0f))
+                Image(painter = painterResource(id = image), contentDescription = "imagen de agregacion", modifier = Modifier
+                    .size(50.dp)
+                    .alpha(if (selectedImageUri == null) 1f else 0f))
                 selectedImageUri?.let { uri ->
                     Image(
                         painter = rememberAsyncImagePainter(uri),
@@ -177,5 +188,33 @@ fun FileUploader(image: Int, size: Int, typeFile: String) {
         }
 
     }
+    Spacer(modifier = Modifier.height(50.dp))
+
+}
+
+@Composable
+fun AcceptButton(navigationActions: NavigationActions, viewModelApi: OpenAIViewModel) {
+    val context = LocalContext.current
+    var resultText by remember { mutableStateOf("Resultado aquí...") }
+
+    Button(
+        shape = RoundedCornerShape(20),
+        onClick = {
+            val apiKey = "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" // Usa una clave de API segura
+            viewModelApi.generateText(apiKey, "responde si, si pudes leer esto") { response ->
+                resultText = response
+            }
+        },
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
+    ) {
+        Text(
+            "Aceptar",
+            fontWeight = FontWeight.Bold,
+            fontFamily = poppinsFamily,
+            fontSize = 20.sp,
+            color = Color(0xFFB18F4F)
+        )
+    }
+    Text(text = resultText)
     Spacer(modifier = Modifier.height(50.dp))
 }
