@@ -1,6 +1,7 @@
 package uiUserInfo
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -11,9 +12,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,53 +31,86 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.google.firebase.auth.FirebaseAuth
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun UserInfoScreen(navigationActions: NavigationActions) {
+fun UserInfoScreen(
+    navigationActions: NavigationActions,
+    viewModelUser: userInfoBack = viewModel(),
+    scrollState: ScrollState
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFE0D4C8))
             .padding(32.dp)
+            .verticalScroll(scrollState)
 
     ) {
-        UserInfo(Modifier.align(Alignment.Center), navigationActions)
+        UserInfo(Modifier.align(Alignment.Center), navigationActions, viewModelUser)
     }
 }
 
 @Composable
-fun UserInfo(modifier: Modifier, navigationActions: NavigationActions) {
+fun UserInfo(modifier: Modifier, navigationActions: NavigationActions, viewModelUser: userInfoBack) {
+    var profileImageUrl by remember { mutableStateOf<String?>(null) }
+    var userName by remember { mutableStateOf<String?>(null) }
+    var userEmail by remember { mutableStateOf<String?>(null) }
+    var createdQuiz by remember { mutableStateOf<String?>(null) }
+    var passQuiz by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(Unit) {
+        viewModelUser.getInfoUser { user ->
+            profileImageUrl = user?.get("PerfilImage") as? String
+            userName = user?.get("userName") as? String
+            userEmail = user?.get("email") as? String
+            createdQuiz = user?.get("createdQuiz") as? String
+            passQuiz = user?.get("passQuiz") as? String
+        }
+    }
     Column(modifier = modifier) {
-        ImageProfile(Modifier.align(Alignment.CenterHorizontally), navigationActions)
+        ImageProfile(Modifier.align(Alignment.CenterHorizontally), navigationActions, profileImageUrl)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'u')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'u', userName, userEmail, createdQuiz, passQuiz)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'e')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'e', userName, userEmail, createdQuiz, passQuiz)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'c')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'c', userName, userEmail, createdQuiz, passQuiz)
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'r')
+        Field(Modifier.align(Alignment.CenterHorizontally), 'r', userName, userEmail, createdQuiz, passQuiz)
     }
 }
 
 @Composable
-fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions) {
+fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions, profileImageUrl: String?) {
     Box(
         modifier = modifier.size(208.dp)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.foto),
-            contentDescription = "ProfileImage",
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-                .size(208.dp)
-                .clip(RoundedCornerShape(100.dp))
-        )
-
+        if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
+            Image(
+                painter = painterResource(id = R.drawable.foto),
+                contentDescription = "ProfileImage",
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+                    .size(208.dp)
+                    .clip(RoundedCornerShape(100.dp))
+            )
+        }else{
+            AsyncImage(
+                model = profileImageUrl,
+                contentDescription = "Foto de perfil",
+                error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
+                modifier = modifier
+                    .size(208.dp)
+                    .clip(RoundedCornerShape(100.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
         Icon(
             painter = painterResource(id = R.drawable.editar),
             contentDescription = "EditProfile",
@@ -84,15 +124,22 @@ fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions) {
 }
 
 @Composable
-fun Field(modifier: Modifier, type: Char) {
+fun Field(
+    modifier: Modifier,
+    type: Char,
+    userName: String?,
+    userEmail: String?,
+    createdQuiz: String?,
+    passQuiz: String?
+) {
 
     val text: String = when (type) {
         'u' -> {
-            "Nombre de usuario"
+            userName.toString()
         }
 
         'e' -> {
-            "Email"
+            userEmail.toString()
         }
 
         'c' -> {
@@ -128,9 +175,18 @@ fun Field(modifier: Modifier, type: Char) {
                 textAlign = TextAlign.Center
             )
 
-            if (type == 'c' || type == 'r') {
+            if (type == 'c') {
                 Text(
-                    text = "6",
+                    text = createdQuiz.toString(),
+                    color = Color(0xFFB18F4F),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 32.sp,
+                    fontFamily = poppinsFamily,
+                    modifier = Modifier.padding(horizontal = 30.dp, vertical = 5.dp)
+                )
+            }else if(type == 'r'){
+                Text(
+                    text = passQuiz.toString(),
                     color = Color(0xFFB18F4F),
                     fontWeight = FontWeight.Bold,
                     fontSize = 32.sp,

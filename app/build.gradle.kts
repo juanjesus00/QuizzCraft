@@ -70,4 +70,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("androidx.compose.runtime:runtime-livedata:<version>")
+    implementation("com.google.firebase:firebase-auth:<latest_version>")
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 }

@@ -6,21 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
 class headerBack : ViewModel(){
-    val islogged = MutableLiveData<Boolean>()
-
-    init {
-        islogged.value = false
-    }
-    fun isLogged(){
-        Log.d("HeaderBackViewModel", "showHeader called")
-        islogged.value = true
-    }
-
-    fun closeSesion(){
-        islogged.value = false
-    }
 
 }
 

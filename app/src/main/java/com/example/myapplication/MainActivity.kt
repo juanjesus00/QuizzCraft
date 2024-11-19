@@ -38,10 +38,6 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.GAME) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.RESULT) { MyComposeApp(navigationActions, navController) }
                 }
-
-
-
-
         }
 
     }

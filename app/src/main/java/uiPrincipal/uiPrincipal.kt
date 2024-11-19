@@ -18,12 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.myapplication.R
 import header.getHeader
-import header.headerBack
 import kotlinx.coroutines.launch
 import navigator.uiNavigator
 import quizcraft.uiQuizCraft
@@ -31,9 +29,7 @@ import routes.NavigationActions
 import routes.Routes
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
-import uiGame.GameScreen
 import uiInfoQuiz.InfoQuizScreen
-import uiResult.ResultScreen
 import uiUserInfo.UserInfoScreen
 
 
@@ -85,7 +81,7 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         } else if (currentRoute == Routes.CRAFT) {
             uiQuizCraft(navigationActions = navigationActions, scrollState)
         } else if (currentRoute == Routes.USERINFO) {
-            UserInfoScreen(navigationActions)
+            UserInfoScreen(navigationActions, scrollState = scrollState)
         } else if (currentRoute == Routes.EDITUSER) {
             EditUserScreen(navigationActions)
         } else if (currentRoute == Routes.EDITQUIZ) {

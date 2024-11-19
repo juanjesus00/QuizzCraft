@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,17 +25,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
 import menuHamburguesa.CustomPopupMenu
 import routes.NavigationActions
+import uiUserInfo.userInfoBack
 
 
 @Composable
-fun getHeader(navigationActions: NavigationActions) {
+fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack = viewModel()) {
     var expanded by remember {
         mutableStateOf(false)
     }
+    var profileImageUrl by remember { mutableStateOf<String?>(null) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -52,11 +60,17 @@ fun getHeader(navigationActions: NavigationActions) {
                 contentScale = ContentScale.Crop
             )
         }else{
-            Image(
-                painter = painterResource(id = R.drawable.huppty),
-                contentDescription = "Imagen De ejemplo",
-                modifier = Modifier
-                    .size(60.dp)
+            LaunchedEffect(Unit) {
+                viewModelUser.getInfoUser { url ->
+                    profileImageUrl = url?.get("PerfilImage") as? String
+                }
+            }
+
+            AsyncImage(
+                model = profileImageUrl,
+                contentDescription = "Foto de perfil",
+                error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
+                modifier = Modifier.size(60.dp)
                     .clip(RoundedCornerShape(100.dp))
                     .clickable { navigationActions.navigateToUserInfo() },
                 contentScale = ContentScale.Crop
