@@ -41,14 +41,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import api.OpenAIViewModel
+import api.NebiusViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun uiQuizCraft(navigationActions: NavigationActions, scrollState: ScrollState, viewModelApi: OpenAIViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun uiQuizCraft(navigationActions: NavigationActions, scrollState: ScrollState, viewModelApi: NebiusViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
     var text by remember { mutableStateOf("") }
     Column (
@@ -193,15 +193,15 @@ fun FileUploader(image: Int, size: Int, typeFile: String) {
 }
 
 @Composable
-fun AcceptButton(navigationActions: NavigationActions, viewModelApi: OpenAIViewModel) {
+fun AcceptButton(navigationActions: NavigationActions, viewModelApi: NebiusViewModel) {
     val context = LocalContext.current
     var resultText by remember { mutableStateOf("Resultado aquí...") }
 
     Button(
         shape = RoundedCornerShape(20),
         onClick = {
-            val apiKey = "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" // Usa una clave de API segura
-            viewModelApi.generateText(apiKey, "responde si, si pudes leer esto") { response ->
+            val apiKey = "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
+            viewModelApi.generateText(apiKey, "responde No, si pudes leer esto") { response ->
                 resultText = response
             }
         },
