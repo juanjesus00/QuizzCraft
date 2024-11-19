@@ -29,7 +29,9 @@ import routes.NavigationActions
 import routes.Routes
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
+import uiGame.GameScreen
 import uiInfoQuiz.InfoQuizScreen
+import uiResult.ResultScreen
 import uiUserInfo.UserInfoScreen
 
 
