@@ -1,14 +1,17 @@
 package uiGame
 
-import android.graphics.Paint.Align
+import android.os.Handler
+import android.os.Looper
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +23,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,9 +39,24 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
+import java.util.Timer
+import kotlin.concurrent.schedule
+
+var correctQuestion: Int = 0
+var wrongQuestion: Int = 0
+
 
 @Composable
-fun GameScreen(navigationActions: NavigationActions, scrollState: ScrollState, option: Char) {
+fun GameScreen(
+    navigationActions: NavigationActions,
+    scrollState: ScrollState,
+    option: Char,
+    questions: List<Question>
+) {
+    var currentQuestionIndex by rememberSaveable { mutableStateOf(0) }
+
+    println(questions)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -42,13 +65,31 @@ fun GameScreen(navigationActions: NavigationActions, scrollState: ScrollState, o
             .verticalScroll(scrollState)
 
     ) {
-        Game(option, navigationActions)
+        Game(
+            option,
+            question = questions[currentQuestionIndex],
+            onNext = {
+                if (currentQuestionIndex < questions.size - 1) {
+                    currentQuestionIndex++
+                } else {
+                    navigationActions.navigateToResult(correctQuestion, wrongQuestion)
+                    correctQuestion = 0
+                    wrongQuestion = 0
+                }
+            },
+            navigationActions = navigationActions
+        )
     }
 
 }
 
 @Composable
-fun Game(option: Char, navigationActions: NavigationActions) {
+fun Game(
+    option: Char,
+    question: Question,
+    onNext: () -> Unit,
+    navigationActions: NavigationActions
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,10 +107,10 @@ fun Game(option: Char, navigationActions: NavigationActions) {
                 Text(
                     fontWeight = FontWeight.Bold,
                     fontFamily = poppinsFamily,
-                    text = "Pregunta 1",
+                    text = question.question,
                     color = Color.White,
-                    fontSize = 36.sp,
-                    modifier = Modifier.align(Alignment.Center)
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
                 )
 
             } else {
@@ -81,63 +122,71 @@ fun Game(option: Char, navigationActions: NavigationActions) {
             }
         }
         Spacer(modifier = Modifier.padding(24.dp))
-        Answers(4)
-        BackOrContinue(navigationActions)
+        Answers(question.answer, onNext)
     }
 }
 
 @Composable
-fun BackOrContinue(navigationActions: NavigationActions) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(256.dp),
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.arrowleft),
-            contentDescription = "Foto pregunta",
-            modifier = Modifier.size(width = 48.dp, height = 48.dp)
-        )
-        Image(
-            painter = painterResource(id = R.drawable.arrowright),
-            contentDescription = "Foto pregunta",
-            modifier = Modifier.size(width = 48.dp, height = 48.dp).clickable { navigationActions.navigateToResult() }
-        )
-    }
-}
+fun Answers(answer: Answers, onNext: () -> Unit) {
+    val options = answer.answers
+    val selectedOptionIndex = remember { mutableStateOf(-1) }
 
-@Composable
-fun Answers(count: Int) {
-    var color: Long
-    for (i in 1..count) {
-        color = when (i) {
-            1 -> {
-                0xFF0303FF
-            }
-
-            2 -> {
-                0xFFFF0004
-            }
-
-            3 -> {
-                0xFF36D22E
-            }
-
-            else -> {
-                0xFFEB9D0D
-            }
+    options.forEachIndexed { index, option ->
+        val color = when (index) {
+            0 -> 0xFF0303FF
+            1 -> 0xFFFF0004
+            2 -> 0xFF36D22E
+            else -> 0xFFEB9D0D
         }
+
+        val buttonSize by animateDpAsState(
+            targetValue = if (selectedOptionIndex.value == index && option.correct) 350.dp else 300.dp,
+            animationSpec = tween(durationMillis = 500)
+        )
+
+        val borderColor by animateColorAsState(
+            targetValue = when {
+                selectedOptionIndex.value == index && option.correct -> Color.Green
+                selectedOptionIndex.value == index && !option.correct -> Color.Red
+                else -> Color.Transparent
+            },
+            animationSpec = tween(durationMillis = 500)
+        )
+
+
+
         Button(
             shape = RoundedCornerShape(20),
-            onClick = { },
+            onClick = { selectedOptionIndex.value = index
+                        if (options[index].correct) {
+                            correctQuestion++
+                        } else {
+                            wrongQuestion++
+                        }
+                        Timer().schedule(2000) {
+                            Handler(Looper.getMainLooper()).post {
+                                selectedOptionIndex.value = -1
+                                onNext()
+                            }
+                        }
+                      },
+            modifier = Modifier
+                .size(width = buttonSize, height = buttonSize / 4)
+                .border(4.dp, borderColor, RoundedCornerShape(20))
+                .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(color))
         ) {
             Text(
-                "Pregunta",
+                option.respuesta,
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 24.sp,
-                color = Color(0xFFFFFFFF)
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Center
             )
         }
         Spacer(modifier = Modifier.padding(16.dp))
     }
 }
+
+

@@ -10,5 +10,5 @@ object Routes {
     const val EDITQUIZ = "edit_quiz"
     const val INFOQUIZ = "info_quiz"
     const val GAME = "game"
-    const val RESULT = "result"
+    const val RESULT = "result/{correctQuestion}/{wrongQuestion}"
 }

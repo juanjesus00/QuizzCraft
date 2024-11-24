@@ -201,7 +201,24 @@ fun AcceptButton(navigationActions: NavigationActions, viewModelApi: NebiusViewM
         shape = RoundedCornerShape(20),
         onClick = {
             val apiKey = "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
-            viewModelApi.generateText(apiKey, "Haz x preguntas de este texto en formato test: El edificio Intempo es un rascacielos de 202 metros de altura y 47 plantas ubicado en Benidorm, en la provincia de Alicante, en España. Es el edificio más alto de la ciudad y el 5° más alto de España, sólo superado por las Cuatro Torres de Madrid.\n" +
+            viewModelApi.generateText(apiKey, "Haz x preguntas de este texto en formato test, en este formato JSON" +
+                    "{\n" +
+                    "  \"questions\": [\n" +
+                    "    [\n" +
+                    "      {\n" +
+                    "        \"question\": \"which of these are management methodologies?\",\n" +
+                    "        \"answer\": {\n" +
+                    "          \"A\": { \"respuesta\": \"Metrica3, King2, Scrum, Lean\", \"correct\": false },\n" +
+                    "          \"B\": { \"respuesta\": \"Metrica3, prince2, Rugby, Lean\", \"correct\": false },\n" +
+                    "          \"C\": { \"respuesta\": \"metrica3, prince2, Scrum, Gangnam\", \"correct\": false },\n" +
+                    "          \"D\": { \"respuesta\": \"Metrica3, Prince2, Scrum, Lean\", \"correct\": true }\n" +
+                    "        }\n" +
+                    "      }, *la siguiente pregunta*\n" +
+                    "      }\n" +
+                    "    ]\n" +
+                    "  ]\n" +
+                    "}" +
+                    "}, el contenido es: El edificio Intempo es un rascacielos de 202 metros de altura y 47 plantas ubicado en Benidorm, en la provincia de Alicante, en España. Es el edificio más alto de la ciudad y el 5° más alto de España, sólo superado por las Cuatro Torres de Madrid.\n" +
                     "\n" +
                     "El proyecto pertenecía a la promotora Olga Urbana, que entró en concurso de acreedores en 2014. Así, el acreedor mayoritario pasó a ser la Sociedad de Gestión de Activos Procedentes de la Reestructuración Bancaria (Sareb), una sociedad anónima de gestión de activos procedentes de la reestructuración bancaria o banco malo, como heredera del crédito hipotecario") { response ->
                 resultText = response

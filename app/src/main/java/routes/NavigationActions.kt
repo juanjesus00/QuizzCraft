@@ -1,5 +1,6 @@
 package routes
 
+import android.os.Bundle
 import androidx.navigation.NavController
 
 class NavigationActions (private val navController: NavController){
@@ -42,8 +43,10 @@ class NavigationActions (private val navController: NavController){
         navController.navigate(Routes.GAME)
     }
 
-    fun navigateToResult() {
-        navController.navigate(Routes.RESULT)
+    fun navigateToResult(correctQuestion: Int, wrongQuestion: Int) {
+        val route = Routes.RESULT.replace("{correctQuestion}", correctQuestion.toString())
+            .replace("{wrongQuestion}", wrongQuestion.toString())
+        navController.navigate(route)
     }
 
 }

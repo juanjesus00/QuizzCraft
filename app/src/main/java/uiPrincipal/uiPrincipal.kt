@@ -30,9 +30,39 @@ import routes.Routes
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
 import uiGame.GameScreen
+import uiGame.ParseAndGetJson
 import uiInfoQuiz.InfoQuizScreen
 import uiResult.ResultScreen
 import uiUserInfo.UserInfoScreen
+
+val jsonString = """
+{
+  "questions": [
+    {
+      "question": "which of these are management methodologies?",
+      "answer": {
+        "answers": [
+          { "respuesta": "Metrica3, King2, Scrum, Lean", "correct": false },
+          { "respuesta": "Metrica3, prince2, Rugby, Lean", "correct": false },
+          { "respuesta": "metrica3, prince2, Scrum, Gangnam", "correct": false },
+          { "respuesta": "Metrica3, Prince2, Scrum, Lean", "correct": true }
+        ]
+      }
+    },
+    {
+      "question": "de locos y si",
+      "answer": {
+        "answers": [
+          { "respuesta": "Metrica3, King2, Scrum, Lean", "correct": false },
+          { "respuesta": "Metrica3, prince2, Rugby, Lean", "correct": true },
+          { "respuesta": "metrica3, prince2, Scrum, Gangnam", "correct": false },
+          { "respuesta": "Metrica3, Prince2, Scrum, Lean", "correct": false }
+        ]
+      }
+    }
+  ]
+}
+""".trimIndent()
 
 
 val poppinsFamily = FontFamily(
@@ -91,11 +121,10 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         } else if (currentRoute == Routes.INFOQUIZ) {
             InfoQuizScreen(navigationActions, scrollState = scrollState)
         } else if (currentRoute == Routes.GAME) {
-            GameScreen(navigationActions, scrollState = scrollState, 'i')
+            GameScreen(navigationActions, scrollState = scrollState, 't', ParseAndGetJson(jsonString).questions)
         } else if (currentRoute == Routes.RESULT) {
-            ResultScreen(navigationActions, scrollState = scrollState)
+            ResultScreen(navigationActions, scrollState = scrollState, navController)
         }
-
     }
 }
 
