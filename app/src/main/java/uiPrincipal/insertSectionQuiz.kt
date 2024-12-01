@@ -10,13 +10,24 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import model.Quiz
+import quizcraft.getQuizzesByUserId
 import routes.NavigationActions
+
+private var auth: FirebaseAuth = Firebase.auth
 
 @Composable
 fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions: NavigationActions){
@@ -38,10 +49,26 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
         horizontalArrangement = Arrangement.SpaceAround,
 
         ) {
-        //falta poner un for cuando tengamos la base de datos conectada
-        for (i in 1..5){
-            favQuiz(imageResource = R.drawable.huppty, title = titleQuiz, titleSection = titleSection, navigationActions)
+
+        val quizzes = remember { mutableStateOf<List<Quiz>>(emptyList()) }
+
+        LaunchedEffect(Unit) {
+            getQuizzesByUserId(
+                userId = auth.currentUser?.uid ?: "",
+                onResult = { result ->
+                    println(result)
+                    quizzes.value = result // Se actualiza el estado después de recibir los datos
+                },
+                onError = { exception ->
+                    // Manejo de errores
+                    println("Error al obtener quizzes: ${exception.message}")
+                }
+            )
         }
 
+        for(quiz in quizzes.value) {
+            println(quiz)
+            favQuiz(imageResource = quiz.quizImageUrl, title = quiz.name, titleSection = titleSection, navigationActions, quizId = quiz.quizId)
+        }
     }
 }

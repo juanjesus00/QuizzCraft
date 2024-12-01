@@ -95,7 +95,8 @@ fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack 
                     color = 0xFF212325.toInt(),
                     size = 150,
                     type = "header",
-                    navigationActions = navigationActions
+                    navigationActions = navigationActions,
+                    quizId = ""
                 )
             }
 

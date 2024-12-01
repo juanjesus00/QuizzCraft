@@ -87,7 +87,8 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
                     color = 0xFFEBEBEC.toInt(),
                     size = 250,
                     type = "navigator",
-                    navigationActions = navigationActions
+                    navigationActions = navigationActions,
+                    quizId = ""
                 )
             }
         }

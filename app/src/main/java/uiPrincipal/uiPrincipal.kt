@@ -117,7 +117,7 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         } else if (currentRoute == Routes.EDITUSER) {
             EditUserScreen(navigationActions)
         } else if (currentRoute == Routes.EDITQUIZ) {
-            EditQuizScreen(navigationActions, scrollState = scrollState)
+            EditQuizScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.INFOQUIZ) {
             InfoQuizScreen(navigationActions, scrollState = scrollState)
         } else if (currentRoute == Routes.GAME) {

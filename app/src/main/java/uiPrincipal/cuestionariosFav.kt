@@ -28,12 +28,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import menuHamburguesa.CustomPopupMenu
+import model.Quiz
 import routes.NavigationActions
 
+private var auth: FirebaseAuth = Firebase.auth
+
 @Composable
-fun favQuiz(imageResource: Int, title: String, titleSection: String,navigationActions: NavigationActions){
+fun favQuiz(imageResource: String, title: String, titleSection: String,navigationActions: NavigationActions, quizId: String){
     var expanded  by remember {
         mutableStateOf(false)
     }
@@ -55,8 +62,8 @@ fun favQuiz(imageResource: Int, title: String, titleSection: String,navigationAc
                     .clickable { navigationActions.navigateToInfoQuiz() },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = imageResource),
+                AsyncImage(
+                    model = imageResource,
                     contentDescription = "Foto cuestionario",
                     modifier = Modifier
                         .size(width = 150.dp, height = 75.dp)
@@ -89,12 +96,11 @@ fun favQuiz(imageResource: Int, title: String, titleSection: String,navigationAc
                         color = 0xFF212325.toInt(),
                         size = 100,
                         type = "CrudQuiz",
-                        navigationActions = navigationActions
+                        navigationActions = navigationActions,
+                        quizId = quizId
                     )
                 }
             }
-
-
         }
 
     }

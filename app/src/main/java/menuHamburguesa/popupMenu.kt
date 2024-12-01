@@ -25,6 +25,7 @@ import androidx.compose.ui.window.Popup
 import routes.NavigationActions
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
+import quizcraft.deleteQuizFromFirestore
 import uiPrincipal.poppinsFamily
 
 @Composable
@@ -34,7 +35,8 @@ fun CustomPopupMenu(
     color: Int,
     size: Int,
     type: String,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    quizId: String
 ) {
     if (expanded) {
         if (type == "header") {
@@ -147,13 +149,14 @@ fun CustomPopupMenu(
                         Image(
                             painterResource(id = R.drawable.basura),
                             contentDescription = "Eliminar",
-                            modifier = Modifier.clickable {  }
+                            modifier = Modifier.clickable { deleteQuizFromFirestore(quizId)
+                            navigationActions.navigateToHome() }
 
                         )
                         Image(
                             painterResource(id = R.drawable.editar),
                             contentDescription = "Editar",
-                            modifier = Modifier.clickable { navigationActions.navigateToEditQuiz() }
+                            modifier = Modifier.clickable { navigationActions.navigateToEditQuiz(quizId) }
                         )
                     }
                 }
