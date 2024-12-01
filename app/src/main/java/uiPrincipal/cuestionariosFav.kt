@@ -59,7 +59,7 @@ fun favQuiz(imageResource: String, title: String, titleSection: String,navigatio
                     .size(150.dp)
                     .clip(RoundedCornerShape(100.dp))
                     .background(Color(0xFF212325))
-                    .clickable { navigationActions.navigateToInfoQuiz() },
+                    .clickable { navigationActions.navigateToInfoQuiz(quizId) },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AsyncImage(

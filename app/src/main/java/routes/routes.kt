@@ -8,7 +8,7 @@ object Routes {
     const val USERINFO = "user_info"
     const val EDITUSER = "edit_user"
     const val EDITQUIZ = "edit_quiz/{quizId}"
-    const val INFOQUIZ = "info_quiz"
+    const val INFOQUIZ = "info_quiz/{quizId}"
     const val GAME = "game"
     const val RESULT = "result/{correctQuestion}/{wrongQuestion}"
 }

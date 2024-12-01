@@ -1,5 +1,6 @@
 package uiInfoQuiz
 
+import android.icu.text.IDNA.Info
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -17,6 +18,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,12 +33,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.myapplication.R
+import model.Quiz
+import quizcraft.getQuizById
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun InfoQuizScreen(navigationActions: NavigationActions, scrollState: ScrollState) {
+fun InfoQuizScreen(
+    navigationActions: NavigationActions,
+    scrollState: ScrollState,
+    navController: NavHostController
+) {
+
+    val navBackStackEntry = remember { navController.currentBackStackEntry }
+    val quizId = navBackStackEntry?.arguments?.getString("quizId") ?: ""
+    var quiz by remember { mutableStateOf<Quiz?>(null) }
+
+    LaunchedEffect(Unit) {
+        getQuizById(
+            quizId,
+            onResult = { result ->
+                println(result)
+                quiz = result.copy()
+            },
+            onError = { exception ->
+                // Manejo de errores
+                println("Error al obtener quizzes: ${exception.message}")
+            }
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -41,13 +74,19 @@ fun InfoQuizScreen(navigationActions: NavigationActions, scrollState: ScrollStat
             .verticalScroll(scrollState)
 
     ) {
-        InfoQuiz(navigationActions)
+        quiz?.let { loadedQuiz ->
+            InfoQuiz(navigationActions, quiz!!)
+        } ?: Text(
+            text = "No se encontró el quiz.",
+            modifier = Modifier.align(Alignment.Center),
+            fontSize = 18.sp,
+            color = Color.Red
+        )
     }
-
 }
 
 @Composable
-fun InfoQuiz(navigationActions: NavigationActions) {
+fun InfoQuiz(navigationActions: NavigationActions, quiz: Quiz) {
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
@@ -57,8 +96,8 @@ fun InfoQuiz(navigationActions: NavigationActions) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            ImageQuiz()
-            NameAndTag("Titulo", arrayOf("#tag1", "#tag2"))
+            ImageQuiz(quiz.quizImageUrl)
+            NameAndTag(quiz.name, quiz.tags)
         }
         Spacer(modifier = Modifier.padding(16.dp))
         Text(
@@ -70,7 +109,7 @@ fun InfoQuiz(navigationActions: NavigationActions) {
         )
         Spacer(modifier = Modifier.padding(8.dp))
         Text(
-            text = "Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas \"Letraset\", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.",
+            text = quiz.description,
             textAlign = TextAlign.Justify
         )
         Spacer(modifier = Modifier.padding(24.dp))
@@ -79,7 +118,7 @@ fun InfoQuiz(navigationActions: NavigationActions) {
 }
 
 @Composable
-fun NameAndTag(title: String, tags: Array<String>) {
+fun NameAndTag(title: String, tags: List<String>) {
     Column() {
         Text(
             text = title,
@@ -99,9 +138,9 @@ fun NameAndTag(title: String, tags: Array<String>) {
 }
 
 @Composable
-fun ImageQuiz() {
-    Image(
-        painter = painterResource(id = R.drawable.huppty),
+fun ImageQuiz(imageurl: String) {
+    AsyncImage(
+        model = imageurl,
         contentDescription = "Foto cuestionario",
         modifier = Modifier
             .size(width = 150.dp, height = 150.dp)

@@ -47,7 +47,6 @@ fun EditQuizScreen(
 
     val navBackStackEntry = remember { navController.currentBackStackEntry }
     val quizId = navBackStackEntry?.arguments?.getString("quizId") ?: ""
-    println(quizId)
     var quiz by remember { mutableStateOf<Quiz?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 

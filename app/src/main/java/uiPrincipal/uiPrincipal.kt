@@ -119,7 +119,7 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         } else if (currentRoute == Routes.EDITQUIZ) {
             EditQuizScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.INFOQUIZ) {
-            InfoQuizScreen(navigationActions, scrollState = scrollState)
+            InfoQuizScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.GAME) {
             GameScreen(navigationActions, scrollState = scrollState, 't', ParseAndGetJson(jsonString).questions)
         } else if (currentRoute == Routes.RESULT) {

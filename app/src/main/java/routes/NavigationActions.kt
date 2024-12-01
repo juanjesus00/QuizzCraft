@@ -36,8 +36,9 @@ class NavigationActions (private val navController: NavController){
         navController.navigate(route)
     }
 
-    fun navigateToInfoQuiz() {
-        navController.navigate(Routes.INFOQUIZ)
+    fun navigateToInfoQuiz(quizId: String) {
+        val route = Routes.INFOQUIZ.replace("{quizId}", quizId)
+        navController.navigate(route)
     }
 
     fun navigateToGame() {
