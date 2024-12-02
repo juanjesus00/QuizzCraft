@@ -6,8 +6,12 @@ data class NebiusRequest(
 )
 
 data class NebiusResponse(
-    val results: List<Result> // Cambiar estructura de acuerdo a la respuesta de Nebius
+    val choices: List<Choice> // Cambiar estructura de acuerdo a la respuesta de Nebius
 )
+data class Choice(
+    val message: Message
+)
+
 data class Message(
     val role: String, // Por ejemplo, "user", "assistant", etc.
     val content: String // El texto del mensaje.

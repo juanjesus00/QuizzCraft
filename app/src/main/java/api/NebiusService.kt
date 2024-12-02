@@ -1,7 +1,10 @@
 package api
 
+import android.util.Log
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -20,11 +23,29 @@ class NebiusService(private val apiKey: String) {
         .addInterceptor { chain ->
             val request = chain.request()
             val response = chain.proceed(request)
+
+            val responseBody = response.body?.string() ?: ""
             println("Request: ${request.method} ${request.url}")
             println("Headers: ${request.headers}")
             println("Body: ${request.body}")
-            println("Response: ${response.code} ${response.body?.string()}")
-            response
+            println("Response: ${response.code} $responseBody")
+            // Extraer el contenido usando Gson
+            try {
+                val gson = Gson()
+                val responseObject = gson.fromJson(responseBody, NebiusResponse::class.java)
+
+                // Obtener solo el 'content' del primer mensaje
+                val generatedContent = responseObject.choices.firstOrNull()?.message?.content
+                if (!generatedContent.isNullOrEmpty()) {
+                    println("Generated Content: $generatedContent")
+                }
+            } catch (e: Exception) {
+                println("Error al parsear la respuesta: ${e.message}")
+            }
+
+            // Crear una nueva respuesta con el cuerpo original
+            response.newBuilder().body(responseBody.toResponseBody(response.body?.contentType())).build()
+
         }
         .build()
 
@@ -45,7 +66,10 @@ class NebiusService(private val apiKey: String) {
 
         return try {
             val response = api.generateText(request)
-            response.results.firstOrNull()?.generated_text ?: "No response"
+
+            // Obtener el 'content' del primer elemento en 'choices'
+            response.choices.firstOrNull()?.message?.content ?: "No response"
+
         } catch (e: retrofit2.HttpException) {
             "HTTP Error: ${e.code()} - ${e.response()?.errorBody()?.string()}"
         } catch (e: Exception) {

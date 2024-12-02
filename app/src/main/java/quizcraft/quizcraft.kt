@@ -1,6 +1,9 @@
 package quizcraft
 
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -50,6 +53,7 @@ import com.google.firebase.ktx.Firebase
 import model.Quiz
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
+import java.io.InputStream
 
 private var auth: FirebaseAuth = Firebase.auth
 
@@ -114,7 +118,41 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String) {
     // Activity launcher for file selection
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            selectedImageUri = uri
+            uri?.let{
+                val fileDescriptor = context.contentResolver.openFileDescriptor(pdfUri, "r")
+                val renderer = PdfRenderer(fileDescriptor!!)
+
+                val pageCount = renderer.pageCount
+                var text = ""
+
+                // Iniciar Tesseract OCR
+                val tessBaseAPI = TessBaseAPI()
+                // Asegúrate de configurar correctamente la ruta de los datos de Tesseract (dependiendo de tu configuración)
+                tessBaseAPI.init("/path/to/tesseract", "eng")
+
+                for (i in 0 until pageCount) {
+                    val page = renderer.openPage(i)
+
+                    // Convertir la página en una imagen
+                    val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+
+                    // Extraer texto del bitmap usando Tesseract OCR
+                    tessBaseAPI.setImage(bitmap)
+                    val ocrText = tessBaseAPI.utF8Text
+
+                    // Añadir el texto extraído al resultado final
+                    text += ocrText
+
+                    page.close()
+                }
+
+                // Cerrar Tesseract y PdfRenderer
+                tessBaseAPI.end()
+                renderer.close()
+
+                Log.d("pdf:", "$text")
+            }
         }
 
     Row(
@@ -254,7 +292,7 @@ fun AcceptButton(
             val apiKey =
                 "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
             viewModelApi.generateText(
-                apiKey, "di hola si lees esto"
+                apiKey, "si puedes leer esto solo responde si"
             ) { response ->
                 resultText = response
                 addQuizToFirestore(
