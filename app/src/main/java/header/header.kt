@@ -2,6 +2,7 @@
 
 package header
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,6 +40,7 @@ import uiUserInfo.userInfoBack
 
 @Composable
 fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack = viewModel()) {
+    val context = LocalContext.current
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -51,12 +54,13 @@ fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack 
     ) {
         if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
             Image(
-                painter = painterResource(id = R.drawable.foto),
+                painter = painterResource(id = R.drawable.non_registered_account_icon),
                 contentDescription = "Imagen De ejemplo",
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(100.dp))
-                    .clickable { navigationActions.navigateToUserInfo() },
+                    .clickable { Toast.makeText(context, "Debes de registrarte o iniciar sesion para acceder a tu perfil", Toast.LENGTH_SHORT).show()
+                    },
                 contentScale = ContentScale.Crop
             )
         }else{

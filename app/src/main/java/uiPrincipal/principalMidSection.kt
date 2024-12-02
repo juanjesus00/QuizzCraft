@@ -38,10 +38,6 @@ fun getPrincipalMidSection(
 
         /*iNSERTAMOS LOS QUIZ MAS RECIENTES*/
         insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
-        insertSectionQuiz(titleSection = "Cuestionarios Recientes:", titleQuiz = "Titulo", navigationActions)
     }
 
 }

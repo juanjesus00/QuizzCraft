@@ -65,7 +65,7 @@ fun Login(modifier: Modifier, navigationActions: NavigationActions, viewModel: l
 
 @Composable
 fun BoxField(modifier: Modifier, navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     Column(
         modifier = modifier
@@ -77,13 +77,13 @@ fun BoxField(modifier: Modifier, navigationActions: NavigationActions, viewModel
 
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
-        UserField(username) {username = it}
+        UserField(email) {email = it}
         Spacer(modifier = Modifier.padding(8.dp))
         PasswordField(password) {password = it}
         Spacer(modifier = Modifier.padding(2.dp))
         RegisterSection(navigationActions)
         Spacer(modifier = Modifier.padding(2.dp))
-        LoginButton(username, password, navigationActions, viewModel)
+        LoginButton(email, password, navigationActions, viewModel)
         Spacer(modifier = Modifier.padding(8.dp))
         GoogleIcon()
 
@@ -101,9 +101,9 @@ fun GoogleIcon() {
 }
 
 @Composable
-fun UserField(username: String, function: (String) -> Unit) {
+fun UserField(email: String, function: (String) -> Unit) {
     TextField(
-        value = username,
+        value = email,
         onValueChange = function,
         modifier = Modifier
             .fillMaxWidth()
@@ -111,7 +111,7 @@ fun UserField(username: String, function: (String) -> Unit) {
             .background(Color(0xFFFFFFFF)),
         placeholder = {
             Text(
-                text = "Nombre de usuario",
+                text = "Correo",
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 color = Color(0xFFC49450)

@@ -1,5 +1,6 @@
 package navigator
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,10 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.example.myapplication.R
+import com.google.firebase.auth.FirebaseAuth
 
 import menuHamburguesa.CustomPopupMenu
 import routes.NavigationActions
@@ -59,6 +62,7 @@ fun uiNavigator(navigationActions: NavigationActions) {
 
 @Composable
 fun printImage(imageResource: Int, description: String, navigationActions: NavigationActions){
+    val context = LocalContext.current
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -66,7 +70,13 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
         onClick = {
             when(description) {
                 "home" -> (navigationActions.navigateToHome())
-                "options" -> expanded = !expanded
+                "options" -> {
+                    if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
+                        Toast.makeText(context, "Debes de registrarte o iniciar sesion para crear un cuestionario", Toast.LENGTH_SHORT).show()
+                    } else {
+                        expanded = !expanded
+                    }
+                }
                 "search" -> print("search")
                 else -> print("opcion incorrecta")
             }

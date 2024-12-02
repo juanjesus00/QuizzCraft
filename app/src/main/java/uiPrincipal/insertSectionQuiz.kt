@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +16,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
@@ -50,25 +53,33 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
 
         ) {
 
-        val quizzes = remember { mutableStateOf<List<Quiz>>(emptyList()) }
+        if(!(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty())) {
+            val quizzes = remember { mutableStateOf<List<Quiz>>(emptyList()) }
+            LaunchedEffect(Unit) {
+                getQuizzesByUserId(
+                    userId = auth.currentUser?.uid ?: "",
+                    onResult = { result ->
+                        println(result)
+                        quizzes.value = result // Se actualiza el estado después de recibir los datos
+                    },
+                    onError = { exception ->
+                        // Manejo de errores
+                        println("Error al obtener quizzes: ${exception.message}")
+                    }
+                )
+            }
 
-        LaunchedEffect(Unit) {
-            getQuizzesByUserId(
-                userId = auth.currentUser?.uid ?: "",
-                onResult = { result ->
-                    println(result)
-                    quizzes.value = result // Se actualiza el estado después de recibir los datos
-                },
-                onError = { exception ->
-                    // Manejo de errores
-                    println("Error al obtener quizzes: ${exception.message}")
-                }
+            for(quiz in quizzes.value) {
+                println(quiz)
+                favQuiz(imageResource = quiz.quizImageUrl, title = quiz.name, titleSection = titleSection, navigationActions, quizId = quiz.quizId)
+            }
+        } else {
+            Text(text = "¡Debes de registrarte para poder crear tus cuestionarios!",
+                textAlign = TextAlign.Right,
+                modifier = Modifier.padding(top = 25.dp),
+                fontSize = 12.sp,
+                fontFamily = poppinsFamily
             )
-        }
-
-        for(quiz in quizzes.value) {
-            println(quiz)
-            favQuiz(imageResource = quiz.quizImageUrl, title = quiz.name, titleSection = titleSection, navigationActions, quizId = quiz.quizId)
         }
     }
 }
