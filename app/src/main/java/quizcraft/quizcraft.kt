@@ -2,6 +2,7 @@ package quizcraft
 
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -153,7 +154,15 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, functio
         horizontalArrangement = Arrangement.Center,
     ) {
         Button(
-            onClick = { launcher.launch(typeFile) }, // Abrir selector de archivos
+            onClick = {
+                if(pdfContent.isNullOrEmpty()){
+                    launcher.launch(typeFile)
+                }else if(pdfContent.isNotEmpty()){
+                    // tengo que hacer un toast, que en el launcher que no se ha seleccionado, tengo que investigar con la imagen como condicional
+                }
+
+
+                      }, // Abrir selector de archivos
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .width(282.dp)
