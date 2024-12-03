@@ -54,7 +54,7 @@ import uiPrincipal.poppinsFamily
 
 
 private var auth: FirebaseAuth = Firebase.auth
-
+var typePrompt = mutableStateOf("")
 @Composable
 fun uiQuizCraft(
     navigationActions: NavigationActions,
@@ -67,6 +67,7 @@ fun uiQuizCraft(
     var descripcion by remember { mutableStateOf("") }
     var quizImageUrl by remember { mutableStateOf("") }
     var pdfText by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -113,12 +114,17 @@ fun uiQuizCraft(
 fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, function: (String) -> Unit) {
     var selectedPdfUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
-
+    var pdfContent by remember { mutableStateOf("")}
     // Activity launcher for file selection
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
                 selectedPdfUri = it
+                if(text == "Generar con documento"){ //formato pregunta respuestas
+                    typePrompt.value = "puedes procesar este texto con formato preguntas y respuestas, y adaptar las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, el texto a procesar: "
+                } else if (text == "Generar con texto"){ //formato texto plano
+                    typePrompt.value = "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, texto a procesar: "
+                }
                 try {
                     // Abrir el archivo PDF y procesarlo usando iTextPDF
                     val inputStream = context.contentResolver.openInputStream(it)
@@ -130,7 +136,7 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, functio
                         for (i in 1..totalPages) {
                             stringBuilder.append(com.itextpdf.text.pdf.parser.PdfTextExtractor.getTextFromPage(pdfReader, i))
                         }
-
+                        pdfContent = stringBuilder.toString()
                         function(stringBuilder.toString())
                         pdfReader.close()
                         inputStream.close()
@@ -167,8 +173,14 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, functio
                     Image(
                         painter = painterResource(id = image),
                         contentDescription = "Imagen de agregación",
-                        modifier = Modifier.alpha(if (selectedPdfUri == null) 1f else 0f)
+                        modifier = Modifier.alpha(if (pdfContent.isNullOrEmpty()) 1f else 0f)
                     )
+                    Image(
+                        painter = painterResource(id = R.drawable.check),
+                        contentDescription = "Imagen de agregación",
+                        modifier = Modifier.alpha(if (pdfContent.isNotEmpty()) 1f else 0f)
+                    )
+
                 }
             }
         }
@@ -269,8 +281,9 @@ fun AcceptButton(
             val apiKey =
                 "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
             viewModelApi.generateText(
-                apiKey, "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, texto a procesar: $pdfText"
-            ) { response ->
+                apiKey, typePrompt.value + pdfText
+            )
+            { response ->
                 resultText = response
                 addQuizToFirestore(
                     Quiz(
@@ -279,7 +292,7 @@ fun AcceptButton(
                         description,
                         imageUrl,
                         parseTags(tags),
-                        content = "",
+                        content = resultText,
                         userId = auth.currentUser?.uid ?: ""
                     )
                 )
