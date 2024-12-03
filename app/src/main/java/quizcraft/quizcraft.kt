@@ -1,7 +1,5 @@
 package quizcraft
 
-import android.graphics.Bitmap
-import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -53,7 +51,7 @@ import com.google.firebase.ktx.Firebase
 import model.Quiz
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
-import java.io.InputStream
+
 
 private var auth: FirebaseAuth = Firebase.auth
 
@@ -68,7 +66,7 @@ fun uiQuizCraft(
     var tags by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
     var quizImageUrl by remember { mutableStateOf("") }
-
+    var pdfText by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -89,13 +87,13 @@ fun uiQuizCraft(
             size = 100,
             typeFile = "application/*",
             text = "Generar con documento"
-        )
+        ) {pdfText = it}
         FileUploader2(
             image = R.drawable.document,
             size = 100,
             typeFile = "application/*",
             text = "Generar con texto"
-        )
+        ){pdfText = it}
         InsertTexField(text = tags, inputLabel = "#Tags", size = 56) {tags = it}
         InsertTexField(text = descripcion, inputLabel = "Descripción", size = 150) {descripcion = it}
         AcceptButton(
@@ -104,54 +102,43 @@ fun uiQuizCraft(
             name,
             tags,
             descripcion,
-            quizImageUrl
+            quizImageUrl,
+            pdfText
         )
     }
 
 }
 
 @Composable
-fun FileUploader2(image: Int, size: Int, typeFile: String, text: String) {
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, function: (String) -> Unit) {
+    var selectedPdfUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
 
     // Activity launcher for file selection
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let{
-                val fileDescriptor = context.contentResolver.openFileDescriptor(pdfUri, "r")
-                val renderer = PdfRenderer(fileDescriptor!!)
+            uri?.let {
+                selectedPdfUri = it
+                try {
+                    // Abrir el archivo PDF y procesarlo usando iTextPDF
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    if (inputStream != null) {
+                        val pdfReader = com.itextpdf.text.pdf.PdfReader(inputStream)
+                        val totalPages = pdfReader.numberOfPages
+                        val stringBuilder = StringBuilder()
 
-                val pageCount = renderer.pageCount
-                var text = ""
+                        for (i in 1..totalPages) {
+                            stringBuilder.append(com.itextpdf.text.pdf.parser.PdfTextExtractor.getTextFromPage(pdfReader, i))
+                        }
 
-                // Iniciar Tesseract OCR
-                val tessBaseAPI = TessBaseAPI()
-                // Asegúrate de configurar correctamente la ruta de los datos de Tesseract (dependiendo de tu configuración)
-                tessBaseAPI.init("/path/to/tesseract", "eng")
-
-                for (i in 0 until pageCount) {
-                    val page = renderer.openPage(i)
-
-                    // Convertir la página en una imagen
-                    val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
-                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-
-                    // Extraer texto del bitmap usando Tesseract OCR
-                    tessBaseAPI.setImage(bitmap)
-                    val ocrText = tessBaseAPI.utF8Text
-
-                    // Añadir el texto extraído al resultado final
-                    text += ocrText
-
-                    page.close()
+                        function(stringBuilder.toString())
+                        pdfReader.close()
+                        inputStream.close()
+                        Log.d("PDF_TEXT", stringBuilder.toString()) // Imprimir el texto extraído en los logs
+                    }
+                } catch (e: Exception) {
+                    Log.e("PDF_ERROR", "Error al procesar el PDF: ${e.message}")
                 }
-
-                // Cerrar Tesseract y PdfRenderer
-                tessBaseAPI.end()
-                renderer.close()
-
-                Log.d("pdf:", "$text")
             }
         }
 
@@ -160,7 +147,7 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String) {
         horizontalArrangement = Arrangement.Center,
     ) {
         Button(
-            onClick = { launcher.launch(typeFile) }, //solo se seleccion una imagen
+            onClick = { launcher.launch(typeFile) }, // Abrir selector de archivos
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .width(282.dp)
@@ -179,25 +166,14 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String) {
                 Box {
                     Image(
                         painter = painterResource(id = image),
-                        contentDescription = "imagen de agregacion",
-                        modifier = Modifier.alpha(if (selectedImageUri == null) 1f else 0f)
+                        contentDescription = "Imagen de agregación",
+                        modifier = Modifier.alpha(if (selectedPdfUri == null) 1f else 0f)
                     )
-                    selectedImageUri?.let { uri ->
-                        Image(
-                            painter = rememberAsyncImagePainter(uri),
-                            contentDescription = "Selected Image",
-                            modifier = Modifier.clip(RoundedCornerShape(20.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
                 }
             }
-
         }
-
     }
     Spacer(modifier = Modifier.height(50.dp))
-
 }
 
 @Composable
@@ -281,7 +257,8 @@ fun AcceptButton(
     name: String,
     tags: String,
     description: String,
-    imageUrl: String
+    imageUrl: String,
+    pdfText: String
 ) {
     val context = LocalContext.current
     var resultText by remember { mutableStateOf("Resultado aquí...") }
@@ -292,7 +269,7 @@ fun AcceptButton(
             val apiKey =
                 "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
             viewModelApi.generateText(
-                apiKey, "si puedes leer esto solo responde si"
+                apiKey, "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, texto a procesar: $pdfText"
             ) { response ->
                 resultText = response
                 addQuizToFirestore(

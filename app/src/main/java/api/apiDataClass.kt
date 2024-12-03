@@ -2,7 +2,7 @@ package api
 
 data class NebiusRequest(
     val messages: List<Message>, // Actualiza este campo según la documentación de la API.
-    val model: String = "meta-llama/Meta-Llama-3.1-70B-Instruct" // Especifica el modelo si es requerido.
+    val model: String = "meta-llama/Meta-Llama-3.1-405B-Instruct" // Especifica el modelo si es requerido.
 )
 
 data class NebiusResponse(

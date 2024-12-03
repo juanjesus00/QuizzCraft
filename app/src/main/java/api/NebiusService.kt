@@ -1,6 +1,7 @@
 package api
 
 import android.util.Log
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -11,9 +12,9 @@ import java.util.concurrent.TimeUnit
 
 class NebiusService(private val apiKey: String) {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(500, TimeUnit.SECONDS)
+        .readTimeout(500, TimeUnit.SECONDS)
+        .writeTimeout(500, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val request: Request = chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $apiKey")
@@ -33,7 +34,6 @@ class NebiusService(private val apiKey: String) {
             try {
                 val gson = Gson()
                 val responseObject = gson.fromJson(responseBody, NebiusResponse::class.java)
-
                 // Obtener solo el 'content' del primer mensaje
                 val generatedContent = responseObject.choices.firstOrNull()?.message?.content
                 if (!generatedContent.isNullOrEmpty()) {
