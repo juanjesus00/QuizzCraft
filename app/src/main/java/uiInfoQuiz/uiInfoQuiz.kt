@@ -113,7 +113,7 @@ fun InfoQuiz(navigationActions: NavigationActions, quiz: Quiz) {
             textAlign = TextAlign.Justify
         )
         Spacer(modifier = Modifier.padding(24.dp))
-        ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally))
+        ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally), quiz.quizId)
     }
 }
 
@@ -157,11 +157,13 @@ fun ImageQuiz(imageurl: String) {
 }
 
 @Composable
-fun ButtonPlay(navigationActions: NavigationActions, modifier: Modifier) {
+fun ButtonPlay(navigationActions: NavigationActions, modifier: Modifier, quizId: String) {
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(20),
-        onClick = { navigationActions.navigateToGame() },
+        onClick = { navigationActions.navigateToGame()
+                  userAddLastQuiz(quizId)
+        },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {
         Text(

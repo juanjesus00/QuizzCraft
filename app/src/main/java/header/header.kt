@@ -2,17 +2,25 @@
 
 package header
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,8 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -31,13 +42,24 @@ import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import menuHamburguesa.CustomPopupMenu
+import model.Quiz
+import quizcraft.searchQuizzesByTag
 import routes.NavigationActions
+import uiPrincipal.SharedState
 import uiUserInfo.userInfoBack
+
+var quizzes = mutableStateOf<List<Quiz>>(emptyList())
 
 
 @Composable
 fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack = viewModel()) {
+    val context = LocalContext.current
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -48,57 +70,107 @@ fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack 
             .padding(25.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
-            Image(
-                painter = painterResource(id = R.drawable.foto),
-                contentDescription = "Imagen De ejemplo",
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(100.dp))
-                    .clickable { navigationActions.navigateToUserInfo() },
-                contentScale = ContentScale.Crop
-            )
-        }else{
-            LaunchedEffect(Unit) {
-                viewModelUser.getInfoUser { url ->
-                    profileImageUrl = url?.get("PerfilImage") as? String
-                }
-            }
-
-            AsyncImage(
-                model = profileImageUrl,
-                contentDescription = "Foto de perfil",
-                error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
-                modifier = Modifier.size(60.dp)
-                    .clip(RoundedCornerShape(100.dp))
-                    .clickable { navigationActions.navigateToUserInfo() },
-                contentScale = ContentScale.Crop
-            )
-        }
-
-
-
-        Box{
-            IconButton(onClick = { expanded = true },
-            ) {
+    )  {
+        if(!SharedState.isSearchActive) {
+            if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
                 Image(
-                    painterResource(id = R.drawable.menu),
-                    contentDescription = "Menu",
-                    modifier = Modifier.size(30.dp)
+                    painter = painterResource(id = R.drawable.non_registered_account_icon),
+                    contentDescription = "Imagen De ejemplo",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(100.dp))
+                        .clickable { Toast.makeText(context, "Debes de registrarte o iniciar sesion para acceder a tu perfil", Toast.LENGTH_SHORT).show()
+                        },
+                    contentScale = ContentScale.Crop
+                )
+            }else{
+                LaunchedEffect(Unit) {
+                    viewModelUser.getInfoUser { url ->
+                        profileImageUrl = url?.get("PerfilImage") as? String
+                    }
+                }
+
+                AsyncImage(
+                    model = profileImageUrl,
+                    contentDescription = "Foto de perfil",
+                    error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
+                    modifier = Modifier.size(60.dp)
+                        .clip(RoundedCornerShape(100.dp))
+                        .clickable { navigationActions.navigateToUserInfo() },
+                    contentScale = ContentScale.Crop
                 )
             }
+
+
+
             Box{
-                CustomPopupMenu(
-                    expanded = expanded,
-                    onDismissRequest = {expanded = false},
-                    color = 0xFF212325.toInt(),
-                    size = 150,
-                    type = "header",
-                    navigationActions = navigationActions,
-                    quizId = ""
+                IconButton(onClick = { expanded = true },
+                ) {
+                    Image(
+                        painterResource(id = R.drawable.menu),
+                        contentDescription = "Menu",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+                Box{
+                    CustomPopupMenu(
+                        expanded = expanded,
+                        onDismissRequest = {expanded = false},
+                        color = 0xFF212325.toInt(),
+                        size = 150,
+                        type = "header",
+                        navigationActions = navigationActions,
+                        quizId = ""
+                    )
+                }
+
+            }
+        } else {
+            var searchText by remember { mutableStateOf("") }
+            val debounceJob = remember { mutableStateOf<Job?>(null) }
+
+            Box(
+                modifier = Modifier
+                    .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)) // Borde personalizado
+            ) {
+                TextField(
+                    value = searchText,
+                    onValueChange = { newText -> searchText = newText
+                        debounceJob.value?.cancel()
+                        debounceJob.value = CoroutineScope(Dispatchers.Main).launch {
+                            delay(300) // Esperamos 300ms después del último cambio
+                            searchQuizzesByTag(searchText, onResult = { result ->
+                                quizzes.value = result
+                            })
+                        }
+                                    },
+                    label = { Text(text = "Escribe para buscar...") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color(0xFFFFFDFD), shape = RoundedCornerShape(20.dp))
+                        .clip(RoundedCornerShape(20.dp)),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedLabelColor = Color(0x80C49450),
+                        unfocusedIndicatorColor = Color.Transparent,
+
+                        ),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            searchQuizzesByTag(searchText, onResult = { result ->
+                                quizzes.value = result
+                            })
+                            SharedState.isSearchActive = !SharedState.isSearchActive
+                        }
+                    ),
+
                 )
             }
+
 
         }
 

@@ -225,7 +225,10 @@ fun popupInformation(
                     when (text) {
                         "Iniciar sesión" -> navigationActions.navigateToLogin()
                         "Registrarse" -> navigationActions.navigateToRegister()
-                        "Cerrar sesión" -> logOut(navigationActions)
+                        "Cerrar sesión" -> {
+                            logOut(navigationActions)
+                            navigationActions.navigateToHome()
+                        }
                         else -> print("opcion no valida")
                     }
                 },

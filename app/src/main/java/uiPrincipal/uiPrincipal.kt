@@ -4,9 +4,15 @@ package uiPrincipal
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,6 +31,7 @@ import com.example.myapplication.R
 import header.getHeader
 import kotlinx.coroutines.launch
 import navigator.uiNavigator
+import quizcraft.searchQuizzesByTag
 import quizcraft.uiQuizCraft
 import routes.NavigationActions
 import routes.Routes
@@ -70,6 +78,11 @@ val poppinsFamily = FontFamily(
     androidx.compose.ui.text.font.Font(R.font.poppinsbold, FontWeight.Bold)
 )
 
+object SharedState {
+    var isSearchActive by mutableStateOf(false)
+    var isSearched by mutableStateOf(false)
+}
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -92,6 +105,9 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             previousScrollOffset = currentOffset
         }
     }
+
+
+
     Scaffold(
         topBar = {
             AnimatedVisibility(visible = showBars) {

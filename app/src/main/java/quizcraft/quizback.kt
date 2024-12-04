@@ -74,7 +74,8 @@ fun deleteQuizFromFirestore(quizId: String) {
 
 fun uploadImageToFirebase(imageUri: Uri, onImageUrlReady: (String) -> Unit) {
     val storageReference = FirebaseStorage.getInstance().reference
-    val imageRef = storageReference.child("ImageQuizzes/${UUID.randomUUID()}.jpg") // Puedes personalizar el nombre
+    val imageRef =
+        storageReference.child("ImageQuizzes/${UUID.randomUUID()}.jpg") // Puedes personalizar el nombre
     val uploadTask = imageRef.putFile(imageUri)
 
     uploadTask.addOnSuccessListener {
@@ -95,7 +96,11 @@ fun parseTags(tags: String): List<String> {
         .filter { it.startsWith("#") }  // Filtrar los que comienzan con #
 }
 
-fun getQuizzesByUserId(userId: String, onResult: (List<Quiz>) -> Unit, onError: (Exception) -> Unit) {
+fun getQuizzesByUserId(
+    userId: String,
+    onResult: (List<Quiz>) -> Unit,
+    onError: (Exception) -> Unit
+) {
     val db = FirebaseFirestore.getInstance()
     val quizCollection = db.collection("Quizzes")
 
@@ -141,7 +146,7 @@ fun getQuizById(
             if (document != null) {
                 val quiz = document.toQuizOrNull()
                 if (quiz != null) {
-                    onResult(quiz) // Retornar el único `Quiz`
+                    onResult(quiz)
                 } else {
                     onError(Exception("No se pudo mapear el documento a un Quiz"))
                 }
@@ -168,3 +173,57 @@ private fun DocumentSnapshot.toQuizOrNull(): Quiz? {
     }
 }
 
+fun searchQuizzesByTag(tag: String, onResult: (List<Quiz>) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+    if (tag.isNotEmpty()) {
+        db.collection("Quizzes")
+            .whereArrayContains("quizTags", tag)
+            .get()
+            .addOnSuccessListener { documents ->
+                val quizzes = documents.mapNotNull { document ->
+                    val quizData = document.data
+                    quizData?.let {
+                        Quiz(
+                            name = it["quizName"] as? String ?: "",
+                            quizId = it["quiz_id"] as? String ?: "",
+                            description = it["quizDescription"] as? String ?: "",
+                            quizImageUrl = it["quizImage"] as? String ?: "",
+                            tags = it["quizTags"] as? List<String> ?: emptyList(),
+                            content = it["quizContent"] as? String ?: "",
+                            userId = it["userId"] as? String ?: ""
+                        )
+                    }
+                }
+                onResult(quizzes)
+            }
+            .addOnFailureListener { exception ->
+                println("Error al buscar quizzes: ${exception.message}")
+            }
+    }
+}
+
+fun getQuizzesByLastQuizzesUser(
+    lastQuizzes: MutableList<String>,
+    onResult: (List<Quiz>) -> Unit,
+    onError: (Exception) -> Unit
+) {
+
+    val quizzes: MutableList<Quiz> = mutableListOf()
+    var remainingQuizzes = lastQuizzes.size
+
+    for (quizId in lastQuizzes) {
+        getQuizById(quizId, onResult = { result ->
+            quizzes.add(result)
+            remainingQuizzes--
+            if (remainingQuizzes == 0) {
+                onResult(quizzes)
+            }
+        }, onError = { exception ->
+            onError(exception)
+        })
+    }
+
+    if (lastQuizzes.isEmpty()) {
+        onResult(emptyList())
+    }
+}
