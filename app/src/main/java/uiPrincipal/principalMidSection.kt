@@ -53,11 +53,7 @@ fun getPrincipalMidSection(
                 titleQuiz = "Titulo",
                 navigationActions
             )
-            insertSectionQuiz(
-                titleSection = "Cuestionarios Recientes:",
-                titleQuiz = "Titulo",
-                navigationActions
-            )
+            insertSectionLastQuizzies(navigationActions)
         } else {
             SearchedQuizzes(navigationActions)
         }

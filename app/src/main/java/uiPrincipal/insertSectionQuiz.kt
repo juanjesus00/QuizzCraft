@@ -25,8 +25,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import model.Quiz
+import quizcraft.getQuizzesByLastQuizzesUser
 import quizcraft.getQuizzesByUserId
 import routes.NavigationActions
+import uiInfoQuiz.getLastQuizByUserId
 
 private var auth: FirebaseAuth = Firebase.auth
 
@@ -73,6 +75,57 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
             }
         } else {
             Text(text = "¡Debes de registrarte para poder crear tus cuestionarios!",
+                textAlign = TextAlign.Right,
+                modifier = Modifier.padding(top = 25.dp),
+                fontSize = 12.sp,
+                fontFamily = poppinsFamily
+            )
+        }
+    }
+}
+
+@Composable
+fun insertSectionLastQuizzies(navigationActions: NavigationActions){
+    Spacer(modifier = Modifier.height(50.dp))
+    Text(
+        text = "Cuestionarios recientes:",
+        modifier = Modifier
+            .fillMaxWidth()
+            .offset(x = 15.dp),
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        fontFamily = poppinsFamily,
+    )
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround,
+
+        ) {
+
+        if(!(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty())) {
+            val quizzes = remember { mutableStateOf<List<Quiz>>(emptyList()) }
+            LaunchedEffect(Unit) {
+                getLastQuizByUserId { result ->
+                    getQuizzesByLastQuizzesUser(
+                        result,
+                        onResult = { result_quizzes ->
+                            quizzes.value = result_quizzes
+                        },
+                        onError = { exception ->
+                            println("Error al obtener quizzes: ${exception.message}")
+                        })
+                }
+            }
+
+            for(quiz in quizzes.value) {
+                println(quiz)
+                favQuiz(imageResource = quiz.quizImageUrl, title = quiz.name, titleSection = "Cuestionarios Recientes", navigationActions, quizId = quiz.quizId)
+            }
+        } else {
+            Text(text = "¡Debes de registrarte y jugar cuestionarios para poder tenerlos en recientes!",
                 textAlign = TextAlign.Right,
                 modifier = Modifier.padding(top = 25.dp),
                 fontSize = 12.sp,

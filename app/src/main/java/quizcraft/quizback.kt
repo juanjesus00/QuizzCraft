@@ -146,7 +146,7 @@ fun getQuizById(
             if (document != null) {
                 val quiz = document.toQuizOrNull()
                 if (quiz != null) {
-                    onResult(quiz) // Retornar el único `Quiz`
+                    onResult(quiz)
                 } else {
                     onError(Exception("No se pudo mapear el documento a un Quiz"))
                 }
@@ -202,3 +202,28 @@ fun searchQuizzesByTag(tag: String, onResult: (List<Quiz>) -> Unit) {
     }
 }
 
+fun getQuizzesByLastQuizzesUser(
+    lastQuizzes: MutableList<String>,
+    onResult: (List<Quiz>) -> Unit,
+    onError: (Exception) -> Unit
+) {
+
+    val quizzes: MutableList<Quiz> = mutableListOf()
+    var remainingQuizzes = lastQuizzes.size
+
+    for (quizId in lastQuizzes) {
+        getQuizById(quizId, onResult = { result ->
+            quizzes.add(result)
+            remainingQuizzes--
+            if (remainingQuizzes == 0) {
+                onResult(quizzes)
+            }
+        }, onError = { exception ->
+            onError(exception)
+        })
+    }
+
+    if (lastQuizzes.isEmpty()) {
+        onResult(emptyList())
+    }
+}

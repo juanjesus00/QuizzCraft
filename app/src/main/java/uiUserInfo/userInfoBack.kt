@@ -23,7 +23,8 @@ class userInfoBack : ViewModel(){
                             userName = document.getString("userName").toString(),
                             profileImageUrl = document.getString("PerfilImage").toString(),
                             createdQuiz = document.getString("createdQuiz").toString(),
-                            passQuiz = document.getString("passQuiz").toString()
+                            passQuiz = document.getString("passQuiz").toString(),
+                            lastQuizzes = document.get("lastQuizzes") as? MutableList<String> ?: mutableListOf()
                         ).toMap()
                         onResult(user)
                     }else{

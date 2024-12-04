@@ -84,7 +84,8 @@ class loginbacked: ViewModel() {
             profileImageUrl = "",
             email = email,
             createdQuiz = "0",
-            passQuiz = "0"
+            passQuiz = "0",
+            lastQuizzes = mutableListOf()
         ).toMap()
 
         FirebaseFirestore.getInstance().collection("Usuarios")
