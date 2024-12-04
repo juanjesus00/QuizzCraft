@@ -68,7 +68,7 @@ fun uiQuizCraft(
     var descripcion by remember { mutableStateOf("") }
     var quizImageUrl by remember { mutableStateOf("") }
     var pdfText by remember { mutableStateOf("") }
-
+    var activeButton by remember { mutableStateOf<String?>(null) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -88,13 +88,17 @@ fun uiQuizCraft(
             image = R.drawable.multiple_choice,
             size = 100,
             typeFile = "application/*",
-            text = "Generar con documento"
+            text = "Generar con documento",
+            isActive = activeButton == "documento",
+            onButtonClick = { activeButton = "documento" },
         ) {pdfText = it}
         FileUploader2(
             image = R.drawable.document,
             size = 100,
             typeFile = "application/*",
-            text = "Generar con texto"
+            text = "Generar con texto",
+            isActive = activeButton == "texto",
+            onButtonClick = { activeButton = "texto" }
         ){pdfText = it}
         InsertTexField(text = tags, inputLabel = "#Tags", size = 56) {tags = it}
         InsertTexField(text = descripcion, inputLabel = "Descripción", size = 150) {descripcion = it}
@@ -112,42 +116,57 @@ fun uiQuizCraft(
 }
 
 @Composable
-fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, function: (String) -> Unit) {
+fun FileUploader2(
+    image: Int,
+    size: Int,
+    typeFile: String,
+    text: String,
+    isActive: Boolean, // Estado que indica si este botón está activo
+    onButtonClick: () -> Unit, // Acción al presionar el botón
+    function: (String) -> Unit
+) {
     var selectedPdfUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
-    var pdfContent by remember { mutableStateOf("")}
-    // Activity launcher for file selection
-    val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                selectedPdfUri = it
-                if(text == "Generar con documento"){ //formato pregunta respuestas
-                    typePrompt.value = "puedes procesar este texto con formato preguntas y respuestas, y adaptar las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, el texto a procesar: "
-                } else if (text == "Generar con texto"){ //formato texto plano
-                    typePrompt.value = "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, texto a procesar: "
-                }
-                try {
-                    // Abrir el archivo PDF y procesarlo usando iTextPDF
-                    val inputStream = context.contentResolver.openInputStream(it)
-                    if (inputStream != null) {
-                        val pdfReader = com.itextpdf.text.pdf.PdfReader(inputStream)
-                        val totalPages = pdfReader.numberOfPages
-                        val stringBuilder = StringBuilder()
+    var pdfContent by remember { mutableStateOf("") }
+    var textContent by remember { mutableStateOf("") }
 
-                        for (i in 1..totalPages) {
-                            stringBuilder.append(com.itextpdf.text.pdf.parser.PdfTextExtractor.getTextFromPage(pdfReader, i))
-                        }
-                        pdfContent = stringBuilder.toString()
-                        function(stringBuilder.toString())
-                        pdfReader.close()
-                        inputStream.close()
-                        Log.d("PDF_TEXT", stringBuilder.toString()) // Imprimir el texto extraído en los logs
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            selectedPdfUri = it
+            if (text == "Generar con documento") {
+                typePrompt.value =
+                    "puedes procesar este texto con formato preguntas y respuestas, y adaptar las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, el texto a procesar: "
+            } else if (text == "Generar con texto") {
+                typePrompt.value =
+                    "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, texto a procesar: "
+            }
+            try {
+                val inputStream = context.contentResolver.openInputStream(it)
+                if (inputStream != null) {
+                    val pdfReader = com.itextpdf.text.pdf.PdfReader(inputStream)
+                    val totalPages = pdfReader.numberOfPages
+                    val stringBuilder = StringBuilder()
+
+                    for (i in 1..totalPages) {
+                        stringBuilder.append(com.itextpdf.text.pdf.parser.PdfTextExtractor.getTextFromPage(pdfReader, i))
                     }
-                } catch (e: Exception) {
-                    Log.e("PDF_ERROR", "Error al procesar el PDF: ${e.message}")
+                    if (text == "Generar con documento") {
+                        textContent = ""
+                        pdfContent = stringBuilder.toString()
+                    } else if (text == "Generar con texto") {
+                        pdfContent = ""
+                        textContent = stringBuilder.toString()
+                    }
+                    function(stringBuilder.toString())
+                    pdfReader.close()
+                    inputStream.close()
+                    Log.d("PDF_TEXT", stringBuilder.toString())
                 }
+            } catch (e: Exception) {
+                Log.e("PDF_ERROR", "Error al procesar el PDF: ${e.message}")
             }
         }
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -155,14 +174,9 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, functio
     ) {
         Button(
             onClick = {
-                if(pdfContent.isNullOrEmpty()){
-                    launcher.launch(typeFile)
-                }else if(pdfContent.isNotEmpty()){
-                    // tengo que hacer un toast, que en el launcher que no se ha seleccionado, tengo que investigar con la imagen como condicional
-                }
-
-
-                      }, // Abrir selector de archivos
+                onButtonClick() // Actualiza el estado global para este botón
+                launcher.launch(typeFile)
+            },
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .width(282.dp)
@@ -180,22 +194,16 @@ fun FileUploader2(image: Int, size: Int, typeFile: String, text: String, functio
                 Text(text = text, fontFamily = poppinsFamily, color = Color(0xFFC49450))
                 Box {
                     Image(
-                        painter = painterResource(id = image),
-                        contentDescription = "Imagen de agregación",
-                        modifier = Modifier.alpha(if (pdfContent.isNullOrEmpty()) 1f else 0f)
+                        painter = painterResource(id = if (isActive && (textContent.isNotEmpty() || pdfContent.isNotEmpty())) R.drawable.check else image),
+                        contentDescription = "Imagen de estado"
                     )
-                    Image(
-                        painter = painterResource(id = R.drawable.check),
-                        contentDescription = "Imagen de agregación",
-                        modifier = Modifier.alpha(if (pdfContent.isNotEmpty()) 1f else 0f)
-                    )
-
                 }
             }
         }
     }
     Spacer(modifier = Modifier.height(50.dp))
 }
+
 
 @Composable
 fun InsertTexField(text: String, inputLabel: String, size: Int, function: (String) -> Unit) {
@@ -287,26 +295,32 @@ fun AcceptButton(
     Button(
         shape = RoundedCornerShape(20),
         onClick = {
-            val apiKey =
-                "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
-            viewModelApi.generateText(
-                apiKey, typePrompt.value + pdfText
-            )
-            { response ->
-                resultText = response
-                addQuizToFirestore(
-                    Quiz(
-                        name,
-                        "",
-                        description,
-                        imageUrl,
-                        parseTags(tags),
-                        content = resultText,
-                        userId = auth.currentUser?.uid ?: ""
-                    )
+            if(name.isNotEmpty() && tags.isNotEmpty() && pdfText.isNotEmpty()){
+                val apiKey =
+                    "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
+                viewModelApi.generateText(
+                    apiKey, typePrompt.value + pdfText
                 )
+                { response ->
+                    resultText = response
+                    addQuizToFirestore(
+                        Quiz(
+                            name,
+                            "",
+                            description,
+                            imageUrl,
+                            parseTags(tags),
+                            content = resultText,
+                            userId = auth.currentUser?.uid ?: ""
+                        )
+                    )
+                    navigationActions.navigateToHome()
+                }
 
+            }else{
+                Toast.makeText(context, "Tienes que rellenar los campos obligatorios de Titulo, documento y tags", Toast.LENGTH_LONG).show()
             }
+
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {
@@ -318,7 +332,6 @@ fun AcceptButton(
             color = Color(0xFFB18F4F)
         )
     }
-    Text(text = resultText)
     Spacer(modifier = Modifier.height(50.dp))
 }
 
