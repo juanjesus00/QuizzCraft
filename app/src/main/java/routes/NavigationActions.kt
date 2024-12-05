@@ -41,8 +41,9 @@ class NavigationActions (private val navController: NavController){
         navController.navigate(route)
     }
 
-    fun navigateToGame() {
-        navController.navigate(Routes.GAME)
+    fun navigateToGame(content: String) {
+        val route = Routes.GAME.replace("{content}", content)
+        navController.navigate(route)
     }
 
     fun navigateToResult(correctQuestion: Int, wrongQuestion: Int) {

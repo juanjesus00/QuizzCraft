@@ -305,7 +305,7 @@ fun AcceptButton(
                     response.trimIndent()
                     val json = extractJson(response)
                     resultText = json.toString()
-                    /*addQuizToFirestore(
+                    addQuizToFirestore(
                         Quiz(
                             name,
                             "",
@@ -315,7 +315,7 @@ fun AcceptButton(
                             content = resultText,
                             userId = auth.currentUser?.uid ?: ""
                         )
-                    )*/
+                    )
                     navigationActions.navigateToHome()
                 }
 

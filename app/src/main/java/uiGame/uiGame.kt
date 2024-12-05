@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavHostController
 import com.example.myapplication.R
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
@@ -59,8 +60,12 @@ fun GameScreen(
     navigationActions: NavigationActions,
     scrollState: ScrollState,
     option: Char,
-    questions: List<Question>
+    navController: NavHostController
 ) {
+
+    val navBackStackEntry = remember { navController.currentBackStackEntry }
+    val content = navBackStackEntry?.arguments?.getString("content") ?: ""
+    val questions = ParseAndGetJson(content).questions
 
     val context = LocalContext.current
 

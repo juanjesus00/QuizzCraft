@@ -1,7 +1,5 @@
 package uiInfoQuiz
 
-import android.icu.text.IDNA.Info
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,14 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.myapplication.R
 import model.Quiz
 import quizcraft.getQuizById
 import routes.NavigationActions
@@ -113,7 +109,7 @@ fun InfoQuiz(navigationActions: NavigationActions, quiz: Quiz) {
             textAlign = TextAlign.Justify
         )
         Spacer(modifier = Modifier.padding(24.dp))
-        ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally), quiz.quizId)
+        ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally), quiz)
     }
 }
 
@@ -157,12 +153,12 @@ fun ImageQuiz(imageurl: String) {
 }
 
 @Composable
-fun ButtonPlay(navigationActions: NavigationActions, modifier: Modifier, quizId: String) {
+fun ButtonPlay(navigationActions: NavigationActions, modifier: Modifier, quiz: Quiz) {
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(20),
-        onClick = { navigationActions.navigateToGame()
-                  userAddLastQuiz(quizId)
+        onClick = { navigationActions.navigateToGame(quiz.content)
+                  userAddLastQuiz(quiz.quizId)
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {
