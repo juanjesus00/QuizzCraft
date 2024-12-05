@@ -3,8 +3,10 @@ package quizcraft
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
 import model.Quiz
 import java.util.UUID
 
@@ -30,22 +32,6 @@ fun addQuizToFirestore(quiz: Quiz) {
         }
 }
 
-fun getAllQuizzesFromFirestore() {
-    val db = FirebaseFirestore.getInstance()
-    val quizCollection = db.collection("Quizzes")
-
-    quizCollection.get()
-        .addOnSuccessListener { querySnapshot ->
-            val quizzes = querySnapshot.documents.mapNotNull { document ->
-                document.toObject(Quiz::class.java)
-            }
-            println("Quizzes obtenidos: $quizzes")
-        }
-        .addOnFailureListener { e ->
-            println("Error al obtener quizzes: ${e.message}")
-        }
-}
-
 fun updateQuizInFirestore(quizId: String, updatedFields: Map<String, Any>) {
     val db = FirebaseFirestore.getInstance()
 
@@ -59,19 +45,22 @@ fun updateQuizInFirestore(quizId: String, updatedFields: Map<String, Any>) {
         }
 }
 
-fun deleteQuizFromFirestore(quizId: String) {
+suspend fun deleteQuizFromFirestore(quizId: String): Boolean {
     val db = FirebaseFirestore.getInstance()
-
-    db.collection("Quizzes").document(quizId)
-        .delete()
-        .addOnSuccessListener {
-            println("Quiz eliminado exitosamente")
+    return try {
+        db.collection("Quizzes").document(quizId).delete().await()
+        val users = db.collection("Usuarios").get().await()
+        for (userDoc in users.documents) {
+            db.collection("Usuarios").document(userDoc.id)
+                .update("LastQuizzes", FieldValue.arrayRemove(quizId))
+                .await()
         }
-        .addOnFailureListener { e ->
-            println("Error al eliminar el quiz: ${e.message}")
-        }
+        true
+    } catch (e: Exception) {
+        println("Error al eliminar el quiz: ${e.message}")
+        false
+    }
 }
-
 fun uploadImageToFirebase(imageUri: Uri, onImageUrlReady: (String) -> Unit) {
     val storageReference = FirebaseStorage.getInstance().reference
     val imageRef =

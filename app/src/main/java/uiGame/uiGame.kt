@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -236,9 +237,14 @@ fun Answers(answer: Answers, onNext: () -> Unit, soundManager: SoundManager) {
                 option.respuesta,
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
-                fontSize = 24.sp,
+                fontSize = when {
+                    option.respuesta.length <= 20 -> 24.sp
+                    option.respuesta.length <= 40 -> 20.sp
+                    else -> 14.sp },
                 color = Color(0xFFFFFFFF),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                softWrap = true,
+                modifier = Modifier.wrapContentWidth()
             )
         }
         Spacer(modifier = Modifier.padding(16.dp))

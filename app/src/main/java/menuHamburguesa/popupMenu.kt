@@ -25,6 +25,9 @@ import androidx.compose.ui.window.Popup
 import routes.NavigationActions
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import quizcraft.deleteQuizFromFirestore
 import uiPrincipal.poppinsFamily
 
@@ -149,8 +152,16 @@ fun CustomPopupMenu(
                         Image(
                             painterResource(id = R.drawable.basura),
                             contentDescription = "Eliminar",
-                            modifier = Modifier.clickable { deleteQuizFromFirestore(quizId)
-                            navigationActions.navigateToHome() }
+                            modifier = Modifier.clickable {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val wasDeleted = deleteQuizFromFirestore(quizId)
+                                    if (wasDeleted) {
+                                        navigationActions.navigateToHome()
+                                    } else {
+                                        println("No se pudo eliminar el cuestionario")
+                                    }
+                                }
+                            }
 
                         )
                         Image(

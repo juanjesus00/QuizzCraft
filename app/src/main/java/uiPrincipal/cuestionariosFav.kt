@@ -30,14 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.myapplication.R
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import menuHamburguesa.CustomPopupMenu
-import model.Quiz
 import routes.NavigationActions
-
-private var auth: FirebaseAuth = Firebase.auth
 
 @Composable
 fun favQuiz(imageResource: String, title: String, titleSection: String,navigationActions: NavigationActions, quizId: String){
@@ -68,7 +62,7 @@ fun favQuiz(imageResource: String, title: String, titleSection: String,navigatio
                     modifier = Modifier
                         .size(width = 150.dp, height = 75.dp)
                         .clip(RoundedCornerShape(topStart = 100.dp, topEnd = 100.dp)),
-                    contentScale = Crop //recorta la imagen si no esta muy cuadrada
+                    contentScale = Crop
                 )
                 Text(
                     text = title,
@@ -86,10 +80,10 @@ fun favQuiz(imageResource: String, title: String, titleSection: String,navigatio
                     Image(
                         painter = painterResource(id = R.drawable.trespuntos),
                         contentDescription = "Menu tres puntos",
-                        contentScale = Crop //recorta la imagen si no esta muy cuadrada
+                        contentScale = Crop
                     )
                 }
-                Box (/*modifier = Modifier.offset(x = 70.dp, y = -(50).dp)*/){
+                Box {
                     CustomPopupMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false},
