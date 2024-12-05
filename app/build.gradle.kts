@@ -78,6 +78,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.google.android.gms:play-services-auth:20.1.0")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
+    implementation("io.coil-kt:coil:2.2.2")
+    implementation("io.coil-kt:coil-gif:2.2.2")
 
 
 }

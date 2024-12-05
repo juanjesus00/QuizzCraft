@@ -52,4 +52,7 @@ class NavigationActions (private val navController: NavController){
         navController.navigate(route)
     }
 
+    fun navigateToCarga() {
+        navController.navigate(Routes.CARGA)
+    }
 }

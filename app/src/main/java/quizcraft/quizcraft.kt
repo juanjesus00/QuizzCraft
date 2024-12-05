@@ -291,17 +291,19 @@ fun AcceptButton(
 ) {
     val context = LocalContext.current
     var resultText by remember { mutableStateOf("Resultado aquí...") }
-
+    var isLoading by remember { mutableStateOf(false)}
     Button(
         shape = RoundedCornerShape(20),
         onClick = {
             if(name.isNotEmpty() && tags.isNotEmpty() && pdfText.isNotEmpty()){
+                navigationActions.navigateToCarga()
                 val apiKey =
                     "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMDU1Njk3MTMzOTIzMTIxMzM4NyIsInNjb3BlIjoib3BlbmlkIG9mZmxpbmVfYWNjZXNzIiwiaXNzIjoiYXBpX2tleV9pc3N1ZXIiLCJhdWQiOlsiaHR0cHM6Ly9uZWJpdXMtaW5mZXJlbmNlLmV1LmF1dGgwLmNvbS9hcGkvdjIvIl0sImV4cCI6MTg4OTYzMTUxOSwidXVpZCI6ImIwYWU0MmM2LWVhN2YtNDI1NS04MWI2LTM0MjgzYjk3MWM5NiIsIm5hbWUiOiJ0ZXN0S2V5IiwiZXhwaXJlc19hdCI6IjIwMjktMTEtMTdUMTc6Mzg6MzkrMDAwMCJ9.YIWppuSz_gfy7jp-zSOoqoRGQgfzO2UVSx7eKuU8AH0" // Usa una clave de API segura
                 viewModelApi.generateText(
                     apiKey, typePrompt.value + pdfText
                 )
                 { response ->
+
                     response.trimIndent()
                     val json = extractJson(response)
                     resultText = json.toString()
@@ -317,6 +319,7 @@ fun AcceptButton(
                         )
                     )
                     navigationActions.navigateToHome()
+                    isLoading = false
                 }
 
             }else{
