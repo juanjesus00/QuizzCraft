@@ -23,6 +23,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,11 +33,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.myapplication.R
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
@@ -46,6 +52,8 @@ var correctQuestion: Int = 0
 var wrongQuestion: Int = 0
 
 
+
+
 @Composable
 fun GameScreen(
     navigationActions: NavigationActions,
@@ -53,6 +61,45 @@ fun GameScreen(
     option: Char,
     questions: List<Question>
 ) {
+
+    val context = LocalContext.current
+
+    val soundManager = remember { SoundManager(context) }
+    val musicManager = remember { MusicManager(context) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    musicManager.stopMusic()
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    musicManager.playMusic()
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    musicManager.stopMusic()
+                }
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            musicManager.stopMusic()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        soundManager.loadSound(R.raw.correct_answer, context)
+        soundManager.loadSound(R.raw.wrong_answer, context)
+    }
+
+    musicManager.playMusic()
+
     var currentQuestionIndex by rememberSaveable { mutableStateOf(0) }
 
     println(questions)
@@ -77,7 +124,8 @@ fun GameScreen(
                     wrongQuestion = 0
                 }
             },
-            navigationActions = navigationActions
+            navigationActions = navigationActions,
+            soundManager
         )
     }
 
@@ -88,7 +136,8 @@ fun Game(
     option: Char,
     question: Question,
     onNext: () -> Unit,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    soundManager: SoundManager
 ) {
     Column(
         modifier = Modifier
@@ -122,12 +171,12 @@ fun Game(
             }
         }
         Spacer(modifier = Modifier.padding(24.dp))
-        Answers(question.answer, onNext)
+        Answers(question.answer, onNext, soundManager)
     }
 }
 
 @Composable
-fun Answers(answer: Answers, onNext: () -> Unit) {
+fun Answers(answer: Answers, onNext: () -> Unit, soundManager: SoundManager) {
     val options = answer.answers
     val selectedOptionIndex = remember { mutableStateOf(-1) }
 
@@ -159,8 +208,10 @@ fun Answers(answer: Answers, onNext: () -> Unit) {
             shape = RoundedCornerShape(20),
             onClick = { selectedOptionIndex.value = index
                         if (options[index].correct) {
+                            soundManager.playSound(R.raw.correct_answer)
                             correctQuestion++
                         } else {
+                            soundManager.playSound(R.raw.wrong_answer)
                             wrongQuestion++
                         }
                         Timer().schedule(2000) {
