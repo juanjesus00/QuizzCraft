@@ -135,10 +135,10 @@ fun FileUploader2(
             selectedPdfUri = it
             if (text == "Generar con documento") {
                 typePrompt.value =
-                    "puedes procesar este texto con formato preguntas y respuestas, y adaptar las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, el texto a procesar: "
+                    "puedes procesar este texto con formato preguntas y respuestas, y adaptar las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, el texto a procesar: "
             } else if (text == "Generar con texto") {
                 typePrompt.value =
-                    "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, texto a procesar: "
+                    "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, texto a procesar: "
             }
             try {
                 val inputStream = context.contentResolver.openInputStream(it)
@@ -302,8 +302,10 @@ fun AcceptButton(
                     apiKey, typePrompt.value + pdfText
                 )
                 { response ->
-                    resultText = response
-                    addQuizToFirestore(
+                    response.trimIndent()
+                    val json = extractJson(response)
+                    resultText = json.toString()
+                    /*addQuizToFirestore(
                         Quiz(
                             name,
                             "",
@@ -313,7 +315,7 @@ fun AcceptButton(
                             content = resultText,
                             userId = auth.currentUser?.uid ?: ""
                         )
-                    )
+                    )*/
                     navigationActions.navigateToHome()
                 }
 
@@ -334,7 +336,10 @@ fun AcceptButton(
     }
     Spacer(modifier = Modifier.height(50.dp))
 }
-
+fun extractJson(input: String): String?{
+    val regex = """\{.*\}""".toRegex(RegexOption.DOT_MATCHES_ALL) // Expresión regular para capturar el JSON
+    return regex.find(input)?.value // Devuelve el JSON capturado
+}
 @Composable
 fun FileUploader3(image: Int, size: Int, typeFile: String, onImageUrlReady: (String) -> Unit) {
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
