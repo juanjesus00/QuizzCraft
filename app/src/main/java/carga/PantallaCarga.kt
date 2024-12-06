@@ -1,46 +1,63 @@
 package carga
 
-import android.os.Build
+import android.annotation.SuppressLint
+
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
-import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.bumptech.glide.Glide
+
 import com.example.myapplication.R
 import routes.NavigationActions
+import uiPrincipal.poppinsFamily
 
 
 @Composable
-fun LoadingScreen(navigationActions: NavigationActions) {
-    LoadingScreen2(gifUrl = "https://firebasestorage.googleapis.com/v0/b/quizcraft-342d2.firebasestorage.app/o/LoadingGifs%2Ficons8-mapa-mental.gif?alt=media&token=5fe5d17d-9e5b-45c2-a8a4-7677b8211c77")
-}
-
-@Composable
-fun LoadingScreen2(gifUrl: String) {
-    Box(
+fun LoadingScreen() {
+    BackHandler (enabled = true){
+    }
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.7f)),
-        contentAlignment = Alignment.Center
+            .background(Color(0xFFE0D4C8)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(R.drawable.carga) // Nombre del archivo sin extensión
-                .crossfade(true) // Añade un efecto de transición
-                .build(),
-            contentDescription = "Loading...",
+        AndroidView(
+            factory = {context ->
+                ImageView(context).apply{
+                    Glide.with(context)
+                        .load(R.drawable.carga)
+                        .into(this)
+                }
+            },
             modifier = Modifier.size(150.dp)
+        )
+        Text(
+            text = "CARGANDO...",
+            fontWeight = FontWeight.Bold,
+            fontFamily = poppinsFamily,
+            fontSize = 30.sp,
+            color = Color(0xFFB18F4F)
+
         )
     }
 }

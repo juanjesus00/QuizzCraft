@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -19,8 +20,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-
         setContent {
             val navController = rememberNavController()
             val navigationActions = NavigationActions(navController)
@@ -35,7 +34,7 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.INFOQUIZ) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.GAME) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.RESULT) { MyComposeApp(navigationActions, navController) }
-                composable(Routes.CARGA){ LoadingScreen(navigationActions) }
+                composable(Routes.CARGA){ LoadingScreen() }
             }
         }
 

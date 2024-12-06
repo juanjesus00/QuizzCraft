@@ -291,7 +291,6 @@ fun AcceptButton(
 ) {
     val context = LocalContext.current
     var resultText by remember { mutableStateOf("Resultado aquí...") }
-    var isLoading by remember { mutableStateOf(false)}
     Button(
         shape = RoundedCornerShape(20),
         onClick = {
@@ -319,7 +318,6 @@ fun AcceptButton(
                         )
                     )
                     navigationActions.navigateToHome()
-                    isLoading = false
                 }
 
             }else{

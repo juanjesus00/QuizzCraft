@@ -81,5 +81,9 @@ dependencies {
     implementation("io.coil-kt:coil:2.2.2")
     implementation("io.coil-kt:coil-gif:2.2.2")
 
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
 
 }
