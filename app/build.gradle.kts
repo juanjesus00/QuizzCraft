@@ -43,8 +43,12 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.0"  // Asegúrate de usar la versión correcta
     }
+    splits{
+        abi{
+            isEnable = false
+        }
+    }
 }
-
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -85,5 +89,7 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
+
+
 
 }
