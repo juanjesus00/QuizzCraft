@@ -119,22 +119,35 @@ fun GoogleIcon(viewModel: loginbacked, navigationActions: NavigationActions) {
     }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts
-        .StartIntentSenderForResult()
+            .StartIntentSenderForResult()
     ) {result ->
-            try{
-                val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
-                val idToken = credential.googleIdToken
-                if (idToken != null) {
-                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                    viewModel.SingInWithGoogleCredential(firebaseCredential, credential) {
-                        navigationActions.navigateToHome()
-                    }
-                } else {
-                    Log.e("GoogleSignIn", "No se obtuvo un token válido")
+        try{
+            val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
+            val idToken = credential.googleIdToken
+            val email = credential.id
+            val password = (100000..999999).random().toString()//credential.password.toString()
+            if (idToken != null) {
+                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                viewModel.SingInWithGoogleCredential(firebaseCredential, credential, password) {
+
+                    viewModel.linkEmailAndPassword(email, password,
+                        onSuccess = {
+                            Log.d("FirebaseAuth", "Usuario vinculado correctamente")
+                            navigationActions.navigateToHome()
+                        },
+                        onFailure = { error ->
+                            Log.e("FirebaseAuth", "Error al vincular usuario: $error")
+                        }
+                    )
+                    navigationActions.navigateToHome()
                 }
-            }catch (ex:ApiException){
-                Log.d("loginGoogle", "El login de google falló" + "${ex.localizedMessage}")
+
+            } else {
+                Log.e("GoogleSignIn", "No se obtuvo un token válido")
             }
+        }catch (ex:ApiException){
+            Log.d("loginGoogle", "El login de google falló" + "${ex.localizedMessage}")
+        }
     }
     Icon(
         imageVector = ImageVector.vectorResource(id = R.drawable.ic_googleicon),
@@ -142,18 +155,18 @@ fun GoogleIcon(viewModel: loginbacked, navigationActions: NavigationActions) {
         modifier = Modifier
             .height(32.dp)
             .clickable {
-                       oneTapClient.beginSignIn(signInRequest)
-                           .addOnSuccessListener { result ->
-                               try{
-                                   //val intentSenderRequest = IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
-                                   launcher.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
-                               }catch (e: Exception){
-                                   Log.d("GoogleSignIn", "Error al construir IntentSender: ${e.localizedMessage}")
-                               }
-                           }
-                           .addOnFailureListener{ e ->
-                               Log.d("login google", "Error al iniciar el flujo de inicio de sesión: ${e.localizedMessage}\"")
-                           }
+                oneTapClient.beginSignIn(signInRequest)
+                    .addOnSuccessListener { result ->
+                        try{
+                            //val intentSenderRequest = IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
+                            launcher.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
+                        }catch (e: Exception){
+                            Log.d("GoogleSignIn", "Error al construir IntentSender: ${e.localizedMessage}")
+                        }
+                    }
+                    .addOnFailureListener{ e ->
+                        Log.d("login google", "Error al iniciar el flujo de inicio de sesión: ${e.localizedMessage}\"")
+                    }
             },
         tint = Color.Unspecified
     )
@@ -265,4 +278,3 @@ fun ImageLogo(modifier: Modifier) {
         modifier = modifier.size(256.dp)
     )
 }
-

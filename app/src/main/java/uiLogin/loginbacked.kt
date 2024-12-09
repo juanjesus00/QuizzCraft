@@ -1,6 +1,7 @@
 package uiLogin
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
@@ -10,11 +11,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import java.util.Properties
 
 class loginbacked: ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
@@ -63,7 +66,7 @@ class loginbacked: ViewModel() {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener{task ->
                         if (task.isSuccessful){
-                            crateUser(name, email, "")
+                            crateUser(name, email, "", password)
                             onSuccess()
                         }else{
                             Log.d("loginbackend", "La creacion de usuarios falló: ${task.result.toString()}")
@@ -77,6 +80,7 @@ class loginbacked: ViewModel() {
     fun SingInWithGoogleCredential(
         credentialToken: AuthCredential,
         credential: SignInCredential,
+        password: String,
         home: () -> Unit
     )=viewModelScope.launch{
         try{
@@ -85,8 +89,25 @@ class loginbacked: ViewModel() {
                     if(task.isSuccessful){
                         Log.d("loginGoogle", "login con google exitoso")
                         println("contraseña: "+ "${credential.password}")
-                        crateUser(displayName = credential.givenName?:"unknown", email = credential.id, profileImage = credential.profilePictureUri.toString())
+                        val db = FirebaseFirestore.getInstance()
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+                        val userRef = db.collection("Usuarios").document(uid!!)
+                        userRef.get().addOnSuccessListener { document ->
+                            if(document.exists()){
+                                Log.d("loginGoogle", "El usuario ya existe")
+                            }else{
+                                crateUser(
+                                    displayName = credential.givenName?:"unknown",
+                                    email = credential.id,
+                                    profileImage = credential.profilePictureUri.toString(),
+                                    password = password
+                                )
+                            }
+                        }.addOnFailureListener { e ->
+                            Log.e("FirebaseAuth", "Error al crear usuario: ${e.localizedMessage}")
+                        }
                         home()
+
                     }
 
                 }
@@ -97,8 +118,34 @@ class loginbacked: ViewModel() {
             Log.d("loginGoogle", "Excepcion de login con Google: " + "${ex.localizedMessage}")
         }
     }
+    fun linkEmailAndPassword(email: String, password: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        val user = FirebaseAuth.getInstance().currentUser
 
-    private fun crateUser(displayName: String, email: String, profileImage: String) {
+        if (user != null) {
+            val credential = EmailAuthProvider.getCredential(email, password)
+
+            user.linkWithCredential(credential)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("FirebaseAuth", "Método de correo y contraseña vinculado exitosamente")
+                        onSuccess()
+                    } else {
+                        Log.e("FirebaseAuth", "Error al vincular credenciales: ${task.exception?.localizedMessage}")
+                        onFailure(task.exception?.localizedMessage ?: "Error desconocido")
+                    }
+                }
+        } else {
+            onFailure("No hay un usuario autenticado")
+        }
+    }
+
+
+    private fun crateUser(
+        displayName: String,
+        email: String,
+        profileImage: String,
+        password: String
+    ) {
         val userId = auth.currentUser?.uid
         val user = model.User(
             userId = userId.toString(),
@@ -107,7 +154,8 @@ class loginbacked: ViewModel() {
             email = email,
             createdQuiz = "0",
             passQuiz = "0",
-            lastQuizzes = mutableListOf()
+            lastQuizzes = mutableListOf(),
+            password = password
         ).toMap()
 
         FirebaseFirestore.getInstance().collection("Usuarios")
@@ -181,7 +229,6 @@ class loginbacked: ViewModel() {
         }
     }
 }
-
 
 
 
