@@ -25,7 +25,7 @@ class userInfoBack : ViewModel(){
                             createdQuiz = document.getString("createdQuiz").toString(),
                             passQuiz = document.getString("passQuiz").toString(),
                             lastQuizzes = document.get("lastQuizzes") as? MutableList<String> ?: mutableListOf(),
-                            password = document.get("password").toString()
+                            password = document.getString("password").toString()
 
                         ).toMap()
                         onResult(user)

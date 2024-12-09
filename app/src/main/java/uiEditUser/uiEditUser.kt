@@ -79,11 +79,12 @@ fun EditUser(
     var email by remember { mutableStateOf<String?>("")}
     var password by remember { mutableStateOf("")}
     var perfilImage by remember { mutableStateOf(mutableStateOf<Uri?>(null))}
-
+    var showpassword by remember { mutableStateOf<String?>("") }
     LaunchedEffect(Unit) {
         viewModelUser.getInfoUser { user ->
             userName = user?.get("userName") as? String
             email = user?.get("email") as? String
+            showpassword = user?.get("password") as? String
         }
     }
 
@@ -96,6 +97,8 @@ fun EditUser(
             Spacer(modifier = Modifier.padding(12.dp))
             EmailField(email) {email = it}
             Spacer(modifier = Modifier.padding(12.dp))
+            ShowPasswordField(showpassword)
+            Spacer(modifier = Modifier.padding(12.dp))
             PasswordField(password) {password = it}
             Spacer(modifier = Modifier.padding(12.dp))
             photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
@@ -104,6 +107,7 @@ fun EditUser(
         }
     }
 }
+
 
 @Composable
 fun CancelAndAcceptButtons(
@@ -196,6 +200,21 @@ fun PasswordField(password: String, function: (String) -> Unit) {
                 color = Color(0xFFC49450)
             )
         },
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        singleLine = true,
+        maxLines = 1,
+    )
+}
+@Composable
+fun ShowPasswordField(password: String?) {
+    TextField(
+        value = password?:"null",
+        onValueChange = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFFFFFFF)),
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         singleLine = true,
