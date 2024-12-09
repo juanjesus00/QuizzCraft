@@ -100,53 +100,7 @@ fun BoxField(modifier: Modifier, navigationActions: NavigationActions, viewModel
 }
 
 @Composable
-fun GoogleIcon(viewModel: loginbacked, navigationActions: NavigationActions) {
-    val tokenGoogle = "1074117218604-it9mlufe66sldtihomg5s4vae1jum1o5.apps.googleusercontent.com"
-    val context = LocalContext.current
-
-    val oneTapClient = remember { Identity.getSignInClient(context) }
-    val signInRequest = remember {
-        BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    .setServerClientId(tokenGoogle)
-                    .setFilterByAuthorizedAccounts(false) // Permite elegir una cuenta nueva
-                    .build()
-            )
-            .setAutoSelectEnabled(false) // Muestra el selector de cuentas
-            .build()
-    }
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts
-        .StartIntentSenderForResult()
-    ) {result ->
-            try{
-                val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
-                val idToken = credential.googleIdToken
-                if (idToken != null) {
-                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                    viewModel.SingInWithGoogleCredential(firebaseCredential, credential) {
-                        val email = credential.id
-                        val password = credential.password.toString()
-                        viewModel.linkEmailAndPassword(email, password,
-                            onSuccess = {
-                                Log.d("FirebaseAuth", "Usuario vinculado correctamente")
-                                navigationActions.navigateToHome()
-                            },
-                            onFailure = { error ->
-                                Log.e("FirebaseAuth", "Error al vincular usuario: $error")
-                            }
-                        )
-                        //navigationActions.navigateToHome()
-                    }
-                } else {
-                    Log.e("GoogleSignIn", "No se obtuvo un token válido")
-                }
-            }catch (ex:ApiException){
-                Log.d("loginGoogle", "El login de google falló" + "${ex.localizedMessage}")
-            }
-    }
+fun GoogleIcon() {
     Icon(
         imageVector = ImageVector.vectorResource(id = R.drawable.ic_googleicon),
         contentDescription = "Google Icon",

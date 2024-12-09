@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -85,19 +84,8 @@ class loginbacked: ViewModel() {
                 .addOnCompleteListener{task ->
                     if(task.isSuccessful){
                         Log.d("loginGoogle", "login con google exitoso")
-                        println("contraseña: "+ "${auth.uid}")
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
-                        val db = FirebaseFirestore.getInstance()
-                        val userRef = db.collection("Usuarios").document(uid!!)
-                        userRef.get().addOnSuccessListener { document ->
-                            if(document.exists()){
-                                Log.d("loginGoogle", "El usuario existe")
-                            }else{
-                                crateUser(displayName = credential.givenName?:"unknown", email = credential.id, profileImage = credential.profilePictureUri.toString())
-                            }
-                        }.addOnFailureListener { e ->
-                            Log.e("FirebaseAuth", "Error al verificar usuario: ${e.localizedMessage}")
-                        }
+                        println("contraseña: "+ "${credential.password}")
+                        crateUser(displayName = credential.givenName?:"unknown", email = credential.id, profileImage = credential.profilePictureUri.toString())
                         home()
                     }
 
@@ -109,27 +97,8 @@ class loginbacked: ViewModel() {
             Log.d("loginGoogle", "Excepcion de login con Google: " + "${ex.localizedMessage}")
         }
     }
-    fun linkEmailAndPassword(email: String, password: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        val user = FirebaseAuth.getInstance().currentUser
 
-        if (user != null) {
-            val credential = EmailAuthProvider.getCredential(email, password)
-
-            user.linkWithCredential(credential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("FirebaseAuth", "Método de correo y contraseña vinculado exitosamente")
-                        onSuccess()
-                    } else {
-                        Log.e("FirebaseAuth", "Error al vincular credenciales: ${task.exception?.localizedMessage}")
-                        onFailure(task.exception?.localizedMessage ?: "Error desconocido")
-                    }
-                }
-        } else {
-            onFailure("No hay un usuario autenticado")
-        }
-    }
-    private fun crateUser(displayName: String, email: String, profileImage: String) {
+    private fun crateUser(displayName: String, email: String) {
         val userId = auth.currentUser?.uid
         val user = model.User(
             userId = userId.toString(),
