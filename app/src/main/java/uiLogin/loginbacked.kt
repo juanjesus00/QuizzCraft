@@ -1,29 +1,15 @@
 package uiLogin
 
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.currentRecomposeScope
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.R
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -61,18 +47,6 @@ class loginbacked: ViewModel() {
             Log.d("Loginbackend", "Error de inicio: ${e.message}")
         }
     }
-    /*fun signInWithGoogleCredential(credential: AuthCredential, home:() -> Unit)=viewModelScope.launch{
-        try {
-            auth.signInWithCredential(credential)
-                .addOnCompleteListener{task ->
-                    if (task.isSuccessful){
-                        Log.d("GoogleLogin", "Login exitoso")
-                        home()
-                    }
-                }
-        }
-
-    }*/
     fun register(
         email: String,
         password: String,
@@ -89,7 +63,7 @@ class loginbacked: ViewModel() {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener{task ->
                         if (task.isSuccessful){
-                            crateUser(name, email)
+                            crateUser(name, email, "")
                             onSuccess()
                         }else{
                             Log.d("loginbackend", "La creacion de usuarios falló: ${task.result.toString()}")
@@ -100,14 +74,36 @@ class loginbacked: ViewModel() {
 
         }
     }
+    fun SingInWithGoogleCredential(
+        credentialToken: AuthCredential,
+        credential: SignInCredential,
+        home: () -> Unit
+    )=viewModelScope.launch{
+        try{
+            auth.signInWithCredential(credentialToken)
+                .addOnCompleteListener{task ->
+                    if(task.isSuccessful){
+                        Log.d("loginGoogle", "login con google exitoso")
+                        println("contraseña: "+ "${credential.password}")
+                        crateUser(displayName = credential.givenName?:"unknown", email = credential.id, profileImage = credential.profilePictureUri.toString())
+                        home()
+                    }
 
+                }
+                .addOnFailureListener {
+                    Log.d("loginGoogle", "login con google Error")
+                }
+        }catch (ex:Exception){
+            Log.d("loginGoogle", "Excepcion de login con Google: " + "${ex.localizedMessage}")
+        }
+    }
 
-    private fun crateUser(displayName: String, email: String) {
+    private fun crateUser(displayName: String, email: String, profileImage: String) {
         val userId = auth.currentUser?.uid
         val user = model.User(
             userId = userId.toString(),
             userName = displayName,
-            profileImageUrl = "",
+            profileImageUrl = profileImage,
             email = email,
             createdQuiz = "0",
             passQuiz = "0",

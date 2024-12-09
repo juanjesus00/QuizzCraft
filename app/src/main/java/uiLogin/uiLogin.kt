@@ -1,7 +1,12 @@
 package uiLogin
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +42,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -85,17 +94,67 @@ fun BoxField(modifier: Modifier, navigationActions: NavigationActions, viewModel
         Spacer(modifier = Modifier.padding(2.dp))
         LoginButton(email, password, navigationActions, viewModel)
         Spacer(modifier = Modifier.padding(8.dp))
-        GoogleIcon()
+        GoogleIcon(viewModel, navigationActions)
 
     }
 }
 
 @Composable
-fun GoogleIcon() {
+fun GoogleIcon(viewModel: loginbacked, navigationActions: NavigationActions) {
+    val tokenGoogle = "1074117218604-it9mlufe66sldtihomg5s4vae1jum1o5.apps.googleusercontent.com"
+    val context = LocalContext.current
+
+    val oneTapClient = remember { Identity.getSignInClient(context) }
+    val signInRequest = remember {
+        BeginSignInRequest.builder()
+            .setGoogleIdTokenRequestOptions(
+                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                    .setSupported(true)
+                    .setServerClientId(tokenGoogle)
+                    .setFilterByAuthorizedAccounts(false) // Permite elegir una cuenta nueva
+                    .build()
+            )
+            .setAutoSelectEnabled(false) // Muestra el selector de cuentas
+            .build()
+    }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts
+        .StartIntentSenderForResult()
+    ) {result ->
+            try{
+                val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
+                val idToken = credential.googleIdToken
+                if (idToken != null) {
+                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                    viewModel.SingInWithGoogleCredential(firebaseCredential, credential) {
+                        navigationActions.navigateToHome()
+                    }
+                } else {
+                    Log.e("GoogleSignIn", "No se obtuvo un token válido")
+                }
+            }catch (ex:ApiException){
+                Log.d("loginGoogle", "El login de google falló" + "${ex.localizedMessage}")
+            }
+    }
     Icon(
         imageVector = ImageVector.vectorResource(id = R.drawable.ic_googleicon),
         contentDescription = "Google Icon",
-        modifier = Modifier.height(32.dp),
+        modifier = Modifier
+            .height(32.dp)
+            .clickable {
+                       oneTapClient.beginSignIn(signInRequest)
+                           .addOnSuccessListener { result ->
+                               try{
+                                   //val intentSenderRequest = IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
+                                   launcher.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
+                               }catch (e: Exception){
+                                   Log.d("GoogleSignIn", "Error al construir IntentSender: ${e.localizedMessage}")
+                               }
+                           }
+                           .addOnFailureListener{ e ->
+                               Log.d("login google", "Error al iniciar el flujo de inicio de sesión: ${e.localizedMessage}\"")
+                           }
+            },
         tint = Color.Unspecified
     )
 }
