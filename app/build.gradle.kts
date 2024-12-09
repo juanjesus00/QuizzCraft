@@ -43,8 +43,12 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.0"  // Asegúrate de usar la versión correcta
     }
+    splits{
+        abi{
+            isEnable = false
+        }
+    }
 }
-
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -78,6 +82,14 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.google.android.gms:play-services-auth:20.1.0")
     implementation("com.itextpdf:itextpdf:5.5.13.3")
+    implementation("io.coil-kt:coil:2.2.2")
+    implementation("io.coil-kt:coil-gif:2.2.2")
+
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
+
 
 
 }

@@ -21,13 +21,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import carga.LoadingScreen
 import com.example.myapplication.R
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import header.getHeader
 import kotlinx.coroutines.launch
 import navigator.uiNavigator
@@ -92,6 +95,22 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
     var previousScrollOffset by remember { mutableStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
+    val systemUiController = rememberSystemUiController()
+    val color = Color(0xFFE0D4C8) // Cambia por el color de tu aplicación
+
+    LaunchedEffect(Unit) {
+        systemUiController.setStatusBarColor(
+            color = color,
+            darkIcons = false // Cambia a true si usas íconos oscuros
+        )
+        systemUiController.setNavigationBarColor(
+            color = color,
+            darkIcons = false // Cambia a true si usas íconos oscuros
+        )
+    }
+
+
     LaunchedEffect(scrollState.value) {
         coroutineScope.launch {
             val currentOffset = scrollState.value
@@ -105,8 +124,6 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             previousScrollOffset = currentOffset
         }
     }
-
-
 
     Scaffold(
         topBar = {

@@ -3,12 +3,11 @@ package com.example.myapplication
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import header.headerBack
+import carga.LoadingScreen
 import routes.NavigationActions
 import routes.Routes
 import uiLogin.LoginScreen
@@ -20,8 +19,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var loginBackend: loginbacked
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
 
         setContent {
             val navController = rememberNavController()
@@ -37,7 +34,8 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.INFOQUIZ) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.GAME) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.RESULT) { MyComposeApp(navigationActions, navController) }
-                }
+                composable(Routes.CARGA){ LoadingScreen() }
+            }
         }
 
     }
