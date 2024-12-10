@@ -52,7 +52,7 @@ suspend fun deleteQuizFromFirestore(quizId: String): Boolean {
         val users = db.collection("Usuarios").get().await()
         for (userDoc in users.documents) {
             db.collection("Usuarios").document(userDoc.id)
-                .update("LastQuizzes", FieldValue.arrayRemove(quizId))
+                .update("lastQuizzes", FieldValue.arrayRemove(quizId))
                 .await()
         }
         true
