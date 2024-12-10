@@ -49,6 +49,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
+import languagesBack.getStringByName
 import routes.NavigationActions
 import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
@@ -134,13 +135,15 @@ fun CancelAndAcceptButtons(
             onClick = { navigationActions.navigateToUserInfo() },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
-            Text(
-                "Cancelar",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                fontSize = 20.sp,
-                color = Color(0xFFB18F4F)
-            )
+            getStringByName(LocalContext.current, "cancel_button_text")?.let {
+                Text(
+                    it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    fontSize = 20.sp,
+                    color = Color(0xFFB18F4F)
+                )
+            }
         }
         Button(
             shape = RoundedCornerShape(20),
@@ -155,13 +158,15 @@ fun CancelAndAcceptButtons(
                 ) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
-            Text(
-                "Aceptar",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                fontSize = 20.sp,
-                color = Color(0xFFB18F4F)
-            )
+            getStringByName(LocalContext.current, "accept_button_text")?.let {
+                Text(
+                    it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    fontSize = 20.sp,
+                    color = Color(0xFFB18F4F)
+                )
+            }
         }
     }
 }
@@ -175,12 +180,14 @@ fun UserField(name: String?, function: (String) -> Unit) {
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
-            Text(
-                text = "Nombre de usuario",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
+            getStringByName(LocalContext.current, "username")?.let {
+                Text(
+                    text = it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color(0xFFC49450)
+                )
+            }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         singleLine = true,
@@ -198,12 +205,14 @@ fun PasswordField(password: String, function: (String) -> Unit) {
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
-            Text(
-                text = "Contraseña",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
+            getStringByName(LocalContext.current, "password")?.let {
+                Text(
+                    text = it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color(0xFFC49450)
+                )
+            }
         },
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -237,12 +246,14 @@ fun EmailField(username: String?, function: (String) -> Unit) {
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
-            Text(
-                text = "Email",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
+            getStringByName(LocalContext.current, "email")?.let {
+                Text(
+                    text = it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color(0xFFC49450)
+                )
+            }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         singleLine = true,
