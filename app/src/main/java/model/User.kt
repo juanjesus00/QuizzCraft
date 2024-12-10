@@ -7,7 +7,8 @@ data class User(
     val profileImageUrl: String,
     val createdQuiz: String,
     val passQuiz: String,
-    val lastQuizzes: MutableList<String>
+    val lastQuizzes: MutableList<String>,
+    val password: String
 ){
     fun toMap(): MutableMap<String, Any>{
         return mutableMapOf(
@@ -17,7 +18,9 @@ data class User(
             "email" to this.email,
             "createdQuiz" to this.createdQuiz,
             "passQuiz" to this.passQuiz,
-            "lastQuizzes" to this.lastQuizzes
+            "lastQuizzes" to this.lastQuizzes,
+            "password" to this.password
+
         )
     }
 }
