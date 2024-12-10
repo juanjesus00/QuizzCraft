@@ -1,5 +1,6 @@
 package quizcraft
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -49,6 +50,7 @@ import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import languagesBack.getStringByName
 import model.Quiz
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
@@ -78,30 +80,34 @@ fun uiQuizCraft(
         horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
-        InsertTexField(text = name, inputLabel = "Título del cuestionario", size = 56) {name = it}
+        getStringByName(LocalContext.current, "title_quiz_create_quiz")?.let { InsertTexField(text = name, inputLabel = it, size = 56) {name = it} }
         FileUploader3(
             image = R.drawable.galery_icon,
             size = 150,
             typeFile = "image/*",
             onImageUrlReady = { url -> quizImageUrl = url })
-        FileUploader2(
-            image = R.drawable.multiple_choice,
-            size = 100,
-            typeFile = "application/*",
-            text = "Generar con documento",
-            isActive = activeButton == "documento",
-            onButtonClick = { activeButton = "documento" },
-        ) {pdfText = it}
-        FileUploader2(
-            image = R.drawable.document,
-            size = 100,
-            typeFile = "application/*",
-            text = "Generar con texto",
-            isActive = activeButton == "texto",
-            onButtonClick = { activeButton = "texto" }
-        ){pdfText = it}
-        InsertTexField(text = tags, inputLabel = "#Tags", size = 56) {tags = it}
-        InsertTexField(text = descripcion, inputLabel = "Descripción", size = 150) {descripcion = it}
+        getStringByName(LocalContext.current, "generate_with_question_answer_document_create_quiz")?.let {
+            FileUploader2(
+                image = R.drawable.multiple_choice,
+                size = 100,
+                typeFile = "application/*",
+                text = it,
+                isActive = activeButton == "documento",
+                onButtonClick = { activeButton = "documento" },
+            ) {pdfText = it}
+        }
+        getStringByName(LocalContext.current, "generate_with_plain_text_document_create_quiz")?.let {
+            FileUploader2(
+                image = R.drawable.document,
+                size = 100,
+                typeFile = "application/*",
+                text = it,
+                isActive = activeButton == "texto",
+                onButtonClick = { activeButton = "texto" },
+            ){pdfText = it}
+        }
+        getStringByName(LocalContext.current, "tags")?.let { InsertTexField(text = tags, inputLabel = it, size = 56) {tags = it} }
+        getStringByName(LocalContext.current, "description_quiz")?.let { InsertTexField(text = descripcion, inputLabel = it, size = 150) {descripcion = it} }
         AcceptButton(
             navigationActions = navigationActions,
             viewModelApi,
@@ -123,7 +129,7 @@ fun FileUploader2(
     text: String,
     isActive: Boolean, // Estado que indica si este botón está activo
     onButtonClick: () -> Unit, // Acción al presionar el botón
-    function: (String) -> Unit
+    function: (String) -> Unit,
 ) {
     var selectedPdfUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
@@ -133,10 +139,10 @@ fun FileUploader2(
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             selectedPdfUri = it
-            if (text == "Generar con documento") {
+            if (text == getStringByName(context, "generate_with_question_answer_document_create_quiz")) {
                 typePrompt.value =
                     "puedes procesar este texto con formato preguntas y respuestas, y adaptar las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, el texto a procesar: "
-            } else if (text == "Generar con texto") {
+            } else if (text == getStringByName(context, "generate_with_plain_text_document_create_quiz")) {
                 typePrompt.value =
                     "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, texto a procesar: "
             }
@@ -150,10 +156,10 @@ fun FileUploader2(
                     for (i in 1..totalPages) {
                         stringBuilder.append(com.itextpdf.text.pdf.parser.PdfTextExtractor.getTextFromPage(pdfReader, i))
                     }
-                    if (text == "Generar con documento") {
+                    if (text == getStringByName(context, "generate_with_question_answer_document_create_quiz")) {
                         textContent = ""
                         pdfContent = stringBuilder.toString()
-                    } else if (text == "Generar con texto") {
+                    } else if (text == getStringByName(context, "generate_with_plain_text_document_create_quiz")) {
                         pdfContent = ""
                         textContent = stringBuilder.toString()
                     }

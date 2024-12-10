@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import languagesBack.getStringByName
 import model.Quiz
 import quizcraft.getQuizzesByLastQuizzesUser
 import quizcraft.getQuizzesByUserId
@@ -47,7 +50,7 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+            .then(if(!(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty())) Modifier.horizontalScroll(rememberScrollState()) else Modifier),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround,
 
@@ -74,12 +77,14 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
                 favQuiz(imageResource = quiz.quizImageUrl, title = quiz.name, titleSection = titleSection, navigationActions, quizId = quiz.quizId)
             }
         } else {
-            Text(text = "¡Debes de registrarte para poder crear tus cuestionarios!",
-                textAlign = TextAlign.Right,
-                modifier = Modifier.padding(top = 25.dp),
-                fontSize = 12.sp,
-                fontFamily = poppinsFamily
-            )
+            getStringByName(LocalContext.current, "my_quizzes_warning")?.let {
+                Text(text = it,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 25.dp),
+                    fontSize = 16.sp,
+                    fontFamily = poppinsFamily
+                )
+            }
         }
     }
 }
@@ -87,8 +92,9 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
 @Composable
 fun insertSectionLastQuizzies(navigationActions: NavigationActions){
     Spacer(modifier = Modifier.height(50.dp))
-    Text(
-        text = "Cuestionarios recientes:",
+    getStringByName(LocalContext.current, "recent_quizzes")?.let {
+        Text(
+        text = it,
         modifier = Modifier
             .fillMaxWidth()
             .offset(x = 15.dp),
@@ -96,10 +102,11 @@ fun insertSectionLastQuizzies(navigationActions: NavigationActions){
         fontWeight = FontWeight.Bold,
         fontFamily = poppinsFamily,
     )
+    }
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+            .then(if(!(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty())) Modifier.horizontalScroll(rememberScrollState()) else Modifier),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround,
 
@@ -125,12 +132,14 @@ fun insertSectionLastQuizzies(navigationActions: NavigationActions){
                 favQuiz(imageResource = quiz.quizImageUrl, title = quiz.name, titleSection = "Cuestionarios Recientes", navigationActions, quizId = quiz.quizId)
             }
         } else {
-            Text(text = "¡Debes de registrarte y jugar cuestionarios para poder tenerlos en recientes!",
-                textAlign = TextAlign.Right,
-                modifier = Modifier.padding(top = 25.dp),
-                fontSize = 12.sp,
-                fontFamily = poppinsFamily
-            )
+            getStringByName(LocalContext.current, "recent_quizzes_warning")?.let {
+                Text(text = it,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 25.dp),
+                    fontSize = 16.sp,
+                    fontFamily = poppinsFamily
+                )
+            }
         }
     }
 }

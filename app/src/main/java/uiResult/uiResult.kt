@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import languagesBack.getStringByName
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -68,15 +70,17 @@ fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQue
                 .background(Color.Black, shape = RoundedCornerShape(5))
                 .size(width = 400.dp, height = 400.dp)
         ) {
-            Text(
-                text = "Calificación",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                fontSize = 38.sp, color = Color(0xFFFFFFFF),
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 16.dp)
-            )
+            getStringByName(LocalContext.current, "score")?.let {
+                Text(
+                    text = it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    fontSize = 38.sp, color = Color(0xFFFFFFFF),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 16.dp)
+                )
+            }
             Spacer(modifier = Modifier.padding(8.dp))
             Text(
                 text = "$result", fontWeight = FontWeight.Bold,
@@ -85,13 +89,13 @@ fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQue
                 modifier = Modifier.align(Alignment.Center)
             )
             Text(
-                "Correctas: $correctQuestions", fontWeight = FontWeight.Bold,
+                getStringByName(LocalContext.current, "correct_answers")+": "+"$correctQuestions", fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 18.sp, color = Color(0xFFFFFFFF),
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)
             )
             Text(
-                "Incorrectas: $wrongQuestions", fontWeight = FontWeight.Bold,
+                getStringByName(LocalContext.current, "incorrect_answers")+": "+"$wrongQuestions", fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 18.sp, color = Color(0xFFFFFFFF),
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 72.dp)
@@ -110,12 +114,14 @@ fun HomeButton(navigationActions: NavigationActions) {
         onClick = { navigationActions.navigateToHome() },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {
-        Text(
-            "Inicio",
-            fontWeight = FontWeight.Bold,
-            fontFamily = poppinsFamily,
-            fontSize = 24.sp,
-            color = Color(0xFFB18F4F)
-        )
+        getStringByName(LocalContext.current, "home_button_results")?.let {
+            Text(
+                it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                fontSize = 24.sp,
+                color = Color(0xFFB18F4F)
+            )
+        }
     }
 }

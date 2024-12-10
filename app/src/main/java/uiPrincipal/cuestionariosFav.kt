@@ -24,12 +24,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.myapplication.R
+import languagesBack.getStringByName
 import menuHamburguesa.CustomPopupMenu
 import routes.NavigationActions
 
@@ -73,7 +75,7 @@ fun favQuiz(imageResource: String, title: String, titleSection: String,navigatio
                     color = Color(0xFFFFFFFF)
                 )
             }
-            Box (modifier = Modifier.alpha(if (titleSection == "Mis Cuestionarios:") 1f else 0f)){
+            Box (modifier = Modifier.alpha(if (titleSection == getStringByName(LocalContext.current, "my_quizzes")) 1f else 0f)){
                 IconButton(onClick = {expanded = !expanded},
                     modifier = Modifier.padding(bottom = 100.dp),
                 ) {

@@ -86,6 +86,10 @@ object SharedState {
     var isSearched by mutableStateOf(false)
 }
 
+object LanguageManager {
+    var languageCode by mutableStateOf("")
+}
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable

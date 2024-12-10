@@ -47,6 +47,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import languagesBack.getStringByName
 import menuHamburguesa.CustomPopupMenu
 import model.Quiz
 import quizcraft.searchQuizzesByTag
@@ -79,7 +80,7 @@ fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack 
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(100.dp))
-                        .clickable { Toast.makeText(context, "Debes de registrarte o iniciar sesion para acceder a tu perfil", Toast.LENGTH_SHORT).show()
+                        .clickable { Toast.makeText(context, getStringByName(context, "warning_try_enter_to_profile"), Toast.LENGTH_SHORT).show()
                         },
                     contentScale = ContentScale.Crop
                 )
@@ -144,7 +145,7 @@ fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack 
                             })
                         }
                                     },
-                    label = { Text(text = "Escribe para buscar...") },
+                    label = { getStringByName(LocalContext.current, "placeholder_search")?.let { Text(text = it) } },
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = Color(0xFFFFFDFD), shape = RoundedCornerShape(20.dp))

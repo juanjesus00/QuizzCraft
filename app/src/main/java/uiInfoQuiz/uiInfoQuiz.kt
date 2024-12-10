@@ -26,12 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import carga.LoadingScreen
 import coil.compose.AsyncImage
+import languagesBack.getStringByName
 import model.Quiz
 import quizcraft.getQuizById
 import routes.NavigationActions
@@ -72,12 +75,7 @@ fun InfoQuizScreen(
     ) {
         quiz?.let { loadedQuiz ->
             InfoQuiz(navigationActions, quiz!!)
-        } ?: Text(
-            text = "No se encontró el quiz.",
-            modifier = Modifier.align(Alignment.Center),
-            fontSize = 18.sp,
-            color = Color.Red
-        )
+        } ?: LoadingScreen()
     }
 }
 
@@ -96,13 +94,15 @@ fun InfoQuiz(navigationActions: NavigationActions, quiz: Quiz) {
             NameAndTag(quiz.name, quiz.tags)
         }
         Spacer(modifier = Modifier.padding(16.dp))
-        Text(
-            text = "Descripción:",
-            fontWeight = FontWeight.Bold,
-            fontFamily = poppinsFamily,
-            color = Color.Black,
-            fontSize = 24.sp
-        )
+        getStringByName(LocalContext.current, "description_quiz")?.let {
+            Text(
+                text = "$it:",
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                color = Color.Black,
+                fontSize = 24.sp
+            )
+        }
         Spacer(modifier = Modifier.padding(8.dp))
         Text(
             text = quiz.description,
@@ -162,13 +162,15 @@ fun ButtonPlay(navigationActions: NavigationActions, modifier: Modifier, quiz: Q
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {
-        Text(
-            "JUGAR",
-            fontWeight = FontWeight.Bold,
-            fontFamily = poppinsFamily,
-            fontSize = 24.sp,
-            color = Color(0xFFB18F4F)
-        )
+        getStringByName(LocalContext.current, "play_button")?.let {
+            Text(
+                it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                fontSize = 24.sp,
+                color = Color(0xFFB18F4F)
+            )
+        }
     }
 }
 

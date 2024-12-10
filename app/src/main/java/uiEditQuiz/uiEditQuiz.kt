@@ -23,13 +23,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import carga.LoadingScreen
 import com.example.myapplication.R
+import languagesBack.getStringByName
 import model.Quiz
-import quizcraft.FileUploader
 import quizcraft.FileUploader3
 import quizcraft.InsertTexField
 import quizcraft.getQuizById
@@ -75,12 +77,7 @@ fun EditQuizScreen(
 
     ) {
         if (isLoading) {
-            Text( // Mostrar un mensaje de carga mientras el quiz no está disponible
-                text = "Cargando...",
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 18.sp,
-                color = Color.Gray
-            )
+            LoadingScreen()
         } else {
             quiz?.let { loadedQuiz ->
                 EditQuiz(
@@ -111,24 +108,30 @@ fun EditQuiz(modifier: Modifier, navigationActions: NavigationActions, quiz: Qui
         modifier = modifier
     ) {
         Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-            InsertTexField(text = name, inputLabel = "Nombre del cuestionario", size = 56) {
-                name = it
+            getStringByName(LocalContext.current, "title_quiz_create_quiz")?.let {
+                InsertTexField(text = name, inputLabel = it, size = 56) {
+                    name = it
+                }
             }
             FileUploader3(
                 image = R.drawable.camara,
                 size = 128,
                 typeFile = "image/*",
                 onImageUrlReady = { url -> quizImageUrl = url })
-            InsertTexField(
-                text = tags,
-                inputLabel = "Etiquetas",
-                size = 56
-            ) { tags = it }
-            InsertTexField(
-                text = description,
-                inputLabel = "Descripcion",
-                size = 150
-            ) { description = it }
+            getStringByName(LocalContext.current, "tags")?.let {
+                InsertTexField(
+                    text = tags,
+                    inputLabel = it,
+                    size = 56
+                ) { tags = it }
+            }
+            getStringByName(LocalContext.current, "description_quiz")?.let {
+                InsertTexField(
+                    text = description,
+                    inputLabel = it,
+                    size = 150
+                ) { description = it }
+            }
             CancelAndAcceptButtons(
                 navigationActions,
                 quiz.quizId,
@@ -160,13 +163,15 @@ fun CancelAndAcceptButtons(
             onClick = { navigationActions.navigateToHome() },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
-            Text(
-                "Cancelar",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                fontSize = 20.sp,
-                color = Color(0xFFB18F4F)
-            )
+            getStringByName(LocalContext.current, "cancel_button_text")?.let {
+                Text(
+                    it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    fontSize = 20.sp,
+                    color = Color(0xFFB18F4F)
+                )
+            }
         }
         Button(
             shape = RoundedCornerShape(20),
@@ -184,13 +189,15 @@ fun CancelAndAcceptButtons(
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
-            Text(
-                "Aceptar",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                fontSize = 20.sp,
-                color = Color(0xFFB18F4F)
-            )
+            getStringByName(LocalContext.current, "accept_button_text")?.let {
+                Text(
+                    it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    fontSize = 20.sp,
+                    color = Color(0xFFB18F4F)
+                )
+            }
         }
     }
 }

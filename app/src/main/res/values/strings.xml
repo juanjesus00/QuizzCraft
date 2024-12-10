@@ -1,3 +1,41 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">My Application</string>,
+    <string name="my_quizzes">Mis Cuestionarios:</string>
+    <string name="recent_quizzes">Cuestionarios Recientes:</string>
+    <string name="created_quizzes">Cuestionarios creados</string>
+    <string name="passed_quizzes">Cuestionarios superados</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="register">Registrarse</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="light_mode">Modo claro</string>
+    <string name="language">Idioma</string>
+    <string name="my_quizzes_warning">¡Debes de registrarte para poder crear tus cuestionarios!</string>
+    <string name="recent_quizzes_warning">¡Debes de registrarte y jugar cuestionarios para tenerlos en recientes!</string>
+    <string name="warning_try_enter_to_profile">Debes registrarte o iniciar sesion para acceder a tu perfil</string>
+    <string name="warning_try_create_a_quiz">Debes registrarte o iniciar sesion para crear un cuestionario</string>
+    <string name="result_search">Resultados:</string>
+    <string name="placeholder_search">Escribe tags para buscar por ejemplo "#maths"</string>
+    <string name="what_option_create_quiz_popup">¿Qué quieres hacer?</string>
+    <string name="select_option_create_quiz_popup">Elección</string>
+    <string name="interaction_option_create_quiz_popup">Interacción</string>
+    <string name="title_quiz_create_quiz">Titulo del cuestionario</string>
+    <string name="generate_with_question_answer_document_create_quiz">Generar con documento formato pregunta/respuesta</string>
+    <string name="generate_with_plain_text_document_create_quiz">Generar con documento de texto plano</string>
+    <string name="tags">#Tags</string>
+    <string name="description_quiz">Descripción</string>
+    <string name="accept_button_text">Aceptar</string>
+    <string name="cancel_button_text">Cancelar</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="email">Correo</string>
+    <string name="password">Contraseña</string>
+    <string name="play_button">JUGAR</string>
+    <string name="score">Calificación</string>
+    <string name="correct_answers">Correctas:</string>
+    <string name="incorrect_answers">Incorrectas:</string>
+    <string name="home_button_results">Inicio</string>
+    <string name="english">Inglés</string>
+    <string name="spanish">Español</string>
+    <string name="loading">Cargando...</string>
+    <string name="loading_loadscreen">CARGANDO...</string>
+
 </resources>

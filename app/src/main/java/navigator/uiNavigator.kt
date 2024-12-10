@@ -29,6 +29,7 @@ import androidx.compose.ui.window.Popup
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
 import header.quizzes
+import languagesBack.getStringByName
 import menuHamburguesa.CustomPopupMenu
 import model.Quiz
 import quizcraft.searchQuizzesByTag
@@ -82,7 +83,7 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
                 }
                 "options" -> {
                     if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
-                        Toast.makeText(context, "Debes de registrarte o iniciar sesion para crear un cuestionario", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getStringByName(context, "warning_try_create_a_quiz"), Toast.LENGTH_SHORT).show()
                     } else {
                         expanded = !expanded
                     }

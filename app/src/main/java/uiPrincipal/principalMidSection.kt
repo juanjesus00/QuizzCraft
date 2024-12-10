@@ -18,10 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import languagesBack.getStringByName
 import routes.NavigationActions
 
 @Composable
@@ -40,11 +42,13 @@ fun getPrincipalMidSection(
     ) {
 
         if (!SharedState.isSearched) {
-            insertSectionQuiz(
-                titleSection = "Mis Cuestionarios:",
-                titleQuiz = "Titulo",
-                navigationActions
-            )
+            getStringByName(LocalContext.current, "my_quizzes")?.let {
+                insertSectionQuiz(
+                    titleSection = it,
+                    titleQuiz = "Titulo",
+                    navigationActions
+                )
+            }
             insertSectionLastQuizzies(navigationActions)
         } else {
             SearchedQuizzes(navigationActions)
@@ -57,8 +61,9 @@ fun getPrincipalMidSection(
 @Composable
 fun SearchedQuizzes(navigationActions: NavigationActions) {
     Spacer(modifier = Modifier.height(50.dp))
-    Text(
-        text = "Resultados: ",
+    getStringByName(LocalContext.current, "result_search")?.let {
+        Text(
+        text = it,
         modifier = Modifier
             .fillMaxWidth()
             .offset(x = 15.dp),
@@ -66,6 +71,7 @@ fun SearchedQuizzes(navigationActions: NavigationActions) {
         fontWeight = FontWeight.Bold,
         fontFamily = poppinsFamily,
     )
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()

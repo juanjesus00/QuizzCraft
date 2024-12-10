@@ -26,6 +26,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.bumptech.glide.Glide
 
 import com.example.myapplication.R
+import languagesBack.getStringByName
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -51,14 +52,16 @@ fun LoadingScreen() {
             },
             modifier = Modifier.size(150.dp)
         )
-        Text(
-            text = "CARGANDO...",
-            fontWeight = FontWeight.Bold,
-            fontFamily = poppinsFamily,
-            fontSize = 30.sp,
-            color = Color(0xFFB18F4F)
+        getStringByName(LocalContext.current, "loading_loadscreen")?.let {
+            Text(
+                text = it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                fontSize = 30.sp,
+                color = Color(0xFFB18F4F)
 
-        )
+            )
+        }
     }
 }
 

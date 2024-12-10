@@ -36,14 +36,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import carga.LoadingScreen
 import com.example.myapplication.R
+import languagesBack.getStringByName
 import routes.NavigationActions
 import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun RegisterScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun RegisterScreen(
+    navigationActions: NavigationActions,
+    viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -78,11 +83,11 @@ fun BoxField(modifier: Modifier, viewModel: loginbacked, navigationActions: Navi
 
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
-        UserField(name) {name = it}
+        UserField(name) { name = it }
         Spacer(modifier = Modifier.padding(8.dp))
-        PasswordField(password) {password = it}
+        PasswordField(password) { password = it }
         Spacer(modifier = Modifier.padding(8.dp))
-        EmailField(username) {username = it}
+        EmailField(username) { username = it }
         Spacer(modifier = Modifier.padding(2.dp))
         LoginSection(navigationActions)
         Spacer(modifier = Modifier.padding(2.dp))
@@ -113,12 +118,14 @@ fun UserField(name: String, function: (String) -> Unit) {
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
-            Text(
-                text = "Nombre de usuario",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
+            getStringByName(LocalContext.current, "username")?.let {
+                Text(
+                    text = it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color(0xFFC49450)
+                )
+            }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         singleLine = true,
@@ -136,12 +143,14 @@ fun PasswordField(password: String, function: (String) -> Unit) {
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
-            Text(
-                text = "Contraseña",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
+            getStringByName(LocalContext.current, "password")?.let {
+                Text(
+                    text = it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color(0xFFC49450)
+                )
+            }
         },
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -160,12 +169,14 @@ fun EmailField(username: String, function: (String) -> Unit) {
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFFFFFF)),
         placeholder = {
-            Text(
-                text = "Email",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
-            )
+            getStringByName(LocalContext.current, "email")?.let {
+                Text(
+                    text = it,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color(0xFFC49450)
+                )
+            }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         singleLine = true,
@@ -176,12 +187,18 @@ fun EmailField(username: String, function: (String) -> Unit) {
 @Composable
 fun LoginSection(navigationActions: NavigationActions) {
     Button(
-        onClick = {navigationActions.navigateToLogin()},
+        onClick = { navigationActions.navigateToLogin() },
         modifier = Modifier.height(48.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
 
     ) {
-        Text(text = "Iniciar Sesion", fontWeight = FontWeight.Bold, fontFamily = poppinsFamily)
+        getStringByName(LocalContext.current, "login")?.let {
+            Text(
+                text = it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily
+            )
+        }
     }
 }
 
@@ -198,7 +215,7 @@ fun RegisterButton(
     Button(
         onClick = {
             isLoading = !isLoading
-            viewModel.register(email = username, password = password, context = context, name ){
+            viewModel.register(email = username, password = password, context = context, name) {
                 navigationActions.navigateToHome()
             }
         },
@@ -206,13 +223,10 @@ fun RegisterButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 
     ) {
-        Text(
-            text = if (isLoading) "Cargando..." else "Registrarse",
-            fontWeight = FontWeight.Bold,
-            fontFamily = poppinsFamily,
-            fontSize = 16.sp
-        )
+        if (isLoading) {
+            LoadingScreen()
     }
+}
 }
 
 
