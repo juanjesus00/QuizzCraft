@@ -223,9 +223,15 @@ fun RegisterButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 
     ) {
-        if (isLoading) {
-            LoadingScreen()
-    }
+        (if (isLoading) getStringByName(LocalContext.current, "loading") else getStringByName(
+            LocalContext.current, "register"))?.let {
+            Text(
+                text = it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                fontSize = 16.sp
+            )
+        }
 }
 }
 

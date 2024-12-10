@@ -41,7 +41,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import carga.LoadingScreen
 import com.example.myapplication.R
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -271,17 +270,14 @@ fun LoginButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 
     ) {
-        if (isLoading) {
-            LoadingScreen()
-        } else {
-            getStringByName(LocalContext.current, "login")?.let {
-                Text(
-                    text = it,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = poppinsFamily,
-                    fontSize = 16.sp
-                )
-            }
+        (if (isLoading) getStringByName(LocalContext.current, "loading") else getStringByName(
+            LocalContext.current, "login"))?.let {
+            Text(
+                text = it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                fontSize = 16.sp
+            )
         }
     }
 }

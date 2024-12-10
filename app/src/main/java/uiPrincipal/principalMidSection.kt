@@ -4,6 +4,8 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -63,26 +66,40 @@ fun SearchedQuizzes(navigationActions: NavigationActions) {
     Spacer(modifier = Modifier.height(50.dp))
     getStringByName(LocalContext.current, "result_search")?.let {
         Text(
-        text = it,
-        modifier = Modifier
-            .fillMaxWidth()
-            .offset(x = 15.dp),
-        fontSize = 20.sp,
-        fontWeight = FontWeight.Bold,
-        fontFamily = poppinsFamily,
-    )
+            text = it,
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset(x = 15.dp),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = poppinsFamily,
+        )
     }
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(max = 500.dp)
+            .fillMaxSize()
+            .heightIn(max = 700.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
+        verticalArrangement = Arrangement.Top,
     ) {
-        for(quiz in header.quizzes.value) {
-            println(quiz)
-            favQuiz(imageResource = quiz.quizImageUrl, title = quiz.name, titleSection = "Resultados", navigationActions, quizId = quiz.quizId)
+        header.quizzes.value.chunked(2).forEach { chunk ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp) // Espacio entre los quizzes
+            ) {
+                // Mostramos cada quiz del chunk
+                chunk.forEach { quiz ->
+                    println(quiz.name)
+                    favQuiz(
+                        imageResource = quiz.quizImageUrl,
+                        title = quiz.name,
+                        titleSection = "Resultados",
+                        navigationActions,
+                        quizId = quiz.quizId
+                    )
+                }
+            }
         }
     }
 }
