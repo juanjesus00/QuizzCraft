@@ -132,7 +132,7 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
     Scaffold(
         topBar = {
             AnimatedVisibility(visible = showBars) {
-                getHeader(navigationActions)
+                getHeader(navigationActions, navController)
             }
         },
         bottomBar = {

@@ -37,6 +37,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
@@ -52,6 +54,7 @@ import menuHamburguesa.CustomPopupMenu
 import model.Quiz
 import quizcraft.searchQuizzesByTag
 import routes.NavigationActions
+import routes.Routes
 import uiPrincipal.SharedState
 import uiUserInfo.userInfoBack
 
@@ -59,7 +62,9 @@ var quizzes = mutableStateOf<List<Quiz>>(emptyList())
 
 
 @Composable
-fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack = viewModel()) {
+fun getHeader(navigationActions: NavigationActions, navController: NavHostController,  viewModelUser: userInfoBack = viewModel()) {
+
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val context = LocalContext.current
     var expanded by remember {
         mutableStateOf(false)
@@ -72,7 +77,7 @@ fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack 
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     )  {
-        if(!SharedState.isSearchActive) {
+        if(!SharedState.isSearchActive || currentRoute != Routes.HOME) {
             if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
                 Image(
                     painter = painterResource(id = R.drawable.non_registered_account_icon),
@@ -154,7 +159,6 @@ fun getHeader(navigationActions: NavigationActions, viewModelUser: userInfoBack 
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedLabelColor = Color(0x80C49450),
                         unfocusedIndicatorColor = Color.Transparent,
-
                         ),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions.Default.copy(
