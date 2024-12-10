@@ -4,8 +4,10 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -43,6 +46,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
 import routes.NavigationActions
@@ -52,12 +56,13 @@ import uiUserInfo.userInfoBack
 import java.io.File
 
 @Composable
-fun EditUserScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun EditUserScreen(navigationActions: NavigationActions, scrollState: ScrollState, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFE0D4C8))
             .padding(32.dp)
+            .verticalScroll(scrollState)
 
     ) {
         EditUser(
