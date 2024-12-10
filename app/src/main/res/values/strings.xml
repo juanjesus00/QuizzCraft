@@ -37,5 +37,7 @@
     <string name="spanish">Español</string>
     <string name="loading">Cargando...</string>
     <string name="loading_loadscreen">CARGANDO...</string>
-
+    <string name="new_pass">Nueva contraseña</string>
+    <string name="change_pass">Cambiar contraseña</string>
+    <string name="current_pass">Contraseña actual</string>
 </resources>

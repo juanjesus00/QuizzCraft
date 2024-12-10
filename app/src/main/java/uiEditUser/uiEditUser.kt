@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -49,6 +50,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
+import languagesBack.getStringByName
 import routes.NavigationActions
 import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
@@ -190,41 +192,87 @@ fun UserField(name: String?, function: (String) -> Unit) {
 
 @Composable
 fun PasswordField(password: String, function: (String) -> Unit) {
-    TextField(
-        value = password,
-        onValueChange = function,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        placeholder = {
+    var changePass by remember { mutableStateOf(false) }
+    Button(
+        modifier = Modifier,
+        shape = RoundedCornerShape(20),
+        onClick = {changePass = !changePass},
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325)),
+        enabled = if(changePass) false else true
+    ) {
+        getStringByName(LocalContext.current, "change_pass")?.let {
             Text(
-                text = "Contraseña",
+                it,
                 fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
-                color = Color(0xFFC49450)
+                fontSize = 20.sp,
+                color = Color(0xFFB18F4F)
             )
-        },
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true,
-        maxLines = 1,
-    )
+        }
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+
+    Box (modifier = Modifier){
+        TextField(
+            modifier = Modifier
+                .alpha(if (changePass) 1f else 0f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFFFFFFF))
+                .fillMaxWidth(),
+            value = password,
+            onValueChange = function,
+            placeholder = {
+                getStringByName(LocalContext.current, "new_pass")?.let {
+                    Text(
+                        text = it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        color = Color(0xFFC49450)
+                    )
+                }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
+            maxLines = 1,
+        )
+    }
+
+
+
 }
 @Composable
 fun ShowPasswordField(password: String?) {
-    TextField(
-        value = password?:"null",
-        onValueChange = {},
+    var eyeState by remember { mutableStateOf(false) }
+    Button(
+        onClick = {
+                eyeState = !eyeState
+        },
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true,
-        maxLines = 1,
-    )
+            .height(56.dp)
+            .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFEADEE6),
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            (if (eyeState)  password?:"no tienes contraseña" else getStringByName(
+                LocalContext.current, "current_pass"))?.let { Text(text = it, fontSize = 10.sp,fontFamily = poppinsFamily, color = Color(0xFFC49450)) }
+            Box {
+                Image(
+
+                    painter = painterResource(id = if (eyeState) R.drawable.eyeopen else R.drawable.eyeclose),
+                    contentDescription = "Imagen de estado"
+                )
+            }
+        }
+    }
 }
 
 @Composable
