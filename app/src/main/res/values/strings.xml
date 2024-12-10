@@ -19,8 +19,8 @@
     <string name="select_option_create_quiz_popup">Elección</string>
     <string name="interaction_option_create_quiz_popup">Interacción</string>
     <string name="title_quiz_create_quiz">Titulo del cuestionario</string>
-    <string name="generate_with_question_answer_document_create_quiz">Generar con documento formato pregunta/respuesta</string>
-    <string name="generate_with_plain_text_document_create_quiz">Generar con documento de texto plano</string>
+    <string name="generate_with_question_answer_document_create_quiz">Generar con PDF pregunta/respuesta</string>
+    <string name="generate_with_plain_text_document_create_quiz">Generar con PDF de texto plano</string>
     <string name="tags">#Tags</string>
     <string name="description_quiz">Descripción</string>
     <string name="accept_button_text">Aceptar</string>

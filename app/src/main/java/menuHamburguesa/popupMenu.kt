@@ -74,7 +74,7 @@ fun CustomPopupMenu(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = 10.dp),
+                            .padding(start = 0.dp),
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.Start
                     ) {
@@ -115,61 +115,61 @@ fun CustomPopupMenu(
                                 LocalContext.current
                             )
                         }
-                        Box(
+                        /*Column(
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            getStringByName(LocalContext.current, "language")?.let {
-                                popupInformation(
-                                    icon = R.drawable.language,
-                                    text = it,
-                                    navigationActions = navigationActions,
-                                    LocalContext.current,
-                                    onClick = {
-                                        println("Antes de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
-                                        languageMenuExpanded.value = !languageMenuExpanded.value
-                                        println("Despues de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
-                                    },
-                                )
-                            }
 
-                            DropdownMenu(
-                                expanded = languageMenuExpanded.value,
-                                onDismissRequest = { languageMenuExpanded.value = false },
-                                offset = DpOffset(
-                                    245.dp,
-                                    87.dp
-                                ),
-                                modifier = Modifier
-                                    .width(80.dp)
-                                    .background(color = Color(color)
-                                )
-                            ) {
-                                DropdownMenuItem(
-                                    text = { getStringByName(LocalContext.current, "english")?.let {
-                                        Text(
-                                            it, color = Color(0xFFB18F4F))
-                                    } },
-                                    onClick = {
-                                        languageMenuExpanded.value = false
-                                        LanguageManager.languageCode = "en"
-                                        println(LanguageManager.languageCode)
-
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { getStringByName(LocalContext.current, "spanish")?.let {
-                                        Text(
-                                            it, color = Color(0xFFB18F4F))
-                                    } },
-                                    onClick = {
-                                        languageMenuExpanded.value = false
-                                        LanguageManager.languageCode = ""
-
-                                    }
-                                )
-                            }
+                        }*/
+                        getStringByName(LocalContext.current, "language")?.let {
+                            popupInformation(
+                                icon = R.drawable.language,
+                                text = it,
+                                navigationActions = navigationActions,
+                                LocalContext.current,
+                                onClick = {
+                                    println("Antes de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
+                                    languageMenuExpanded.value = !languageMenuExpanded.value
+                                    println("Despues de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
+                                },
+                            )
                         }
 
+                        DropdownMenu(
+                            expanded = languageMenuExpanded.value,
+                            onDismissRequest = { languageMenuExpanded.value = false },
+                            offset = DpOffset(
+                                245.dp,
+                                87.dp
+                            ),
+                            modifier = Modifier
+                                .width(80.dp)
+                                .background(color = Color(color)
+                                )
+                        ) {
+                            DropdownMenuItem(
+                                text = { getStringByName(LocalContext.current, "english")?.let {
+                                    Text(
+                                        it, color = Color(0xFFB18F4F))
+                                } },
+                                onClick = {
+                                    languageMenuExpanded.value = false
+                                    LanguageManager.languageCode = "en"
+                                    println(LanguageManager.languageCode)
+
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { getStringByName(LocalContext.current, "spanish")?.let {
+                                    Text(
+                                        it, color = Color(0xFFB18F4F))
+                                } },
+                                onClick = {
+                                    languageMenuExpanded.value = false
+                                    LanguageManager.languageCode = ""
+
+                                }
+                            )
+                        }
 
                     }
                 }
@@ -328,9 +328,9 @@ fun popupInformation(
     onClick: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = text,

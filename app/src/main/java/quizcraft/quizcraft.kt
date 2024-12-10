@@ -197,7 +197,7 @@ fun FileUploader2(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = text, fontFamily = poppinsFamily, color = Color(0xFFC49450))
+                Text(text = text, fontSize = 10.sp,fontFamily = poppinsFamily, color = Color(0xFFC49450))
                 Box {
                     Image(
                         painter = painterResource(id = if (isActive && (textContent.isNotEmpty() || pdfContent.isNotEmpty())) R.drawable.check else image),
