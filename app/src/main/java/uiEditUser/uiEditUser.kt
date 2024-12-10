@@ -4,8 +4,10 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +18,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -43,6 +47,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
 import languagesBack.getStringByName
@@ -53,12 +58,13 @@ import uiUserInfo.userInfoBack
 import java.io.File
 
 @Composable
-fun EditUserScreen(navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun EditUserScreen(navigationActions: NavigationActions, scrollState: ScrollState, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFE0D4C8))
             .padding(32.dp)
+            .verticalScroll(scrollState)
 
     ) {
         EditUser(
@@ -192,43 +198,87 @@ fun UserField(name: String?, function: (String) -> Unit) {
 
 @Composable
 fun PasswordField(password: String, function: (String) -> Unit) {
-    TextField(
-        value = password,
-        onValueChange = function,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        placeholder = {
-            getStringByName(LocalContext.current, "password")?.let {
-                Text(
-                    text = it,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = poppinsFamily,
-                    color = Color(0xFFC49450)
-                )
-            }
-        },
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true,
-        maxLines = 1,
-    )
+    var changePass by remember { mutableStateOf(false) }
+    Button(
+        modifier = Modifier,
+        shape = RoundedCornerShape(20),
+        onClick = {changePass = !changePass},
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325)),
+        enabled = if(changePass) false else true
+    ) {
+        getStringByName(LocalContext.current, "change_pass")?.let {
+            Text(
+                it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                fontSize = 20.sp,
+                color = Color(0xFFB18F4F)
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+
+    Box (modifier = Modifier){
+        TextField(
+            modifier = Modifier
+                .alpha(if (changePass) 1f else 0f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFFFFFFF))
+                .fillMaxWidth(),
+            value = password,
+            onValueChange = function,
+            placeholder = {
+                getStringByName(LocalContext.current, "new_pass")?.let {
+                    Text(
+                        text = it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        color = Color(0xFFC49450)
+                    )
+                }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
+            maxLines = 1,
+        )
+    }
+
+
+
 }
 @Composable
 fun ShowPasswordField(password: String?) {
-    TextField(
-        value = password?:"null",
-        onValueChange = {},
+    var eyeState by remember { mutableStateOf(false) }
+    Button(
+        onClick = {
+                eyeState = !eyeState
+        },
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true,
-        maxLines = 1,
-    )
+            .height(56.dp)
+            .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFEADEE6),
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            (if (eyeState)  password?:"no tienes contraseña" else getStringByName(
+                LocalContext.current, "current_pass"))?.let { Text(text = it, fontSize = 10.sp,fontFamily = poppinsFamily, color = Color(0xFFC49450)) }
+            Box {
+                Image(
+
+                    painter = painterResource(id = if (eyeState) R.drawable.eyeopen else R.drawable.eyeclose),
+                    contentDescription = "Imagen de estado"
+                )
+            }
+        }
+    }
 }
 
 @Composable

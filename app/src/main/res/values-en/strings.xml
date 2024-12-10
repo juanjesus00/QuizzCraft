@@ -37,4 +37,7 @@
     <string name="spanish">Spanish</string>
     <string name="loading">Loading...</string>
     <string name="loading_loadscreen">LOADING...</string>
+    <string name="new_pass">New password</string>
+    <string name="change_pass">Change password</string>
+    <string name="current_pass">Current password</string>
 </resources>
