@@ -53,9 +53,9 @@ fun ResultScreen(navigationActions: NavigationActions, scrollState: ScrollState,
 @Composable
 fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQuestions: Int) {
     val result = if (correctQuestions + wrongQuestions > 0) {
-        String.format("%.2f",(correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10).toDouble()
+        "%.2f".format((correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10)
     } else {
-        0.0
+        "0.00"
     }
     Column(
         modifier = Modifier
@@ -89,13 +89,13 @@ fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQue
                 modifier = Modifier.align(Alignment.Center)
             )
             Text(
-                getStringByName(LocalContext.current, "correct_answers")+": "+"$correctQuestions", fontWeight = FontWeight.Bold,
+                getStringByName(LocalContext.current, "correct_answers")+" "+"$correctQuestions", fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 18.sp, color = Color(0xFFFFFFFF),
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)
             )
             Text(
-                getStringByName(LocalContext.current, "incorrect_answers")+": "+"$wrongQuestions", fontWeight = FontWeight.Bold,
+                getStringByName(LocalContext.current, "incorrect_answers")+" "+"$wrongQuestions", fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 18.sp, color = Color(0xFFFFFFFF),
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 72.dp)
