@@ -6,9 +6,12 @@ import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -17,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import uiUserInfo.userInfoBack
 import java.util.Properties
 
 class loginbacked: ViewModel() {
@@ -168,7 +172,7 @@ class loginbacked: ViewModel() {
             }
     }
 
-    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit) = viewModelScope.launch{
+    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit, showpassword: String?) = viewModelScope.launch{
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (_loading.value == false){ //no se esta creando usuarios actualmente
             if(password.length < 6){
@@ -179,7 +183,7 @@ class loginbacked: ViewModel() {
                     val uid = user.uid
                     val db = FirebaseFirestore.getInstance()
                     val storageRef = FirebaseStorage.getInstance().reference.child("userImage/$uid.jpg")
-                    if(selectImageUri != null && email != "" && userName != ""){
+                    if(selectImageUri != null && email != "" && userName != "" && password != showpassword){
                         storageRef.putFile(selectImageUri)
                             .addOnSuccessListener { taskSnapshot ->
                                 storageRef.downloadUrl.addOnSuccessListener { uri ->
@@ -188,7 +192,8 @@ class loginbacked: ViewModel() {
                                     val userUpdates = mapOf(
                                         "email" to email,
                                         "userName" to userName,
-                                        "PerfilImage" to imageUri
+                                        "PerfilImage" to imageUri,
+                                        "password" to password
                                     )
                                     db.collection("Usuarios").document(uid).update(userUpdates)
                                         .addOnSuccessListener {
