@@ -1,7 +1,8 @@
 package quizcraft
 
-import android.content.Context
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -323,7 +324,9 @@ fun AcceptButton(
                             userId = auth.currentUser?.uid ?: ""
                         )
                     )
-                    navigationActions.navigateToHome()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        navigationActions.navigateToHome()
+                    }, 2000)
                 }
 
             }else{
