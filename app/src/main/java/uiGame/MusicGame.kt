@@ -29,4 +29,8 @@ class MusicManager(private val context: Context) {
             }
         }
     }
+
+    fun setVolume(volume: Float) {
+        mediaPlayer?.setVolume(volume, volume) // Valores de 0.0f (mudo) a 1.0f (máximo)
+    }
 }
