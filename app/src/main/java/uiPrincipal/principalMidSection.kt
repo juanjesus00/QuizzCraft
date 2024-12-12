@@ -1,5 +1,7 @@
 package uiPrincipal
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,7 +47,7 @@ fun getPrincipalMidSection(
 
     ) {
 
-        if (!SharedState.isSearched) {
+        if (!SharedState.isSearched && !SharedState.isSearchActive) {
             getStringByName(LocalContext.current, "my_quizzes")?.let {
                 insertSectionQuiz(
                     titleSection = it,
@@ -63,7 +66,15 @@ fun getPrincipalMidSection(
 
 @Composable
 fun SearchedQuizzes(navigationActions: NavigationActions) {
-    Spacer(modifier = Modifier.height(50.dp))
+
+    val animatedHeight by animateDpAsState(
+        targetValue = if (SharedState.isClickedSuggestion) 125.dp else 50.dp,
+        animationSpec = tween(durationMillis = 300)
+    )
+
+    Spacer(
+        modifier = Modifier.height(animatedHeight)
+    )
     getStringByName(LocalContext.current, "result_search")?.let {
         Text(
             text = it,
