@@ -6,9 +6,12 @@ import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -17,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import uiUserInfo.userInfoBack
 import java.util.Properties
 
 class loginbacked: ViewModel() {
@@ -168,11 +172,17 @@ class loginbacked: ViewModel() {
             }
     }
 
-    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit) = viewModelScope.launch{
+    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit, showpassword: String?, passwordchange: String) = viewModelScope.launch{
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (_loading.value == false){ //no se esta creando usuarios actualmente
-            if(password.length < 6){
-                Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+            if(password.length < 6 && password != showpassword && passwordchange == ""){
+                if(password.length < 6 && passwordchange == ""){
+                    Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                }else if(password != showpassword && passwordchange == ""){
+                    Toast.makeText(context, "la contraseña es incorrecta", Toast.LENGTH_SHORT).show()
+                }else if(passwordchange != "" && passwordchange.length < 6){
+                    Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                }
             }else{
                 _loading.value = true
                 currentUser?.let{ user ->
@@ -188,7 +198,8 @@ class loginbacked: ViewModel() {
                                     val userUpdates = mapOf(
                                         "email" to email,
                                         "userName" to userName,
-                                        "PerfilImage" to imageUri
+                                        "PerfilImage" to imageUri,
+                                        "password" to password
                                     )
                                     db.collection("Usuarios").document(uid).update(userUpdates)
                                         .addOnSuccessListener {
@@ -205,7 +216,7 @@ class loginbacked: ViewModel() {
                             }.addOnFailureListener { e ->
                                 Log.w("Storage", "Error al subir la imagen", e)
                             }
-                    }else if(email != "" && userName != ""){
+                    }else if(email != "" || userName != ""){
                         val userUpdates = mapOf(
                             "email" to email,
                             "userName" to userName
@@ -218,7 +229,21 @@ class loginbacked: ViewModel() {
                             .addOnFailureListener{ e ->
                                 Log.w("Firestore", "Error al actualizar el usuario", e)
                             }
-                    } else {
+                    } else if(passwordchange != "" && passwordchange.length > 6){
+                        val userUpdates = mapOf(
+                            "password" to passwordchange
+                        )
+                        db.collection("Usuarios").document(uid).update(userUpdates)
+                            .addOnSuccessListener { document ->
+                                Log.d("Firestore", "Usuario actualizado exitosamente")
+                                onSuccess()
+                            }
+                            .addOnFailureListener{ e ->
+                                Log.w("Firestore", "Error al actualizar el usuario", e)
+                            }
+                    }else if (passwordchange != "" && selectImageUri != null && email != "" && userName != ""){
+                        Toast.makeText(context, "para cambiar la contraseña no se pueden cambiar otros parámetros", Toast.LENGTH_SHORT).show()
+                    }else{
                         Toast.makeText(context, "Almenos Rellena email y nombre de usuario", Toast.LENGTH_SHORT).show()
                     }
 

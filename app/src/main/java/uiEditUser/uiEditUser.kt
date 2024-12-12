@@ -7,7 +7,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -57,6 +55,7 @@ import uiPrincipal.poppinsFamily
 import uiUserInfo.userInfoBack
 import java.io.File
 
+
 @Composable
 fun EditUserScreen(navigationActions: NavigationActions, scrollState: ScrollState, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = viewModel()) {
     Box(
@@ -85,8 +84,10 @@ fun EditUser(
     var userName by remember { mutableStateOf<String?>("")}
     var email by remember { mutableStateOf<String?>("")}
     var password by remember { mutableStateOf("")}
+    var passwordChange by remember { mutableStateOf("")}
     var perfilImage by remember { mutableStateOf(mutableStateOf<Uri?>(null))}
     var showpassword by remember { mutableStateOf<String?>("") }
+    var isopen by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModelUser.getInfoUser { user ->
             userName = user?.get("userName") as? String
@@ -106,11 +107,11 @@ fun EditUser(
             Spacer(modifier = Modifier.padding(12.dp))
             ShowPasswordField(showpassword)
             Spacer(modifier = Modifier.padding(12.dp))
-            PasswordField(password) {password = it}
+            ChangePasswordField(password, {password = it}, passwordChange, {passwordChange = it})
             Spacer(modifier = Modifier.padding(12.dp))
             photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
             Spacer(modifier = Modifier.padding(6.dp))
-            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage)
+            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage, showpassword, passwordChange)
         }
     }
 }
@@ -123,7 +124,9 @@ fun CancelAndAcceptButtons(
     userName: String?,
     email: String?,
     password: String,
-    perfilImage: MutableState<Uri?>
+    perfilImage: MutableState<Uri?>,
+    showpassword: String?,
+    passwordChange: String
 ) {
     var context = LocalContext.current
     Row(
@@ -155,7 +158,9 @@ fun CancelAndAcceptButtons(
                     password = password,
                     onSuccess = {navigationActions.navigateToHome()},
                     context = context,
-                    selectImageUri = perfilImage.value
+                    selectImageUri = perfilImage.value,
+                    showpassword = showpassword,
+                    passwordchange = passwordChange
                 ) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
@@ -197,12 +202,14 @@ fun UserField(name: String?, function: (String) -> Unit) {
 }
 
 @Composable
-fun PasswordField(password: String, function: (String) -> Unit) {
+fun ChangePasswordField(password: String, function: (String) -> Unit, passwordchange: String, function2: (String) -> Unit) {
     var changePass by remember { mutableStateOf(false) }
     Button(
         modifier = Modifier,
         shape = RoundedCornerShape(20),
-        onClick = {changePass = !changePass},
+        onClick = {changePass = !changePass
+
+                  },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325)),
         enabled = if(changePass) false else true
     ) {
@@ -225,8 +232,8 @@ fun PasswordField(password: String, function: (String) -> Unit) {
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color(0xFFFFFFFF))
                 .fillMaxWidth(),
-            value = password,
-            onValueChange = function,
+            value = passwordchange,
+            onValueChange = function2,
             placeholder = {
                 getStringByName(LocalContext.current, "new_pass")?.let {
                     Text(
@@ -243,10 +250,65 @@ fun PasswordField(password: String, function: (String) -> Unit) {
             maxLines = 1,
         )
     }
+    Spacer(modifier = Modifier.height(10.dp))
 
+    Box (modifier = Modifier.alpha(if(changePass) 0f else 1f)){
+        TextField(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFFFFFFF))
+                .fillMaxWidth(),
+            enabled = if(changePass) false else true,
+            value = password,
+            onValueChange = function,
+            placeholder = {
+                getStringByName(LocalContext.current, "password")?.let {
+                    Text(
+                        text = it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        color = Color(0xFFC49450)
+                    )
+                }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
+            maxLines = 1
+        )
+    }
 
 
 }
+/*@Composable
+fun PasswordField(password: String, function: (String) -> Unit){
+
+    Box (modifier = Modifier){
+        TextField(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFFFFFFF))
+                .fillMaxWidth(),
+            value = password,
+            onValueChange = function,
+            placeholder = {
+                getStringByName(LocalContext.current, "password")?.let {
+                    Text(
+                        text = it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        color = Color(0xFFC49450)
+                    )
+                }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
+            maxLines = 1,
+            enabled = false
+        )
+    }
+}*/
 @Composable
 fun ShowPasswordField(password: String?) {
     var eyeState by remember { mutableStateOf(false) }
