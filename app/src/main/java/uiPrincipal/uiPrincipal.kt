@@ -154,7 +154,7 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
         } else if (currentRoute == Routes.RESULT) {
             ResultScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.ABOUT) {
-            AboutScreen(navigationActions, scrollState)
+            AboutScreen(navigationActions)
         }
     }
 }
