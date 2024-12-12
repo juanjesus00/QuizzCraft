@@ -29,6 +29,7 @@ import navigator.uiNavigator
 import quizcraft.uiQuizCraft
 import routes.NavigationActions
 import routes.Routes
+import uiAbout.AboutScreen
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
 import uiGame.GameScreen
@@ -152,6 +153,8 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             GameScreen(navigationActions, scrollState = scrollState, 't', navController)
         } else if (currentRoute == Routes.RESULT) {
             ResultScreen(navigationActions, scrollState = scrollState, navController)
+        } else if (currentRoute == Routes.ABOUT) {
+            AboutScreen(navigationActions, scrollState)
         }
     }
 }

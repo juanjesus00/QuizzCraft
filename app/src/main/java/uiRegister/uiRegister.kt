@@ -43,7 +43,6 @@ import routes.NavigationActions
 import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
 
-//@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RegisterScreen(
     navigationActions: NavigationActions,

@@ -41,4 +41,10 @@
     <string name="change_pass">Cambiar contraseña</string>
     <string name="current_pass">Contraseña actual</string>
     <string name="suggestion_search">resultado</string>
+    <string name="about">Acerca de</string>
+    <string name="quizcraft">QuizCraft</string>
+    <string name="about_quizcraft">Herramienta diseñada para quienes buscan estudiar de manera más eficiente, aprovechando la inteligencia artificial para convertir su material de estudio en cuestionarios personalizados. Solo necesitas subir un archivo en formato texto plano, PDF o con preguntas y respuestas, y la aplicación generará automáticamente las preguntas necesarias para reforzar tu aprendizaje. Además, podrás evaluar tus conocimientos jugando los cuestionarios y obteniendo una nota final que te permitirá identificar tus avances y áreas de mejora. Con QuizCraft, estudiar se vuelve más práctico, interactivo y completamente adaptado a tus necesidades.</string>
+    <string name="about_us">Sobre nosotros</string>
+    <string name="developers">Desarrolladores</string>
+    <string name="about_version">Versión: </string>
 </resources>
