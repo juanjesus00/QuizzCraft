@@ -50,32 +50,38 @@ fun InfoQuizScreen(
     val navBackStackEntry = remember { navController.currentBackStackEntry }
     val quizId = navBackStackEntry?.arguments?.getString("quizId") ?: ""
     var quiz by remember { mutableStateOf<Quiz?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         getQuizById(
             quizId,
             onResult = { result ->
-                println(result)
+                println("Datos cargados: $result")
                 quiz = result.copy()
+                isLoading = false
+                println("isLoading: $isLoading")
             },
             onError = { exception ->
-                // Manejo de errores
-                println("Error al obtener quizzes: ${exception.message}")
+                isLoading = false
             }
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE0D4C8))
-            .padding(32.dp)
-            .verticalScroll(scrollState)
-
-    ) {
+    if (isLoading) {
+        LoadingScreen()
+    } else {
         quiz?.let { loadedQuiz ->
-            InfoQuiz(navigationActions, quiz!!)
-        } ?: LoadingScreen()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFE0D4C8))
+                    .padding(32.dp)
+                    .verticalScroll(scrollState)
+
+            ) {
+                InfoQuiz(navigationActions, loadedQuiz)
+            }
+        }
     }
 }
 
@@ -157,8 +163,9 @@ fun ButtonPlay(navigationActions: NavigationActions, modifier: Modifier, quiz: Q
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(20),
-        onClick = { navigationActions.navigateToGame(quiz.content)
-                  userAddLastQuiz(quiz.quizId)
+        onClick = {
+            navigationActions.navigateToGame(quiz.content)
+            userAddLastQuiz(quiz.quizId)
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {

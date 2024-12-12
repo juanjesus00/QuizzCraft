@@ -52,6 +52,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.example.myapplication.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 import java.util.Timer
@@ -59,7 +63,7 @@ import kotlin.concurrent.schedule
 
 var correctQuestion: Int = 0
 var wrongQuestion: Int = 0
-
+var isProcessingClick = mutableStateOf(false)
 
 @Composable
 fun GameScreen(
@@ -80,6 +84,8 @@ fun GameScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val isMuted = remember { mutableStateOf(false) }
+
+
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -157,13 +163,10 @@ fun GameScreen(
                     painterResource(id = R.drawable.activated_volume)
                 },
                 contentDescription = "Volumen",
-                modifier = Modifier.
-                clickable {
-                    if(isMuted.value) {
-                        println("Subo!")
+                modifier = Modifier.clickable {
+                    if (isMuted.value) {
                         musicManager.setVolume(1.0F)
                     } else {
-                        println("Bajo!")
                         musicManager.setVolume(0.0F)
                     }
                     isMuted.value = !isMuted.value
@@ -179,6 +182,7 @@ fun GameScreen(
             onNext = {
                 if (currentQuestionIndex < questions.size - 1) {
                     currentQuestionIndex++
+
                 } else {
                     navigationActions.navigateToResult(correctQuestion, wrongQuestion)
                     correctQuestion = 0
@@ -240,6 +244,7 @@ fun Game(
 fun Answers(answer: Answers, onNext: () -> Unit, soundManager: SoundManager) {
     val options = answer.answers
     val selectedOptionIndex = remember { mutableStateOf(-1) }
+    val isButtonEnabled = remember { mutableStateOf(true) }
 
     options.forEachIndexed { index, option ->
         val color = when (index) {
@@ -251,7 +256,7 @@ fun Answers(answer: Answers, onNext: () -> Unit, soundManager: SoundManager) {
 
         val buttonSize by animateDpAsState(
             targetValue = if (selectedOptionIndex.value == index && option.correct) 350.dp else 300.dp,
-            animationSpec = tween(durationMillis = 500)
+            animationSpec = tween(durationMillis = 100)
         )
 
         val borderColor by animateColorAsState(
@@ -260,7 +265,7 @@ fun Answers(answer: Answers, onNext: () -> Unit, soundManager: SoundManager) {
                 selectedOptionIndex.value == index && !option.correct -> Color.Red
                 else -> Color.Transparent
             },
-            animationSpec = tween(durationMillis = 500)
+            animationSpec = tween(durationMillis = 100)
         )
 
 
@@ -268,18 +273,24 @@ fun Answers(answer: Answers, onNext: () -> Unit, soundManager: SoundManager) {
         Button(
             shape = RoundedCornerShape(20),
             onClick = {
-                selectedOptionIndex.value = index
-                if (options[index].correct) {
-                    soundManager.playSound(R.raw.correct_answer)
-                    correctQuestion++
-                } else {
-                    soundManager.playSound(R.raw.wrong_answer)
-                    wrongQuestion++
-                }
-                Timer().schedule(2000) {
-                    Handler(Looper.getMainLooper()).post {
-                        selectedOptionIndex.value = -1
-                        onNext()
+                if (!isProcessingClick.value) {
+                    isProcessingClick.value = true
+                    isButtonEnabled.value = false
+                    selectedOptionIndex.value = index
+                    if (options[index].correct) {
+                        soundManager.playSound(R.raw.correct_answer)
+                        correctQuestion++
+                    } else {
+                        soundManager.playSound(R.raw.wrong_answer)
+                        wrongQuestion++
+                    }
+                    Timer().schedule(2000) {
+                        Handler(Looper.getMainLooper()).post {
+                            selectedOptionIndex.value = -1
+                            onNext()
+                            isButtonEnabled.value = true
+                            isProcessingClick.value = false
+                        }
                     }
                 }
             },
@@ -287,7 +298,8 @@ fun Answers(answer: Answers, onNext: () -> Unit, soundManager: SoundManager) {
                 .size(width = buttonSize, height = buttonSize / 4)
                 .border(4.dp, borderColor, RoundedCornerShape(20))
                 .fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(color))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(color)),
+            enabled = isButtonEnabled.value && selectedOptionIndex.value == -1
         ) {
             Text(
                 option.respuesta,
