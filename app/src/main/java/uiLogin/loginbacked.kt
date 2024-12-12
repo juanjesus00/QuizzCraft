@@ -172,18 +172,24 @@ class loginbacked: ViewModel() {
             }
     }
 
-    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit, showpassword: String?) = viewModelScope.launch{
+    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit, showpassword: String?, passwordchange: String) = viewModelScope.launch{
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (_loading.value == false){ //no se esta creando usuarios actualmente
-            if(password.length < 6){
-                Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+            if(password.length < 6 && password != showpassword && passwordchange == ""){
+                if(password.length < 6 && passwordchange == ""){
+                    Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                }else if(password != showpassword && passwordchange == ""){
+                    Toast.makeText(context, "la contraseña es incorrecta", Toast.LENGTH_SHORT).show()
+                }else if(passwordchange != "" && passwordchange.length < 6){
+                    Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                }
             }else{
                 _loading.value = true
                 currentUser?.let{ user ->
                     val uid = user.uid
                     val db = FirebaseFirestore.getInstance()
                     val storageRef = FirebaseStorage.getInstance().reference.child("userImage/$uid.jpg")
-                    if(selectImageUri != null && email != "" && userName != "" && password != showpassword){
+                    if(selectImageUri != null && email != "" && userName != ""){
                         storageRef.putFile(selectImageUri)
                             .addOnSuccessListener { taskSnapshot ->
                                 storageRef.downloadUrl.addOnSuccessListener { uri ->
@@ -210,7 +216,7 @@ class loginbacked: ViewModel() {
                             }.addOnFailureListener { e ->
                                 Log.w("Storage", "Error al subir la imagen", e)
                             }
-                    }else if(email != "" && userName != ""){
+                    }else if(email != "" || userName != ""){
                         val userUpdates = mapOf(
                             "email" to email,
                             "userName" to userName
@@ -223,7 +229,21 @@ class loginbacked: ViewModel() {
                             .addOnFailureListener{ e ->
                                 Log.w("Firestore", "Error al actualizar el usuario", e)
                             }
-                    } else {
+                    } else if(passwordchange != "" && passwordchange.length > 6){
+                        val userUpdates = mapOf(
+                            "password" to passwordchange
+                        )
+                        db.collection("Usuarios").document(uid).update(userUpdates)
+                            .addOnSuccessListener { document ->
+                                Log.d("Firestore", "Usuario actualizado exitosamente")
+                                onSuccess()
+                            }
+                            .addOnFailureListener{ e ->
+                                Log.w("Firestore", "Error al actualizar el usuario", e)
+                            }
+                    }else if (passwordchange != "" && selectImageUri != null && email != "" && userName != ""){
+                        Toast.makeText(context, "para cambiar la contraseña no se pueden cambiar otros parámetros", Toast.LENGTH_SHORT).show()
+                    }else{
                         Toast.makeText(context, "Almenos Rellena email y nombre de usuario", Toast.LENGTH_SHORT).show()
                     }
 

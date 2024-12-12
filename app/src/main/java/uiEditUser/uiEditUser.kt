@@ -84,6 +84,7 @@ fun EditUser(
     var userName by remember { mutableStateOf<String?>("")}
     var email by remember { mutableStateOf<String?>("")}
     var password by remember { mutableStateOf("")}
+    var passwordChange by remember { mutableStateOf("")}
     var perfilImage by remember { mutableStateOf(mutableStateOf<Uri?>(null))}
     var showpassword by remember { mutableStateOf<String?>("") }
     var isopen by remember { mutableStateOf(false) }
@@ -106,13 +107,11 @@ fun EditUser(
             Spacer(modifier = Modifier.padding(12.dp))
             ShowPasswordField(showpassword)
             Spacer(modifier = Modifier.padding(12.dp))
-            ChangePasswordField(password) {password = it}
-            /*Spacer(modifier = Modifier.padding(12.dp))
-            PasswordField(password) {password = it}*/
+            ChangePasswordField(password, {password = it}, passwordChange, {passwordChange = it})
             Spacer(modifier = Modifier.padding(12.dp))
             photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
             Spacer(modifier = Modifier.padding(6.dp))
-            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage, showpassword)
+            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage, showpassword, passwordChange)
         }
     }
 }
@@ -126,7 +125,8 @@ fun CancelAndAcceptButtons(
     email: String?,
     password: String,
     perfilImage: MutableState<Uri?>,
-    showpassword: String?
+    showpassword: String?,
+    passwordChange: String
 ) {
     var context = LocalContext.current
     Row(
@@ -159,7 +159,8 @@ fun CancelAndAcceptButtons(
                     onSuccess = {navigationActions.navigateToHome()},
                     context = context,
                     selectImageUri = perfilImage.value,
-                    showpassword = showpassword
+                    showpassword = showpassword,
+                    passwordchange = passwordChange
                 ) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
@@ -201,7 +202,7 @@ fun UserField(name: String?, function: (String) -> Unit) {
 }
 
 @Composable
-fun ChangePasswordField(password: String, function: (String) -> Unit) {
+fun ChangePasswordField(password: String, function: (String) -> Unit, passwordchange: String, function2: (String) -> Unit) {
     var changePass by remember { mutableStateOf(false) }
     Button(
         modifier = Modifier,
@@ -231,8 +232,8 @@ fun ChangePasswordField(password: String, function: (String) -> Unit) {
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color(0xFFFFFFFF))
                 .fillMaxWidth(),
-            value = password,
-            onValueChange = function,
+            value = passwordchange,
+            onValueChange = function2,
             placeholder = {
                 getStringByName(LocalContext.current, "new_pass")?.let {
                     Text(
