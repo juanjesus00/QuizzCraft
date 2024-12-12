@@ -78,6 +78,7 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
                 "home" -> {
                     SharedState.isSearchActive = false
                     SharedState.isSearched = false
+                    SharedState.isClickedSuggestion = false
                     header.quizzes.value = emptyList()
                     navigationActions.navigateToHome()
                 }
@@ -89,8 +90,8 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
                     }
                 }
                 "search" -> {
-                    SharedState.isSearchActive = !SharedState.isSearchActive
-                    SharedState.isSearched = !SharedState.isSearched
+                    SharedState.isSearchActive = true
+                    SharedState.isSearched = true
                 }
                 else -> print("opcion incorrecta")
             }

@@ -74,6 +74,7 @@ val poppinsFamily = FontFamily(
 object SharedState {
     var isSearchActive by mutableStateOf(false)
     var isSearched by mutableStateOf(false)
+    var isClickedSuggestion by mutableStateOf(false)
 }
 
 object LanguageManager {

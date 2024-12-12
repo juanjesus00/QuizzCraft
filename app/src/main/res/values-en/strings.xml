@@ -40,4 +40,5 @@
     <string name="new_pass">New password</string>
     <string name="change_pass">Change password</string>
     <string name="current_pass">Current password</string>
+    <string name="suggestion_search">result</string>
 </resources>

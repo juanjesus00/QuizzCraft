@@ -1,5 +1,11 @@
 package uiPrincipal
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +24,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,7 +55,7 @@ fun getPrincipalMidSection(
 
     ) {
 
-        if (!SharedState.isSearched) {
+        if (!SharedState.isSearched && !SharedState.isSearchActive) {
             getStringByName(LocalContext.current, "my_quizzes")?.let {
                 insertSectionQuiz(
                     titleSection = it,
@@ -63,18 +74,39 @@ fun getPrincipalMidSection(
 
 @Composable
 fun SearchedQuizzes(navigationActions: NavigationActions) {
-    Spacer(modifier = Modifier.height(50.dp))
-    getStringByName(LocalContext.current, "result_search")?.let {
-        Text(
-            text = it,
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(x = 15.dp),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = poppinsFamily,
-        )
+
+    var isVisible by remember { mutableStateOf(false) }
+
+    val animatedHeight by animateDpAsState(
+        targetValue = if (SharedState.isClickedSuggestion) 125.dp else 50.dp,
+        animationSpec = tween(durationMillis = 300)
+    )
+
+    LaunchedEffect(Unit) {
+        isVisible = true
     }
+
+    Spacer(
+        modifier = Modifier.height(animatedHeight)
+    )
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(animationSpec = tween(durationMillis = 500)) + slideInVertically(initialOffsetY = { -it })
+    ) {
+        getStringByName(LocalContext.current, "result_search")?.let {
+            Text(
+                text = it,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(x = 15.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+            )
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,21 +115,34 @@ fun SearchedQuizzes(navigationActions: NavigationActions) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
-        header.quizzes.value.chunked(2).forEach { chunk ->
+        header.quizzes.value.chunked(2).forEachIndexed { rowIndex, chunk ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp) // Espacio entre los quizzes
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Mostramos cada quiz del chunk
-                chunk.forEach { quiz ->
-                    println(quiz.name)
-                    favQuiz(
-                        imageResource = quiz.quizImageUrl,
-                        title = quiz.name,
-                        titleSection = "Resultados",
-                        navigationActions,
-                        quizId = quiz.quizId
-                    )
+                chunk.forEachIndexed { index, quiz ->
+
+                    val individualVisibility = remember { mutableStateOf(false) }
+                    LaunchedEffect(quiz.quizId) {
+                        individualVisibility.value = true
+                    }
+
+                    AnimatedVisibility(
+                        visible = individualVisibility.value,
+                        enter = scaleIn(
+                            initialScale = 0.3f,
+                            animationSpec = tween(durationMillis = 600, delayMillis = 100 * (rowIndex * chunk.size + index)) // Duración de la animación
+                        ) + fadeIn(animationSpec = tween(durationMillis = 600))
+                    ) {
+                        favQuiz(
+                            imageResource = quiz.quizImageUrl,
+                            title = quiz.name,
+                            titleSection = "Resultados",
+                            navigationActions,
+                            quizId = quiz.quizId
+                        )
+                        }
+
                 }
             }
         }
