@@ -74,16 +74,16 @@ fun UserInfo(
     var profileImageUrl by remember { mutableStateOf<String?>(null) }
     var userName by remember { mutableStateOf<String?>(null) }
     var userEmail by remember { mutableStateOf<String?>(null) }
-    var createdQuiz by remember { mutableStateOf<String?>(null) }
-    var passQuiz by remember { mutableStateOf<String?>(null) }
+    var createdQuiz by remember { mutableStateOf<Int?>(null) }
+    var passQuiz by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(Unit) {
         viewModelUser.getInfoUser { user ->
             profileImageUrl = user?.get("PerfilImage") as? String
             userName = user?.get("userName") as? String
             userEmail = user?.get("email") as? String
-            createdQuiz = user?.get("createdQuiz") as? String
-            passQuiz = user?.get("passQuiz") as? String
+            createdQuiz = user?.get("createdQuiz") as? Int
+            passQuiz = user?.get("passQuiz") as? Int
         }
     }
     Column(modifier = modifier) {
@@ -206,8 +206,8 @@ fun Field(
     type: Char,
     userName: String?,
     userEmail: String?,
-    createdQuiz: String?,
-    passQuiz: String?,
+    createdQuiz: Int?,
+    passQuiz: Int?,
     delay: Double,
     context: Context
 ) {

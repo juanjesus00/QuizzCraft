@@ -1,6 +1,7 @@
 package uiResult
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +39,23 @@ fun ResultScreen(navigationActions: NavigationActions, scrollState: ScrollState,
     val correctQuestions = navBackStackEntry?.arguments?.getString("correctQuestion")?.toInt() ?: 0
     val wrongQuestions = navBackStackEntry?.arguments?.getString("wrongQuestion")?.toInt() ?: 0
 
+    val result = if (correctQuestions + wrongQuestions > 0) {
+        "%.2f".format((correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10)
+            .replace(",", ".")
+    } else {
+        "0.00"
+    }
+
+    val hasExecuted = remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = result) {
+        Log.d("ResultScreen", "LaunchedEffect ejecutado, result: $result")
+        if (result.toDouble() >= 5.0 && !hasExecuted.value ) {
+            hasExecuted.value = true
+            plusPassQuizUser()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -45,18 +65,14 @@ fun ResultScreen(navigationActions: NavigationActions, scrollState: ScrollState,
 
     ) {
         Spacer(modifier = Modifier.padding(128.dp))
-        Result(navigationActions, correctQuestions, wrongQuestions)
+        Result(navigationActions, correctQuestions, wrongQuestions, result)
     }
 }
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQuestions: Int) {
-    val result = if (correctQuestions + wrongQuestions > 0) {
-        "%.2f".format((correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10)
-    } else {
-        "0.00"
-    }
+fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQuestions: Int, result: String) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +99,7 @@ fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQue
             }
             Spacer(modifier = Modifier.padding(8.dp))
             Text(
-                text = "$result", fontWeight = FontWeight.Bold,
+                text = result, fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 64.sp, color = Color(0xFFB18F4F),
                 modifier = Modifier.align(Alignment.Center)

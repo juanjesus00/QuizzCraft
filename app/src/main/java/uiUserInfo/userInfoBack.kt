@@ -22,8 +22,8 @@ class userInfoBack : ViewModel(){
                             email = document.getString("email").toString(),
                             userName = document.getString("userName").toString(),
                             profileImageUrl = document.getString("PerfilImage").toString(),
-                            createdQuiz = document.getString("createdQuiz").toString(),
-                            passQuiz = document.getString("passQuiz").toString(),
+                            createdQuiz = document.getLong("createdQuiz")?.toInt() ?: 0,
+                            passQuiz = document.getLong("passQuiz")?.toInt() ?: 0,
                             lastQuizzes = document.get("lastQuizzes") as? MutableList<String> ?: mutableListOf(),
                             password = document.getString("password").toString()
 

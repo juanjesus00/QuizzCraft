@@ -18,6 +18,7 @@ import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -34,7 +35,7 @@ import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
-class loginbacked: ViewModel() {
+class loginbacked : ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
     private var _loading = MutableLiveData(false)
     fun signIn(
@@ -59,12 +60,17 @@ class loginbacked: ViewModel() {
                 .addOnFailureListener { exception ->
                     exception.printStackTrace()
                     onErrorAction()
-                    Toast.makeText(context, "Inicio de se sesio erroneo la contraseña o el email son incorrectos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Inicio de se sesio erroneo la contraseña o el email son incorrectos",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
         } catch (e: Exception) {
             Log.d("Loginbackend", "Error de inicio: ${e.message}")
         }
     }
+
     fun register(
         email: String,
         password: String,
@@ -72,21 +78,28 @@ class loginbacked: ViewModel() {
         name: String,
         onSuccess: () -> Unit,
         navigationActions: NavigationActions
-    ) = viewModelScope.launch{
-        if (_loading.value == false){ //no se esta creando usuarios actualmente
-            if(password.length < 6){
-                Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
-            }else{
+    ) = viewModelScope.launch {
+        if (_loading.value == false) { //no se esta creando usuarios actualmente
+            if (password.length < 6) {
+                Toast.makeText(
+                    context,
+                    "La contraseña debe tener al menos 6 caracteres",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
                 navigationActions.navigateToCarga()
                 _loading.value = true
 
                 auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener{task ->
-                        if (task.isSuccessful){
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
                             crateUser(name, email, "", password)
                             onSuccess()
-                        }else{
-                            Log.d("loginbackend", "La creacion de usuarios falló: ${task.result.toString()}")
+                        } else {
+                            Log.d(
+                                "loginbackend",
+                                "La creacion de usuarios falló: ${task.result.toString()}"
+                            )
                         }
                         _loading.value = false
                     }
@@ -94,27 +107,28 @@ class loginbacked: ViewModel() {
 
         }
     }
+
     fun SingInWithGoogleCredential(
         credentialToken: AuthCredential,
         credential: SignInCredential,
         password: String,
         home: () -> Unit
-    )=viewModelScope.launch{
-        try{
+    ) = viewModelScope.launch {
+        try {
             auth.signInWithCredential(credentialToken)
-                .addOnCompleteListener{task ->
-                    if(task.isSuccessful){
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
                         Log.d("loginGoogle", "login con google exitoso")
-                        println("contraseña: "+ "${credential.password}")
+                        println("contraseña: " + "${credential.password}")
                         val db = FirebaseFirestore.getInstance()
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
                         val userRef = db.collection("Usuarios").document(uid!!)
                         userRef.get().addOnSuccessListener { document ->
-                            if(document.exists()){
+                            if (document.exists()) {
                                 Log.d("loginGoogle", "El usuario ya existe")
-                            }else{
+                            } else {
                                 crateUser(
-                                    displayName = credential.givenName?:"unknown",
+                                    displayName = credential.givenName ?: "unknown",
                                     email = credential.id,
                                     profileImage = credential.profilePictureUri.toString(),
                                     password = password
@@ -131,11 +145,17 @@ class loginbacked: ViewModel() {
                 .addOnFailureListener {
                     Log.d("loginGoogle", "login con google Error")
                 }
-        }catch (ex:Exception){
+        } catch (ex: Exception) {
             Log.d("loginGoogle", "Excepcion de login con Google: " + "${ex.localizedMessage}")
         }
     }
-    fun linkEmailAndPassword(email: String, password: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+
+    fun linkEmailAndPassword(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
         val user = FirebaseAuth.getInstance().currentUser
 
         if (user != null) {
@@ -144,10 +164,16 @@ class loginbacked: ViewModel() {
             user.linkWithCredential(credential)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Log.d("FirebaseAuth", "Método de correo y contraseña vinculado exitosamente")
+                        Log.d(
+                            "FirebaseAuth",
+                            "Método de correo y contraseña vinculado exitosamente"
+                        )
                         onSuccess()
                     } else {
-                        Log.e("FirebaseAuth", "Error al vincular credenciales: ${task.exception?.localizedMessage}")
+                        Log.e(
+                            "FirebaseAuth",
+                            "Error al vincular credenciales: ${task.exception?.localizedMessage}"
+                        )
                         onFailure(task.exception?.localizedMessage ?: "Error desconocido")
                     }
                 }
@@ -169,8 +195,8 @@ class loginbacked: ViewModel() {
             userName = displayName,
             profileImageUrl = profileImage,
             email = email,
-            createdQuiz = "0",
-            passQuiz = "0",
+            createdQuiz = 0,
+            passQuiz = 0,
             lastQuizzes = mutableListOf(),
             password = password
         ).toMap()
@@ -185,23 +211,39 @@ class loginbacked: ViewModel() {
             }
     }
 
-    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit, showpassword: String?, passwordchange: String, navigationActions: NavigationActions) = viewModelScope.launch{
+    fun editUser(
+        userName: String,
+        email: String,
+        password: String,
+        context: Context,
+        selectImageUri: Uri?,
+        onSuccess: () -> Unit,
+        showpassword: String?,
+        passwordchange: String,
+        navigationActions: NavigationActions
+    ) = viewModelScope.launch {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        if (_loading.value == false){ //no se esta creando usuarios actualmente
-            if(password.length < 6 || password != showpassword && passwordchange == ""){
-                if(password.length < 6 && passwordchange == ""){
-                    Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
-                }else if(password != showpassword && passwordchange == ""){
-                    Toast.makeText(context, "la contraseña es incorrecta", Toast.LENGTH_SHORT).show()
+        if (_loading.value == false) { //no se esta creando usuarios actualmente
+            if (password.length < 6 || password != showpassword && passwordchange == "") {
+                if (password.length < 6 && passwordchange == "") {
+                    Toast.makeText(
+                        context,
+                        "La contraseña debe tener al menos 6 caracteres",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else if (password != showpassword && passwordchange == "") {
+                    Toast.makeText(context, "la contraseña es incorrecta", Toast.LENGTH_SHORT)
+                        .show()
                 }
-            }else{
+            } else {
                 navigationActions.navigateToCarga()
                 _loading.value = true
-                currentUser?.let{ user ->
+                currentUser?.let { user ->
                     val uid = user.uid
                     val db = FirebaseFirestore.getInstance()
-                    val storageRef = FirebaseStorage.getInstance().reference.child("userImage/$uid.jpg")
-                    if(selectImageUri != null && email != "" && userName != ""){
+                    val storageRef =
+                        FirebaseStorage.getInstance().reference.child("userImage/$uid.jpg")
+                    if (selectImageUri != null && email != "" && userName != "") {
                         storageRef.putFile(selectImageUri)
                             .addOnSuccessListener { taskSnapshot ->
                                 storageRef.downloadUrl.addOnSuccessListener { uri ->
@@ -227,7 +269,7 @@ class loginbacked: ViewModel() {
                             }.addOnFailureListener { e ->
                                 Log.w("Storage", "Error al subir la imagen", e)
                             }
-                    }else if(email != "" || userName != ""){
+                    } else if (email != "" || userName != "") {
                         val userUpdates = mapOf(
                             "email" to email,
                             "userName" to userName
@@ -237,11 +279,15 @@ class loginbacked: ViewModel() {
                                 Log.d("Firestore", "Usuario actualizado exitosamente")
                                 onSuccess()
                             }
-                            .addOnFailureListener{ e ->
+                            .addOnFailureListener { e ->
                                 Log.w("Firestore", "Error al actualizar el usuario", e)
                             }
-                    }else{
-                        Toast.makeText(context, "Almenos Rellena email y nombre de usuario", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Almenos Rellena email y nombre de usuario",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
 
                 }
@@ -251,16 +297,51 @@ class loginbacked: ViewModel() {
         }
     }
 
+    fun plusCreatedQuizUser() = viewModelScope.launch {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let { user ->
+            val uid = user.uid
+            val db = FirebaseFirestore.getInstance()
+            db.collection("Usuarios").document(uid)
+                .update("createdQuiz", FieldValue.increment(1)) // Incrementar en 1
+                .addOnSuccessListener {
+                    Log.d("Firestore", "Campo 'createdQuiz' incrementado exitosamente")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("Firestore", "Error al incrementar 'createdQuiz'", e)
+                }
+        }
+    }
+
+    fun plusPassQuizUser() = viewModelScope.launch {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let { user ->
+            val uid = user.uid
+            val db = FirebaseFirestore.getInstance()
+            db.collection("Usuarios").document(uid)
+                .update("passQuiz", FieldValue.increment(1)) // Incrementar en 1
+                .addOnSuccessListener {
+                    Log.d("Firestore", "Campo 'passQuiz' incrementado exitosamente")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("Firestore", "Error al incrementar 'createdQuiz'", e)
+                }
+        }
+    }
+
+
     private var verificationCode: String? = null
 
     fun sendVerificationEmail(
         userEmail: String,
         context: Context
     ) {
-        verificationCode = (100000..999999).random().toString() // Genera un código aleatorio de 6 dígitos
+        verificationCode =
+            (100000..999999).random().toString() // Genera un código aleatorio de 6 dígitos
 
         val subject = "Confirmación de cambio de contraseña"
-        val message = "Hola, usa este código para confirmar el cambio de contraseña: $verificationCode"
+        val message =
+            "Hola, usa este código para confirmar el cambio de contraseña: $verificationCode"
 
         // Configura las propiedades para el servidor SMTP
         val props = Properties().apply {
@@ -273,7 +354,10 @@ class loginbacked: ViewModel() {
         // Crea una sesión de correo
         val session = Session.getDefaultInstance(props, object : javax.mail.Authenticator() {
             override fun getPasswordAuthentication(): javax.mail.PasswordAuthentication {
-                return javax.mail.PasswordAuthentication("jjsmx24@gmail.com", "qple ydtz ozms chzf") // Usa tu correo y contraseña de aplicación
+                return javax.mail.PasswordAuthentication(
+                    "jjsmx24@gmail.com",
+                    "qple ydtz ozms chzf"
+                ) // Usa tu correo y contraseña de aplicación
             }
         })
 
@@ -293,12 +377,18 @@ class loginbacked: ViewModel() {
                     Log.d("Email", "Correo enviado a $userEmail con el código $verificationCode")
                     // Asegúrate de ejecutar el Toast en el hilo principal
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(context, "Correo de verificación enviado.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Correo de verificación enviado.",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
                     }
                 } catch (e: Exception) {
                     Log.e("EmailError", "No se pudo enviar el correo: ${e.localizedMessage}")
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(context, "Error al enviar el correo.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error al enviar el correo.", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }.start()
@@ -417,7 +507,11 @@ class loginbacked: ViewModel() {
                                         _loading.value = false
                                     }
                             } else {
-                                Log.w("FirebaseAuth", "Reautenticación fallida", reauthTask.exception)
+                                Log.w(
+                                    "FirebaseAuth",
+                                    "Reautenticación fallida",
+                                    reauthTask.exception
+                                )
                                 Toast.makeText(
                                     context,
                                     "Reautenticación fallida. Verifique la contraseña actual.",
@@ -427,7 +521,11 @@ class loginbacked: ViewModel() {
                             }
                         }
                     } else {
-                        Toast.makeText(context, "Código de verificación incorrecto.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Código de verificación incorrecto.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         _loading.value = false
                     }
                 } ?: run {

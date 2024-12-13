@@ -45,6 +45,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import api.NebiusViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
@@ -54,6 +56,7 @@ import com.google.firebase.ktx.Firebase
 import languagesBack.getStringByName
 import model.Quiz
 import routes.NavigationActions
+import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
 
 
@@ -324,6 +327,7 @@ fun AcceptButton(
                             userId = auth.currentUser?.uid ?: ""
                         )
                     )
+                    plusCreatedQuizUser()
                     Handler(Looper.getMainLooper()).postDelayed({
                         navigationActions.navigateToHome()
                     }, 2000)

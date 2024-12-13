@@ -5,8 +5,8 @@ data class User(
     val userId: String,
     val userName: String,
     val profileImageUrl: String,
-    val createdQuiz: String,
-    val passQuiz: String,
+    val createdQuiz: Int,
+    val passQuiz: Int,
     val lastQuizzes: MutableList<String>,
     val password: String
 ){
