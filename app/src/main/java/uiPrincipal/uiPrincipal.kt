@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.myapplication.R
@@ -151,8 +152,6 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             InfoQuizScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.GAME) {
             GameScreen(navigationActions, scrollState = scrollState, 't', navController)
-        /*} else if (currentRoute == Routes.RESULT) {
-            ResultScreen(navigationActions, scrollState = scrollState, navController)*/
         } else if (currentRoute == Routes.ABOUT) {
             AboutScreen(navigationActions)
         }
