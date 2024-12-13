@@ -151,8 +151,8 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             InfoQuizScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.GAME) {
             GameScreen(navigationActions, scrollState = scrollState, 't', navController)
-        } else if (currentRoute == Routes.RESULT) {
-            ResultScreen(navigationActions, scrollState = scrollState, navController)
+        /*} else if (currentRoute == Routes.RESULT) {
+            ResultScreen(navigationActions, scrollState = scrollState, navController)*/
         } else if (currentRoute == Routes.ABOUT) {
             AboutScreen(navigationActions)
         }

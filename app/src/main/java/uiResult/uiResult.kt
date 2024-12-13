@@ -2,7 +2,6 @@ package uiResult
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -25,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -33,26 +32,20 @@ import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
 @Composable
-fun ResultScreen(navigationActions: NavigationActions, scrollState: ScrollState, navController: NavHostController) {
+fun ResultScreen(navigationActions: NavigationActions, navController: NavHostController) {
 
     val navBackStackEntry = remember { navController.currentBackStackEntry }
     val correctQuestions = navBackStackEntry?.arguments?.getString("correctQuestion")?.toInt() ?: 0
     val wrongQuestions = navBackStackEntry?.arguments?.getString("wrongQuestion")?.toInt() ?: 0
 
-    val result = if (correctQuestions + wrongQuestions > 0) {
-        "%.2f".format((correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10)
-            .replace(",", ".")
-    } else {
-        "0.00"
-    }
-
+    val result = (correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10
     val hasExecuted = remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = result) {
-        Log.d("ResultScreen", "LaunchedEffect ejecutado, result: $result")
-        if (result.toDouble() >= 5.0 && !hasExecuted.value ) {
+    val launch = LaunchedEffect(Unit) {
+        if (result >= 5.0 && !hasExecuted.value) {
             hasExecuted.value = true
             plusPassQuizUser()
+            Log.d("LaunchedEffect", "Ejecutando plusPassQuizUser con result: $result")
         }
     }
 
@@ -61,22 +54,24 @@ fun ResultScreen(navigationActions: NavigationActions, scrollState: ScrollState,
             .fillMaxSize()
             .background(Color(0xFFE0D4C8))
             .padding(32.dp)
-            .verticalScroll(scrollState)
 
     ) {
-        Spacer(modifier = Modifier.padding(128.dp))
-        Result(navigationActions, correctQuestions, wrongQuestions, result)
+        Result(navigationActions, correctQuestions, wrongQuestions, result.toString())
     }
 }
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQuestions: Int, result: String) {
+fun Result(
+    navigationActions: NavigationActions,
+    correctQuestions: Int,
+    wrongQuestions: Int,
+    result: String
+) {
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 128.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -127,7 +122,9 @@ fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQue
 fun HomeButton(navigationActions: NavigationActions) {
     Button(
         shape = RoundedCornerShape(20),
-        onClick = { navigationActions.navigateToHome() },
+        onClick = {
+            navigationActions.navigateToHome()
+        },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {
         getStringByName(LocalContext.current, "home_button_results")?.let {

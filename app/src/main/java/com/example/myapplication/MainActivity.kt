@@ -14,6 +14,7 @@ import uiLogin.LoginScreen
 import uiLogin.loginbacked
 import uiRegister.RegisterScreen
 import uiPrincipal.MyComposeApp
+import uiResult.ResultScreen
 
 class MainActivity : ComponentActivity() {
     private lateinit var loginBackend: loginbacked
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.EDITQUIZ) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.INFOQUIZ) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.GAME) { MyComposeApp(navigationActions, navController) }
-                composable(Routes.RESULT) { MyComposeApp(navigationActions, navController) }
+                composable(Routes.RESULT) { ResultScreen(navigationActions, navController) }
                 composable(Routes.CARGA){ LoadingScreen() }
                 composable(Routes.ABOUT) { MyComposeApp(navigationActions, navController) }
             }

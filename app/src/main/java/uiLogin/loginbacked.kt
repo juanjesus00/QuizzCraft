@@ -297,39 +297,6 @@ class loginbacked : ViewModel() {
         }
     }
 
-    fun plusCreatedQuizUser() = viewModelScope.launch {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        currentUser?.let { user ->
-            val uid = user.uid
-            val db = FirebaseFirestore.getInstance()
-            db.collection("Usuarios").document(uid)
-                .update("createdQuiz", FieldValue.increment(1)) // Incrementar en 1
-                .addOnSuccessListener {
-                    Log.d("Firestore", "Campo 'createdQuiz' incrementado exitosamente")
-                }
-                .addOnFailureListener { e ->
-                    Log.w("Firestore", "Error al incrementar 'createdQuiz'", e)
-                }
-        }
-    }
-
-    fun plusPassQuizUser() = viewModelScope.launch {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        currentUser?.let { user ->
-            val uid = user.uid
-            val db = FirebaseFirestore.getInstance()
-            db.collection("Usuarios").document(uid)
-                .update("passQuiz", FieldValue.increment(1)) // Incrementar en 1
-                .addOnSuccessListener {
-                    Log.d("Firestore", "Campo 'passQuiz' incrementado exitosamente")
-                }
-                .addOnFailureListener { e ->
-                    Log.w("Firestore", "Error al incrementar 'createdQuiz'", e)
-                }
-        }
-    }
-
-
     private var verificationCode: String? = null
 
     fun sendVerificationEmail(

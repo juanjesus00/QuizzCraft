@@ -11,7 +11,7 @@ fun plusCreatedQuizUser()  {
         val uid = user.uid
         val db = FirebaseFirestore.getInstance()
         db.collection("Usuarios").document(uid)
-            .update("createdQuiz", FieldValue.increment(1)) // Incrementar en 1
+            .update("createdQuiz", FieldValue.increment(1))
             .addOnSuccessListener {
                 Log.d("Firestore", "Campo 'createdQuiz' incrementado exitosamente")
             }
