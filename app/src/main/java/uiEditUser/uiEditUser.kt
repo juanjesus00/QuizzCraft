@@ -152,16 +152,26 @@ fun CancelAndAcceptButtons(
         Button(
             shape = RoundedCornerShape(20),
             onClick = {
-                viewModel.editUser(
-                    userName = userName.toString(),
-                    email = email.toString(),
-                    password = password,
-                    onSuccess = {navigationActions.navigateToHome()},
-                    context = context,
-                    selectImageUri = perfilImage.value,
-                    showpassword = showpassword,
-                    passwordchange = passwordChange
-                ) },
+                if (passwordChange == ""){
+                    viewModel.editUser(
+                        userName = userName.toString(),
+                        email = email.toString(),
+                        password = password,
+                        onSuccess = {navigationActions.navigateToHome()},
+                        context = context,
+                        selectImageUri = perfilImage.value,
+                        showpassword = showpassword,
+                        passwordchange = passwordChange
+                    )
+                }else if (passwordChange != ""){
+                    viewModel.ChangePassword(
+                        changePassword = passwordChange,
+                        context,
+                        currentPassword = showpassword,
+                        onSuccess = {navigationActions.navigateToHome()}
+                    )
+                }
+                 },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
             getStringByName(LocalContext.current, "accept_button_text")?.let {
@@ -280,35 +290,6 @@ fun ChangePasswordField(password: String, function: (String) -> Unit, passwordch
 
 
 }
-/*@Composable
-fun PasswordField(password: String, function: (String) -> Unit){
-
-    Box (modifier = Modifier){
-        TextField(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFFFFFFF))
-                .fillMaxWidth(),
-            value = password,
-            onValueChange = function,
-            placeholder = {
-                getStringByName(LocalContext.current, "password")?.let {
-                    Text(
-                        text = it,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = poppinsFamily,
-                        color = Color(0xFFC49450)
-                    )
-                }
-            },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true,
-            maxLines = 1,
-            enabled = false
-        )
-    }
-}*/
 @Composable
 fun ShowPasswordField(password: String?) {
     var eyeState by remember { mutableStateOf(false) }

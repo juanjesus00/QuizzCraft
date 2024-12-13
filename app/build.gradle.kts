@@ -9,6 +9,12 @@ plugins {
 android {
     namespace = "com.example.myapplication"
     compileSdk = 34
+    packaging{
+        resources {
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.myapplication"
@@ -48,6 +54,7 @@ android {
             isEnable = false
         }
     }
+
 }
 dependencies {
 
@@ -87,5 +94,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
+    implementation("com.sun.mail:android-mail:1.6.6")
+    implementation("com.sun.mail:android-activation:1.6.6")
+
 
 }
