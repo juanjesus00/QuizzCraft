@@ -1,5 +1,12 @@
 package uiUserInfo
 
+import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -26,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
+import languagesBack.getStringByName
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -57,7 +66,11 @@ fun UserInfoScreen(
 }
 
 @Composable
-fun UserInfo(modifier: Modifier, navigationActions: NavigationActions, viewModelUser: userInfoBack) {
+fun UserInfo(
+    modifier: Modifier,
+    navigationActions: NavigationActions,
+    viewModelUser: userInfoBack
+) {
     var profileImageUrl by remember { mutableStateOf<String?>(null) }
     var userName by remember { mutableStateOf<String?>(null) }
     var userEmail by remember { mutableStateOf<String?>(null) }
@@ -74,49 +87,113 @@ fun UserInfo(modifier: Modifier, navigationActions: NavigationActions, viewModel
         }
     }
     Column(modifier = modifier) {
-        ImageProfile(Modifier.align(Alignment.CenterHorizontally), navigationActions, profileImageUrl)
+        ImageProfile(
+            Modifier.align(Alignment.CenterHorizontally),
+            navigationActions,
+            profileImageUrl
+        )
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'u', userName, userEmail, createdQuiz, passQuiz)
+        Field(
+            Modifier.align(Alignment.CenterHorizontally),
+            'u',
+            userName,
+            userEmail,
+            createdQuiz,
+            passQuiz,
+            1.25,
+            LocalContext.current
+        )
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'e', userName, userEmail, createdQuiz, passQuiz)
+        Field(
+            Modifier.align(Alignment.CenterHorizontally),
+            'e',
+            userName,
+            userEmail,
+            createdQuiz,
+            passQuiz,
+            1.5,
+            LocalContext.current
+        )
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'c', userName, userEmail, createdQuiz, passQuiz)
+        Field(
+            Modifier.align(Alignment.CenterHorizontally),
+            'c',
+            userName,
+            userEmail,
+            createdQuiz,
+            passQuiz,
+            1.75,
+            LocalContext.current
+        )
         Spacer(modifier = Modifier.padding(12.dp))
-        Field(Modifier.align(Alignment.CenterHorizontally), 'r', userName, userEmail, createdQuiz, passQuiz)
+        Field(
+            Modifier.align(Alignment.CenterHorizontally),
+            'r',
+            userName,
+            userEmail,
+            createdQuiz,
+            passQuiz,
+            2.0,
+            LocalContext.current
+        )
     }
 }
 
 @Composable
-fun ImageProfile(modifier: Modifier, navigationActions: NavigationActions, profileImageUrl: String?) {
+fun ImageProfile(
+    modifier: Modifier,
+    navigationActions: NavigationActions,
+    profileImageUrl: String?
+) {
+
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    val iconScale by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = tween(durationMillis = 800)
+    )
+
     Box(
-        modifier = modifier.size(208.dp)
+        modifier = modifier.size(180.dp)
     ) {
-        if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
-            Image(
-                painter = painterResource(id = R.drawable.foto),
-                contentDescription = "ProfileImage",
-                contentScale = ContentScale.Fit,
-                modifier = modifier
-                    .size(208.dp)
-                    .clip(RoundedCornerShape(100.dp))
-            )
-        }else{
-            AsyncImage(
-                model = profileImageUrl,
-                contentDescription = "Foto de perfil",
-                error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
-                modifier = modifier
-                    .size(208.dp)
-                    .clip(RoundedCornerShape(100.dp)),
-                contentScale = ContentScale.Crop
-            )
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = scaleIn(
+                initialScale = 0.3f,
+                animationSpec = tween(durationMillis = 800)
+            ) + fadeIn(animationSpec = tween(durationMillis = 800))
+        ) {
+            if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.foto),
+                    contentDescription = "ProfileImage",
+                    contentScale = ContentScale.Fit,
+                    modifier = modifier
+                        .size(208.dp)
+                        .clip(RoundedCornerShape(100.dp))
+                )
+            } else {
+                AsyncImage(
+                    model = profileImageUrl,
+                    contentDescription = "Foto de perfil",
+                    error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
+                    modifier = modifier
+                        .size(208.dp)
+                        .clip(RoundedCornerShape(100.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
         Icon(
             painter = painterResource(id = R.drawable.editar),
             contentDescription = "EditProfile",
             tint = Color(0xFFB18F4F),
             modifier = Modifier
-                .size(48.dp)
+                .size(48.dp * iconScale)
                 .align(Alignment.BottomEnd)
                 .clickable { navigationActions.navigateToEditUser() }
         )
@@ -130,71 +207,81 @@ fun Field(
     userName: String?,
     userEmail: String?,
     createdQuiz: String?,
-    passQuiz: String?
+    passQuiz: String?,
+    delay: Double,
+    context: Context
 ) {
 
-    val text: String = when (type) {
-        'u' -> {
-            userName.toString()
-        }
+    var isVisible by remember { mutableStateOf(false) }
 
-        'e' -> {
-            userEmail.toString()
-        }
-
-        'c' -> {
-            "Cuestionarios realizados"
-        }
-
-        else -> {
-            "Cuestionarios superados"
-        }
+    LaunchedEffect(Unit) {
+        isVisible = true
     }
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 60.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(Color(0xFF212325))
-            .padding(vertical = 6.dp)
+    val text: String? = when (type) {
+
+        'u' -> userName.toString()
+
+        'e' -> userEmail.toString()
+
+        'c' -> getStringByName(context, "created_quizzes")
+
+        else -> getStringByName(context, "passed_quizzes")
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = scaleIn(
+            initialScale = 0.3f,
+            animationSpec = tween(durationMillis = (800 * delay).toInt())
+        ) + fadeIn(animationSpec = tween(durationMillis = (800 * delay).toInt()))
     ) {
-
-        Column(
-            modifier = modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 40.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color(0xFF212325))
+                .padding(vertical = 6.dp)
         ) {
-            Text(
-                text = text,
-                color = Color(0xFFB18F4F),
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(horizontal = 30.dp, vertical = 5.dp),
-                textAlign = TextAlign.Center
-            )
 
-            if (type == 'c') {
-                Text(
-                    text = createdQuiz.toString(),
-                    color = Color(0xFFB18F4F),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 32.sp,
-                    fontFamily = poppinsFamily,
-                    modifier = Modifier.padding(horizontal = 30.dp, vertical = 5.dp)
-                )
-            }else if(type == 'r'){
-                Text(
-                    text = passQuiz.toString(),
-                    color = Color(0xFFB18F4F),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 32.sp,
-                    fontFamily = poppinsFamily,
-                    modifier = Modifier.padding(horizontal = 30.dp, vertical = 5.dp)
-                )
+            Column(
+                modifier = modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+
+                text?.let {
+                    Text(
+                        text = it,
+                        color = Color(0xFFB18F4F),
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        fontSize = if (type == 'e') 13.sp else 18.sp,
+                        modifier = Modifier.padding(horizontal = 30.dp, vertical = 5.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                if (type == 'c') {
+                    Text(
+                        text = createdQuiz.toString(),
+                        color = Color(0xFFB18F4F),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
+                        fontFamily = poppinsFamily,
+                    )
+                } else if (type == 'r') {
+                    Text(
+                        text = passQuiz.toString(),
+                        color = Color(0xFFB18F4F),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
+                        fontFamily = poppinsFamily
+                    )
+                }
             }
         }
     }
-
 }
