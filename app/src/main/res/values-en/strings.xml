@@ -41,4 +41,10 @@
     <string name="change_pass">Change password</string>
     <string name="current_pass">Current password</string>
     <string name="suggestion_search">result</string>
+    <string name="about">About</string>
+    <string name="quizcraft">QuizCraft</string>
+    <string name="about_quizcraft">A tool designed for those seeking to study more efficiently, leveraging artificial intelligence to transform their study materials into personalized quizzes. Simply upload a file in plain text, PDF, or question-and-answer format, and the application will automatically generate the necessary questions to reinforce your learning. Additionally, you can assess your knowledge by playing the quizzes and receiving a final score that helps you identify your progress and areas for improvement. With QuizCraft, studying becomes more practical, interactive, and fully tailored to your needs.</string>
+    <string name="about_us">About Us</string>
+    <string name="developers">Developers</string>
+    <string name="about_version">Version: </string>
 </resources>

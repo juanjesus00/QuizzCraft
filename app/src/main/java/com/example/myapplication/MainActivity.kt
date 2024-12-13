@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.GAME) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.RESULT) { MyComposeApp(navigationActions, navController) }
                 composable(Routes.CARGA){ LoadingScreen() }
+                composable(Routes.ABOUT) { MyComposeApp(navigationActions, navController) }
             }
         }
 

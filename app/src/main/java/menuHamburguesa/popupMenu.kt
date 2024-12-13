@@ -115,11 +115,16 @@ fun CustomPopupMenu(
                                 LocalContext.current
                             )
                         }
-                        /*Column(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
 
-                        }*/
+                        getStringByName(LocalContext.current, "about")?.let {
+                            popupInformation(
+                                icon = R.drawable.about_icon,
+                                text = it,
+                                navigationActions,
+                                LocalContext.current
+                            )
+                        }
+
                         getStringByName(LocalContext.current, "language")?.let {
                             popupInformation(
                                 icon = R.drawable.language,
@@ -127,9 +132,7 @@ fun CustomPopupMenu(
                                 navigationActions = navigationActions,
                                 LocalContext.current,
                                 onClick = {
-                                    println("Antes de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
                                     languageMenuExpanded.value = !languageMenuExpanded.value
-                                    println("Despues de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
                                 },
                             )
                         }
@@ -343,6 +346,7 @@ fun popupInformation(
                             logOut(navigationActions)
                             navigationActions.navigateToHome()
                         }
+                        getStringByName(context, "about") -> navigationActions.navigateToAbout()
 
                         getStringByName(context, "language") -> {
                             onClick?.invoke()
