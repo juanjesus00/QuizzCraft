@@ -26,6 +26,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import routes.NavigationActions
 import java.util.Properties
 import javax.mail.Message
 import javax.mail.Session
@@ -69,12 +70,14 @@ class loginbacked: ViewModel() {
         password: String,
         context: Context,
         name: String,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit,
+        navigationActions: NavigationActions
     ) = viewModelScope.launch{
         if (_loading.value == false){ //no se esta creando usuarios actualmente
             if(password.length < 6){
                 Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
             }else{
+                navigationActions.navigateToCarga()
                 _loading.value = true
 
                 auth.createUserWithEmailAndPassword(email, password)
@@ -182,7 +185,7 @@ class loginbacked: ViewModel() {
             }
     }
 
-    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit, showpassword: String?, passwordchange: String) = viewModelScope.launch{
+    fun editUser(userName: String, email: String, password: String, context: Context, selectImageUri: Uri?, onSuccess: () -> Unit, showpassword: String?, passwordchange: String, navigationActions: NavigationActions) = viewModelScope.launch{
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (_loading.value == false){ //no se esta creando usuarios actualmente
             if(password.length < 6 || password != showpassword && passwordchange == ""){
@@ -192,6 +195,7 @@ class loginbacked: ViewModel() {
                     Toast.makeText(context, "la contraseña es incorrecta", Toast.LENGTH_SHORT).show()
                 }
             }else{
+                navigationActions.navigateToCarga()
                 _loading.value = true
                 currentUser?.let{ user ->
                     val uid = user.uid
@@ -247,249 +251,6 @@ class loginbacked: ViewModel() {
         }
     }
 
-    /*fun ChangePassword(changePassword: String, context: Context, currentPassword:String?, onSuccess: () -> Unit)= viewModelScope.launch {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-
-        if (_loading.value == false) { // No se está procesando otro cambio
-            if (changePassword.length < 6) {
-                Toast.makeText(
-                    context,
-                    "La contraseña debe tener al menos 6 caracteres",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                _loading.value = true
-                currentUser?.let { user ->
-                    // Reautenticación usando la contraseña actual
-                    val credential =
-                        EmailAuthProvider.getCredential(user.email!!, currentPassword!!)
-                    user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
-                        if (reauthTask.isSuccessful) {
-                            // Cambiar contraseña en Firebase Authentication
-                            user.updatePassword(changePassword)
-                                .addOnCompleteListener { updateTask ->
-                                    if (updateTask.isSuccessful) {
-                                        // Actualizar Firestore para mantener sincronización
-                                        val db = FirebaseFirestore.getInstance()
-                                        val userUpdates = mapOf(
-                                            "password" to changePassword
-                                        )
-                                        db.collection("Usuarios").document(user.uid)
-                                            .update(userUpdates)
-                                            .addOnSuccessListener {
-                                                Log.d(
-                                                    "Firestore",
-                                                    "Usuario actualizado exitosamente en Firestore"
-                                                )
-                                                Toast.makeText(
-                                                    context,
-                                                    "Contraseña cambiada exitosamente",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                                onSuccess()
-                                            }
-                                            .addOnFailureListener { e ->
-                                                Log.w(
-                                                    "Firestore",
-                                                    "Error al actualizar Firestore",
-                                                    e
-                                                )
-                                                Toast.makeText(
-                                                    context,
-                                                    "Error al actualizar la base de datos",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                    } else {
-                                        Log.w(
-                                            "FirebaseAuth",
-                                            "Error al cambiar contraseña en Authentication",
-                                            updateTask.exception
-                                        )
-                                        Toast.makeText(
-                                            context,
-                                            "Error al cambiar la contraseña",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                    _loading.value = false
-                                }
-                        } else {
-                            Log.w("FirebaseAuth", "Reautenticación fallida", reauthTask.exception)
-                            Toast.makeText(
-                                context,
-                                "Reautenticación fallida. Verifique la contraseña actual.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            _loading.value = false
-                        }
-                    }
-                } ?: run {
-                    Log.w("FirebaseAuth", "No hay usuario autenticado")
-                    Toast.makeText(
-                        context,
-                        "No se encontró un usuario autenticado",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    _loading.value = false
-                }
-            }
-        }
-    }*/
-
-    /*private var verificationCode: String? = null
-
-    fun sendVerificationEmail(
-        userEmail: String,
-        context: Context
-    ) {
-        verificationCode = (100000..999999).random().toString() // Genera un código aleatorio de 6 dígitos
-
-        val subject = "Confirmación de cambio de contraseña"
-        val message = "Hola, usa este código para confirmar el cambio de contraseña: $verificationCode"
-
-        // Enviar correo automáticamente utilizando Firebase o algún servicio SMTP
-        try {
-            // Aquí podrías usar un SDK de terceros o API propia para el envío de correo
-            Log.d("Email", "Correo enviado a $userEmail con el código $verificationCode")
-            Toast.makeText(context, "Correo de verificación enviado.", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Log.e("EmailError", "No se pudo enviar el correo: ${e.localizedMessage}")
-            Toast.makeText(context, "Error al enviar el correo.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private suspend fun promptUserForCode(context: Context): String? {
-        // Aquí puedes implementar un diálogo para que el usuario ingrese el código recibido por correo
-        // Esta es una simulación, en una app real usarías un método como "suspendCoroutine" o un listener
-        return withContext(Dispatchers.Main) {
-            var userInputCode: String? = null
-            val dialog = AlertDialog.Builder(context).apply {
-                setTitle("Verificación de Código")
-                setMessage("Introduce el código que recibiste por correo electrónico:")
-                val input = EditText(context)
-                input.inputType = InputType.TYPE_CLASS_NUMBER
-                setView(input)
-                setPositiveButton("Confirmar") { _, _ ->
-                    userInputCode = input.text.toString()
-                }
-                setNegativeButton("Cancelar") { dialog, _ ->
-                    dialog.dismiss()
-                }
-            }.create()
-            dialog.show()
-            dialog.setOnDismissListener {
-                dialog.dismiss()
-            }
-            userInputCode
-        }
-    }
-
-    fun ChangePassword(
-        changePassword: String,
-        context: Context,
-        currentPassword: String?,
-        onSuccess: () -> Unit
-    ) = viewModelScope.launch {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-
-        if (_loading.value == false) { // No se está procesando otro cambio
-            if (changePassword.length < 6) {
-                Toast.makeText(
-                    context,
-                    "La contraseña debe tener al menos 6 caracteres",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                _loading.value = true
-                currentUser?.let { user ->
-                    // Enviar correo de verificación
-                    sendVerificationEmail(user.email!!, context)
-
-                    // Solicitar código al usuario
-                    val inputCode = promptUserForCode(context)
-
-                    if (inputCode != null && inputCode == verificationCode) {
-                        // Reautenticación usando la contraseña actual
-                        val credential =
-                            EmailAuthProvider.getCredential(user.email!!, currentPassword!!)
-                        user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
-                            if (reauthTask.isSuccessful) {
-                                // Cambiar contraseña en Firebase Authentication
-                                user.updatePassword(changePassword)
-                                    .addOnCompleteListener { updateTask ->
-                                        if (updateTask.isSuccessful) {
-                                            // Actualizar Firestore para mantener sincronización
-                                            val db = FirebaseFirestore.getInstance()
-                                            val userUpdates = mapOf(
-                                                "password" to changePassword
-                                            )
-                                            db.collection("Usuarios").document(user.uid)
-                                                .update(userUpdates)
-                                                .addOnSuccessListener {
-                                                    Log.d(
-                                                        "Firestore",
-                                                        "Usuario actualizado exitosamente en Firestore"
-                                                    )
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Contraseña cambiada exitosamente",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                    onSuccess()
-                                                }
-                                                .addOnFailureListener { e ->
-                                                    Log.w(
-                                                        "Firestore",
-                                                        "Error al actualizar Firestore",
-                                                        e
-                                                    )
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Error al actualizar la base de datos",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                        } else {
-                                            Log.w(
-                                                "FirebaseAuth",
-                                                "Error al cambiar contraseña en Authentication",
-                                                updateTask.exception
-                                            )
-                                            Toast.makeText(
-                                                context,
-                                                "Error al cambiar la contraseña",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                        _loading.value = false
-                                    }
-                            } else {
-                                Log.w("FirebaseAuth", "Reautenticación fallida", reauthTask.exception)
-                                Toast.makeText(
-                                    context,
-                                    "Reautenticación fallida. Verifique la contraseña actual.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                _loading.value = false
-                            }
-                        }
-                    } else {
-                        Toast.makeText(context, "Código de verificación incorrecto.", Toast.LENGTH_SHORT).show()
-                        _loading.value = false
-                    }
-                } ?: run {
-                    Log.w("FirebaseAuth", "No hay usuario autenticado")
-                    Toast.makeText(
-                        context,
-                        "No se encontró un usuario autenticado",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    _loading.value = false
-                }
-            }
-        }
-    }*/
     private var verificationCode: String? = null
 
     fun sendVerificationEmail(
@@ -576,7 +337,8 @@ class loginbacked: ViewModel() {
         changePassword: String,
         context: Context,
         currentPassword: String?,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit,
+        navigationActions: NavigationActions
     ) = viewModelScope.launch {
         val currentUser = FirebaseAuth.getInstance().currentUser
 
@@ -595,7 +357,9 @@ class loginbacked: ViewModel() {
 
                     // Solicitar código al usuario
                     val inputCode = promptUserForCode(context)
+                    navigationActions.navigateToCarga()
                     Log.d("Correo", "verificado")
+
                     if (inputCode != null && inputCode == verificationCode) {
                         // Reautenticación usando la contraseña actual
                         Log.d("Correo", "verificado")

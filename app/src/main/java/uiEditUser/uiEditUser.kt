@@ -153,6 +153,7 @@ fun CancelAndAcceptButtons(
             shape = RoundedCornerShape(20),
             onClick = {
                 if (passwordChange == ""){
+
                     viewModel.editUser(
                         userName = userName.toString(),
                         email = email.toString(),
@@ -161,14 +162,16 @@ fun CancelAndAcceptButtons(
                         context = context,
                         selectImageUri = perfilImage.value,
                         showpassword = showpassword,
-                        passwordchange = passwordChange
+                        passwordchange = passwordChange,
+                        navigationActions = navigationActions
                     )
                 }else if (passwordChange != ""){
                     viewModel.ChangePassword(
                         changePassword = passwordChange,
                         context,
                         currentPassword = showpassword,
-                        onSuccess = {navigationActions.navigateToHome()}
+                        onSuccess = {navigationActions.navigateToHome()},
+                        navigationActions = navigationActions
                     )
                 }
                  },

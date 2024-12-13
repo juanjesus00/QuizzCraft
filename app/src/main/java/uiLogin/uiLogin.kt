@@ -123,6 +123,7 @@ fun GoogleIcon(viewModel: loginbacked, navigationActions: NavigationActions) {
             .StartIntentSenderForResult()
     ) {result ->
         try{
+            navigationActions.navigateToCarga()
             val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
             val idToken = credential.googleIdToken
             val email = credential.id
@@ -159,7 +160,6 @@ fun GoogleIcon(viewModel: loginbacked, navigationActions: NavigationActions) {
                 oneTapClient.beginSignIn(signInRequest)
                     .addOnSuccessListener { result ->
                         try{
-                            //val intentSenderRequest = IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
                             launcher.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
                         }catch (e: Exception){
                             Log.d("GoogleSignIn", "Error al construir IntentSender: ${e.localizedMessage}")

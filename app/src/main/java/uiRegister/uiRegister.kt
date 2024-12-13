@@ -92,20 +92,11 @@ fun BoxField(modifier: Modifier, viewModel: loginbacked, navigationActions: Navi
         Spacer(modifier = Modifier.padding(2.dp))
         RegisterButton(viewModel, username, password, name, navigationActions)
         Spacer(modifier = Modifier.padding(8.dp))
-        GoogleIcon()
+        uiLogin.GoogleIcon(viewModel = viewModel, navigationActions = navigationActions)
 
     }
 }
 
-@Composable
-fun GoogleIcon() {
-    Icon(
-        imageVector = ImageVector.vectorResource(id = R.drawable.ic_googleicon),
-        contentDescription = "Google Icon",
-        modifier = Modifier.height(32.dp),
-        tint = Color.Unspecified
-    )
-}
 
 @Composable
 fun UserField(name: String, function: (String) -> Unit) {
@@ -214,9 +205,7 @@ fun RegisterButton(
     Button(
         onClick = {
             isLoading = !isLoading
-            viewModel.register(email = username, password = password, context = context, name) {
-                navigationActions.navigateToHome()
-            }
+            viewModel.register(email = username, password = password, context = context, name = name, navigationActions = navigationActions, onSuccess = {navigationActions.navigateToHome()})
         },
         shape = RoundedCornerShape(20),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
