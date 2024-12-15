@@ -145,7 +145,7 @@ fun FileUploader2(
             selectedPdfUri = it
             if (text == getStringByName(context, "generate_with_question_answer_document_create_quiz")) {
                 typePrompt.value =
-                    "puedes procesar este texto con formato preguntas y respuestas, y adaptar las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, el texto a procesar: "
+                    "puedes procesar este texto con formato preguntas y respuestas, y adaptar TODAS las preguntas a un json con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json y ningun caracter mas, el texto a procesar: "
             } else if (text == getStringByName(context, "generate_with_plain_text_document_create_quiz")) {
                 typePrompt.value =
                     "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, texto a procesar: "

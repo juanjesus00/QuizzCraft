@@ -9,11 +9,15 @@ import android.os.Looper
 import android.text.InputType
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
+import android.view.Gravity
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.R
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -367,7 +371,6 @@ class loginbacked : ViewModel() {
 
     private suspend fun promptUserForCode(context: Context): String? {
         val deferred = CompletableDeferred<String?>()
-
         val dialog = AlertDialog.Builder(context).apply {
             setTitle("Verificación de Código")
             setMessage("Introduce el código que recibiste por correo electrónico:")
@@ -384,10 +387,9 @@ class loginbacked : ViewModel() {
         }.create()
 
         dialog.show()
-
-        // Espera hasta que el valor esté disponible
         return deferred.await()
     }
+
 
 
     fun ChangePassword(
