@@ -46,6 +46,7 @@ fun getPrincipalMidSection(
     navigationActions: NavigationActions,
     navController: NavHostController
 ) {
+    println("hola")
     Column(
         modifier = Modifier
             .fillMaxSize()
