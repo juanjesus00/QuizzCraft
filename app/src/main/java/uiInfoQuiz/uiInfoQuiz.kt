@@ -1,5 +1,10 @@
 package uiInfoQuiz
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -87,35 +92,53 @@ fun InfoQuizScreen(
 
 @Composable
 fun InfoQuiz(navigationActions: NavigationActions, quiz: Quiz) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 128.dp)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(32.dp)
-        ) {
-            ImageQuiz(quiz.quizImageUrl)
-            NameAndTag(quiz.name, quiz.tags)
-        }
-        Spacer(modifier = Modifier.padding(16.dp))
-        getStringByName(LocalContext.current, "description_quiz")?.let {
-            Text(
-                text = "$it:",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color.Black,
-                fontSize = 24.sp
+
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(
+            initialAlpha = 0f,
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = LinearOutSlowInEasing
             )
-        }
-        Spacer(modifier = Modifier.padding(8.dp))
-        Text(
-            text = quiz.description,
-            textAlign = TextAlign.Justify
         )
-        Spacer(modifier = Modifier.padding(24.dp))
-        ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally), quiz)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 128.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                ImageQuiz(quiz.quizImageUrl)
+                NameAndTag(quiz.name, quiz.tags)
+            }
+            Spacer(modifier = Modifier.padding(16.dp))
+            getStringByName(LocalContext.current, "description_quiz")?.let {
+                Text(
+                    text = "$it:",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color.Black,
+                    fontSize = 24.sp
+                )
+            }
+            Spacer(modifier = Modifier.padding(8.dp))
+            Text(
+                text = quiz.description,
+                textAlign = TextAlign.Justify
+            )
+            Spacer(modifier = Modifier.padding(24.dp))
+            ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally), quiz)
+        }
     }
 }
 

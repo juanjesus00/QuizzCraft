@@ -3,6 +3,11 @@ package uiEditUser
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -58,6 +63,8 @@ import java.io.File
 
 @Composable
 fun EditUserScreen(navigationActions: NavigationActions, scrollState: ScrollState, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = viewModel()) {
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -88,7 +95,10 @@ fun EditUser(
     var perfilImage by remember { mutableStateOf(mutableStateOf<Uri?>(null))}
     var showpassword by remember { mutableStateOf<String?>("") }
     var isopen by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
+        isVisible = true
         viewModelUser.getInfoUser { user ->
             userName = user?.get("userName") as? String
             email = user?.get("email") as? String
@@ -96,22 +106,39 @@ fun EditUser(
         }
     }
 
-    Box(
-        modifier = modifier
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(
+            initialAlpha = 0f, // Comienza completamente invisible
+            animationSpec = tween(
+                durationMillis = 1000, // Duración de 3 segundos
+                easing = LinearOutSlowInEasing // Efecto de animación suave
+            )
+        ) + slideInVertically(
+            initialOffsetY = { fullHeight -> fullHeight / 2 },
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = LinearOutSlowInEasing
+            )
+        )
     ) {
-        Column(modifier = modifier) {
-            Spacer(modifier = Modifier.padding(12.dp))
-            UserField(userName) {userName = it}
-            Spacer(modifier = Modifier.padding(12.dp))
-            EmailField(email) {email = it}
-            Spacer(modifier = Modifier.padding(12.dp))
-            ShowPasswordField(showpassword)
-            Spacer(modifier = Modifier.padding(12.dp))
-            ChangePasswordField(password, {password = it}, passwordChange, {passwordChange = it})
-            Spacer(modifier = Modifier.padding(12.dp))
-            photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
-            Spacer(modifier = Modifier.padding(6.dp))
-            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage, showpassword, passwordChange)
+        Box(
+            modifier = modifier
+        ) {
+            Column(modifier = modifier) {
+                Spacer(modifier = Modifier.padding(12.dp))
+                UserField(userName) {userName = it}
+                Spacer(modifier = Modifier.padding(12.dp))
+                EmailField(email) {email = it}
+                Spacer(modifier = Modifier.padding(12.dp))
+                ShowPasswordField(showpassword)
+                Spacer(modifier = Modifier.padding(12.dp))
+                ChangePasswordField(password, {password = it}, passwordChange, {passwordChange = it})
+                Spacer(modifier = Modifier.padding(12.dp))
+                photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
+                Spacer(modifier = Modifier.padding(6.dp))
+                CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage, showpassword, passwordChange)
+            }
         }
     }
 }
