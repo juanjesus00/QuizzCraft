@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.CARGA){ LoadingScreen() }
                 composable(Routes.ABOUT) { MyComposeApp(navigationActions, navController) }
             }
+
         }
 
     }

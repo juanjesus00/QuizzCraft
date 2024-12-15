@@ -143,7 +143,7 @@ fun getHeader(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
                         color = 0xFF212325.toInt(),
-                        size = 150,
+                        size = if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) 175 else 150,
                         type = "header",
                         navigationActions = navigationActions,
                         quizId = ""

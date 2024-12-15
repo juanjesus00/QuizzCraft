@@ -20,7 +20,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import carga.LoadingScreen
 import com.example.myapplication.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import header.getHeader
@@ -34,6 +37,8 @@ import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
 import uiGame.GameScreen
 import uiInfoQuiz.InfoQuizScreen
+import uiLogin.LoginScreen
+import uiRegister.RegisterScreen
 import uiResult.ResultScreen
 import uiUserInfo.UserInfoScreen
 
@@ -151,8 +156,6 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             InfoQuizScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.GAME) {
             GameScreen(navigationActions, scrollState = scrollState, 't', navController)
-        /*} else if (currentRoute == Routes.RESULT) {
-            ResultScreen(navigationActions, scrollState = scrollState, navController)*/
         } else if (currentRoute == Routes.ABOUT) {
             AboutScreen(navigationActions)
         }
