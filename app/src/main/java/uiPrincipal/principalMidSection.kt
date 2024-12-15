@@ -39,14 +39,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import languagesBack.getStringByName
 import routes.NavigationActions
+import uiLogin.loginbacked
 
 @Composable
 fun getPrincipalMidSection(
     scrollState: ScrollState,
     navigationActions: NavigationActions,
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    println("hola")
     Column(
         modifier = Modifier
             .fillMaxSize()

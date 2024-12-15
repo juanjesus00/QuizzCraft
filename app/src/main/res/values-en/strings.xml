@@ -10,9 +10,13 @@
     <string name="light_mode">Light mode</string>
     <string name="language">Language</string>
     <string name="my_quizzes_warning">You must register to be able to create your quizzes!</string>
+    <string name="my_quizzes_warning_unverified">You must VERIFY THE EMAIL to be able to create your questionnaires!</string>
     <string name="recent_quizzes_warning">You must register and play quizzes to have them in recent!</string>
+    <string name="recent_quizzes_warning_unverified">You must VERIFY THE MAIL and play quizzes to keep them recent!</string>
     <string name="warning_try_enter_to_profile">You must register or log in to access your profile</string>
+    <string name="warning_try_enter_to_profile_unverified">You must VERIFY your email to access your profile</string>
     <string name="warning_try_create_a_quiz">You must register or log in to create a quiz</string>
+    <string name="warning_try_create_a_quiz_unverified">You must VERIFY the email to create a quiz</string>
     <string name="result_search">Results:</string>
     <string name="placeholder_search">Write tags to search for example "#maths"</string>
     <string name="what_option_create_quiz_popup">What do you want to do?</string>

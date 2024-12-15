@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,10 +29,16 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.itextpdf.text.xml.xmp.DublinCoreProperties.setSubject
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import routes.NavigationActions
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.Properties
 import javax.mail.Message
 import javax.mail.Session
@@ -42,6 +49,9 @@ import javax.mail.internet.MimeMessage
 class loginbacked : ViewModel() {
     private var auth: FirebaseAuth = Firebase.auth
     private var _loading = MutableLiveData(false)
+
+    private val _isEmailVerified = MutableLiveData<Boolean>()
+    val isEmailVerified: LiveData<Boolean> = _isEmailVerified
     fun signIn(
         email: String,
         password: String,
@@ -73,7 +83,54 @@ class loginbacked : ViewModel() {
         } catch (e: Exception) {
             Log.d("Loginbackend", "Error de inicio: ${e.message}")
         }
+
     }
+    fun sendVerificationRegisterEmail() {
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.sendEmailVerification()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                println("Correo de verificación enviado.")
+            } else {
+                println("Error al enviar el correo: ${task.exception?.message}")
+            }
+        }
+    }
+    fun checkIfEmailVerified(){
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user?.isEmailVerified == true) {
+            // El correo ha sido verificado
+            _isEmailVerified.value = user.isEmailVerified
+        } else {
+            // El correo no ha sido verificado aún
+            Log.d("Verification", "Email is not verified.")
+            _isEmailVerified.value = false
+        }
+    }
+    suspend fun verifyEmailWithAPI(email: String): Boolean = withContext(Dispatchers.IO){
+
+        /*val apiKey = "07ec1580b54cf97058a3c3446452ad2d"
+
+        try {
+            val url = URL("https://apilayer.net/api/check?access_key=$apiKey&email=$email")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 5000
+            connection.readTimeout = 5000
+            connection.connect()
+
+            val responseCode = connection.responseCode
+            connection.disconnect()
+
+            // Devuelve `true` si la respuesta es HTTP OK, de lo contrario `false`
+            responseCode == HttpURLConnection.HTTP_OK
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false // En caso de error, devuelve `false`
+        }*/
+        true
+
+    }
+
 
     fun register(
         email: String,
@@ -83,33 +140,42 @@ class loginbacked : ViewModel() {
         onSuccess: () -> Unit,
         navigationActions: NavigationActions
     ) = viewModelScope.launch {
-        if (_loading.value == false) { //no se esta creando usuarios actualmente
-            if (password.length < 6) {
-                Toast.makeText(
-                    context,
-                    "La contraseña debe tener al menos 6 caracteres",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                navigationActions.navigateToCarga()
-                _loading.value = true
+        var isCorrectEmail = verifyEmailWithAPI(email)
+        if(isCorrectEmail){
 
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            crateUser(name, email, "", password)
-                            onSuccess()
-                        } else {
-                            Log.d(
-                                "loginbackend",
-                                "La creacion de usuarios falló: ${task.result.toString()}"
-                            )
+            if (_loading.value == false) { //no se esta creando usuarios actualmente
+                if (password.length < 6) {
+                    Toast.makeText(
+                        context,
+                        "La contraseña debe tener al menos 6 caracteres",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    navigationActions.navigateToCarga()
+                    _loading.value = true
+
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                sendVerificationRegisterEmail()
+                                crateUser(name, email, "", password)
+                                onSuccess()
+                            } else {
+                                Log.d(
+                                    "loginbackend",
+                                    "La creacion de usuarios falló: ${task.result.toString()}"
+                                )
+                            }
+                            _loading.value = false
                         }
-                        _loading.value = false
-                    }
-            }
+                }
 
+            }
+        }else{
+            Toast.makeText(context, "El correo introducido No es Real", Toast.LENGTH_SHORT).show()
         }
+
+
     }
 
     fun SingInWithGoogleCredential(
