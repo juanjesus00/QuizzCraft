@@ -30,6 +30,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,6 +63,7 @@ import quizcraft.fetchTopTags
 import quizcraft.searchQuizzesByTag
 import routes.NavigationActions
 import routes.Routes
+import uiLogin.loginbacked
 import uiPrincipal.SharedState
 import uiUserInfo.userInfoBack
 
@@ -72,9 +74,13 @@ var quizzes = mutableStateOf<List<Quiz>>(emptyList())
 fun getHeader(
     navigationActions: NavigationActions,
     navController: NavHostController,
-    viewModelUser: userInfoBack = viewModel()
+    viewModelUser: userInfoBack = viewModel(),
+    viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-
+    val isVerified by viewModel.isEmailVerified.observeAsState(false)
+    LaunchedEffect(Unit) {
+        viewModel.checkIfEmailVerified()
+    }
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val context = LocalContext.current
     var expanded by remember {
@@ -89,7 +95,8 @@ fun getHeader(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         if (!SharedState.isSearchActive || currentRoute != Routes.HOME) {
-            if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user == null) {
                 Image(
                     painter = painterResource(id = R.drawable.non_registered_account_icon),
                     contentDescription = "Imagen De ejemplo",
@@ -104,10 +111,29 @@ fun getHeader(
                                     Toast.LENGTH_SHORT
                                 )
                                 .show()
+
                         },
                     contentScale = ContentScale.Crop
                 )
-            } else {
+            } else if(!isVerified){
+                Image(
+                    painter = painterResource(id = R.drawable.non_registered_account_icon),
+                    contentDescription = "Imagen De ejemplo",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(100.dp))
+                        .clickable {
+                            Toast
+                                .makeText(
+                                    context,
+                                    getStringByName(context, "warning_try_enter_to_profile_unverified"),
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        },
+                    contentScale = ContentScale.Crop
+                )
+            }else {
                 LaunchedEffect(Unit) {
                     viewModelUser.getInfoUser { url ->
                         profileImageUrl = url?.get("PerfilImage") as? String

@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,13 +41,14 @@ import quizcraft.getQuizzesByLastQuizzesUser
 import quizcraft.getQuizzesByUserId
 import routes.NavigationActions
 import uiInfoQuiz.getLastQuizByUserId
+import uiLogin.loginbacked
 
 private var auth: FirebaseAuth = Firebase.auth
 
 @Composable
-fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions: NavigationActions){
+fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()){
     var isVisible by remember { mutableStateOf(false) }
-
+    val isVerified by viewModel.isEmailVerified.observeAsState(false)
     LaunchedEffect(Unit) {
         delay(250)
         isVisible = true
@@ -111,8 +113,18 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
                     )
                 }
             }
-        } else {
+        } else if(FirebaseAuth.getInstance().currentUser == null){
+
             getStringByName(LocalContext.current, "my_quizzes_warning")?.let {
+                Text(text = it,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 25.dp),
+                    fontSize = 16.sp,
+                    fontFamily = poppinsFamily
+                )
+            }
+        }else if(!isVerified) {
+            getStringByName(LocalContext.current, "my_quizzes_warning_unverified")?.let {
                 Text(text = it,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 25.dp),
@@ -125,8 +137,11 @@ fun insertSectionQuiz(titleSection: String, titleQuiz: String, navigationActions
 }
 
 @Composable
-fun insertSectionLastQuizzies(navigationActions: NavigationActions){
-
+fun insertSectionLastQuizzies(navigationActions: NavigationActions,viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()){
+    val isVerified by viewModel.isEmailVerified.observeAsState(false)
+    LaunchedEffect(Unit) {
+        viewModel.checkIfEmailVerified()
+    }
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -195,8 +210,17 @@ fun insertSectionLastQuizzies(navigationActions: NavigationActions){
                 }
             }
 
-        } else {
+        } else if(FirebaseAuth.getInstance().currentUser == null){
             getStringByName(LocalContext.current, "recent_quizzes_warning")?.let {
+                Text(text = it,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 25.dp),
+                    fontSize = 16.sp,
+                    fontFamily = poppinsFamily
+                )
+            }
+        }else if(!isVerified){
+            getStringByName(LocalContext.current, "recent_quizzes_warning_unverified")?.let {
                 Text(text = it,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 25.dp),

@@ -65,7 +65,6 @@ import uiPrincipal.poppinsFamily
 
 private var auth: FirebaseAuth = Firebase.auth
 var typePrompt = mutableStateOf("")
-
 @Composable
 fun uiQuizCraft(
     navigationActions: NavigationActions,

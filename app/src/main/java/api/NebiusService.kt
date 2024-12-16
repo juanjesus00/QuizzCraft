@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit
 
 class NebiusService(private val apiKey: String) {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(500, TimeUnit.SECONDS)
-        .readTimeout(500, TimeUnit.SECONDS)
-        .writeTimeout(500, TimeUnit.SECONDS)
+        .connectTimeout(1000, TimeUnit.SECONDS)
+        .readTimeout(1000, TimeUnit.SECONDS)
+        .writeTimeout(1000, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val request: Request = chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $apiKey")
