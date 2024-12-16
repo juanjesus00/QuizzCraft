@@ -47,24 +47,24 @@ val jsonString = """
 {
   "questions": [
     {
-      "question": "which of these are management methodologies?",
+      "question": "pregunta1",
       "answer": {
         "answers": [
-          { "respuesta": "Metrica3, King2, Scrum, Lean", "correct": false },
-          { "respuesta": "Metrica3, prince2, Rugby, Lean", "correct": false },
-          { "respuesta": "metrica3, prince2, Scrum, Gangnam", "correct": false },
-          { "respuesta": "Metrica3, Prince2, Scrum, Lean", "correct": true }
+          { "respuesta": "respuesta1", "correct": false },
+          { "respuesta": "respuesta2", "correct": false },
+          { "respuesta": "respuesta3", "correct": false },
+          { "respuesta": "respuesta4", "correct": true }
         ]
       }
     },
     {
-      "question": "de locos y si",
+      "question": "pregunta2",
       "answer": {
         "answers": [
-          { "respuesta": "Metrica3, King2, Scrum, Lean", "correct": false },
-          { "respuesta": "Metrica3, prince2, Rugby, Lean", "correct": true },
-          { "respuesta": "metrica3, prince2, Scrum, Gangnam", "correct": false },
-          { "respuesta": "Metrica3, Prince2, Scrum, Lean", "correct": false }
+          { "respuesta": "respuesta1", "correct": false },
+          { "respuesta": "respuesta2", "correct": true },
+          { "respuesta": "respuesta3", "correct": false },
+          { "respuesta": "respuesta4", "correct": false }
         ]
       }
     }

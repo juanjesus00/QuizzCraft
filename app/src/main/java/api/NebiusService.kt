@@ -26,9 +26,6 @@ class NebiusService(private val apiKey: String) {
             val response = chain.proceed(request)
 
             val responseBody = response.body?.string() ?: ""
-            println("Request: ${request.method} ${request.url}")
-            println("Headers: ${request.headers}")
-            println("Body: ${request.body}")
             println("Response: ${response.code} $responseBody")
             // Extraer el contenido usando Gson
             try {
@@ -61,7 +58,9 @@ class NebiusService(private val apiKey: String) {
         val request = NebiusRequest(
             messages = listOf(
                 Message(role = "user", content = prompt) // Rol del mensaje y contenido.
-            )
+            ),
+            temperature = 0.4,
+            maxTokens = 2048
         )
 
         return try {
