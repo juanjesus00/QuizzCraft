@@ -57,32 +57,55 @@ class loginbacked : ViewModel() {
         password: String,
         context: Context,
         onSuccess: () -> Unit,
+        navigationActions: NavigationActions,
         onErrorAction: () -> Unit
     ) = viewModelScope.launch {
-        try {
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("Loginbackend", "Inicio de sesión exitoso")
-                        onSuccess()
+        if(email.isNullOrEmpty() || password.isNullOrEmpty()){
+            Toast.makeText(
+                context,
+                "Todos los campos son obligatorios",
+                Toast.LENGTH_SHORT
+            ).show()
+        }else{
+            try {
+                navigationActions.navigateToCarga()
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("Loginbackend", "Inicio de sesión exitoso")
+                            onSuccess()
 
-                    } else {
-                        Log.d("Loginbackend", "Error al iniciar sesion: ${task.result.toString()}")
+                        } else {
+                            val errorMessage = task.exception?.localizedMessage ?: "Error desconocido"
+                            Log.d("LoginBackend", "Error al iniciar sesión: $errorMessage")
+                            onErrorAction()
+                            Toast.makeText(
+                                context,
+                                "Inicio de sesión fallido: $errorMessage",
+                                Toast.LENGTH_LONG
+                            ).show()
 
+                        }
                     }
-                }
-                .addOnFailureListener { exception ->
-                    exception.printStackTrace()
-                    onErrorAction()
-                    Toast.makeText(
-                        context,
-                        "Inicio de se sesio erroneo la contraseña o el email son incorrectos",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-        } catch (e: Exception) {
-            Log.d("Loginbackend", "Error de inicio: ${e.message}")
+                    .addOnFailureListener { exception ->
+                        exception.printStackTrace()
+                        onErrorAction()
+                        Toast.makeText(
+                            context,
+                            "Inicio de se sesio erroneo la contraseña o el email son incorrectos",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+            } catch (e: Exception) {
+                Log.e("LoginBackend", "Excepción capturada: ${e.message}")
+                Toast.makeText(
+                    context,
+                    "Ha ocurrido un error inesperado: ${e.localizedMessage}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
+
 
     }
     fun sendVerificationRegisterEmail() {
@@ -141,6 +164,7 @@ class loginbacked : ViewModel() {
         navigationActions: NavigationActions
     ) = viewModelScope.launch {
         var isCorrectEmail = verifyEmailWithAPI(email)
+        var passwordValid = isPasswordValid(password)
         if(isCorrectEmail){
 
             if (_loading.value == false) { //no se esta creando usuarios actualmente
@@ -150,7 +174,8 @@ class loginbacked : ViewModel() {
                         "La contraseña debe tener al menos 6 caracteres",
                         Toast.LENGTH_SHORT
                     ).show()
-                } else {
+                } else if(passwordValid){
+
                     navigationActions.navigateToCarga()
                     _loading.value = true
 
@@ -168,6 +193,12 @@ class loginbacked : ViewModel() {
                             }
                             _loading.value = false
                         }
+                }else{
+                    Toast.makeText(
+                        context,
+                        "La contraseña debe tener al menos 1 letra 1 mayuscula 1 número y 1 caracter especial !%*?&.#",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
 
             }
@@ -177,7 +208,11 @@ class loginbacked : ViewModel() {
 
 
     }
-
+    private fun isPasswordValid(password: String): Boolean {
+        // Expresión regular para la contraseña
+        val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&.#])[A-Za-z\\d@\$!%*?&.#]{6,}\$")
+        return passwordPattern.matches(password)
+    }
     fun SingInWithGoogleCredential(
         credentialToken: AuthCredential,
         credential: SignInCredential,
@@ -197,17 +232,20 @@ class loginbacked : ViewModel() {
                             if (document.exists()) {
                                 Log.d("loginGoogle", "El usuario ya existe")
                             } else {
+
                                 crateUser(
                                     displayName = credential.givenName ?: "unknown",
                                     email = credential.id,
                                     profileImage = credential.profilePictureUri.toString(),
                                     password = password
                                 )
+                                sendVerificationRegisterEmail()
                             }
                         }.addOnFailureListener { e ->
                             Log.e("FirebaseAuth", "Error al crear usuario: ${e.localizedMessage}")
                         }
                         home()
+
 
                     }
 

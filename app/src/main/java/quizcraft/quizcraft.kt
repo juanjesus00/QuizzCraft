@@ -214,7 +214,7 @@ fun FileUploader2(
                     )
                 ) {
                     typePrompt.value =
-                        "puedes procesar todo el texto y hacer 20 preguntas en un formato json, con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, texto a procesar: "
+                        "puedes procesar todo el texto y hacer 20 preguntas y respuestas(desordenadas) en un formato json, con esta estructura ${uiPrincipal.jsonString}, limita a imprimir solo el json, texto a procesar: "
                 }
                 try {
                     val inputStream = context.contentResolver.openInputStream(it)

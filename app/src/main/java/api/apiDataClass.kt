@@ -2,7 +2,9 @@ package api
 
 data class NebiusRequest(
     val messages: List<Message>, // Actualiza este campo según la documentación de la API.
-    val model: String = "meta-llama/Meta-Llama-3.1-405B-Instruct" // Especifica el modelo si es requerido.
+    val model: String = "meta-llama/Meta-Llama-3.1-405B-Instruct", // Especifica el modelo si es requerido.
+    val temperature: Double,
+    val maxTokens: Int
 )
 
 data class NebiusResponse(
@@ -15,6 +17,7 @@ data class Choice(
 data class Message(
     val role: String, // Por ejemplo, "user", "assistant", etc.
     val content: String // El texto del mensaje.
+
 )
 
 data class Result(

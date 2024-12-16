@@ -260,7 +260,8 @@ fun LoginButton(
                 context,
                 onSuccess = {
                     navigationActions.navigateToHome()
-                }
+                },
+                navigationActions
             ) {
                 navigationActions.navigateToLogin()
             }
@@ -270,7 +271,7 @@ fun LoginButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB18F4F))
 
     ) {
-        (if (isLoading) getStringByName(LocalContext.current, "loading") else getStringByName(
+        (getStringByName(
             LocalContext.current, "login"))?.let {
             Text(
                 text = it,
