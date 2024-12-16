@@ -109,10 +109,10 @@ fun EditUser(
     AnimatedVisibility(
         visible = isVisible,
         enter = fadeIn(
-            initialAlpha = 0f, // Comienza completamente invisible
+            initialAlpha = 0f,
             animationSpec = tween(
-                durationMillis = 1000, // Duración de 3 segundos
-                easing = LinearOutSlowInEasing // Efecto de animación suave
+                durationMillis = 1000,
+                easing = LinearOutSlowInEasing
             )
         ) + slideInVertically(
             initialOffsetY = { fullHeight -> fullHeight / 2 },
