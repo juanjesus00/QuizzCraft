@@ -62,6 +62,7 @@ fun CustomPopupMenu(
 ) {
 
     val languageMenuExpanded = remember { mutableStateOf(false) }
+    val showPopupAreYouSure = remember { mutableStateOf(false) }
 
 
     if (expanded) {
@@ -264,7 +265,7 @@ fun CustomPopupMenu(
             }
         } else if (type == "CrudQuiz") {
             Popup(
-                alignment = Alignment.CenterEnd, // Posición del popup en la pantalla
+                alignment = Alignment.CenterEnd,
                 onDismissRequest = onDismissRequest
             ) {
                 Box(
@@ -272,7 +273,7 @@ fun CustomPopupMenu(
                         .background(
                             Color(color),
                             shape = RoundedCornerShape(16.dp)
-                        ) // Personaliza el fondo y las esquinas redondeadas
+                        )
                         .size(width = (size / 2).dp, height = size.dp)
                 ) {
                     Column(
@@ -286,14 +287,7 @@ fun CustomPopupMenu(
                             painterResource(id = R.drawable.basura),
                             contentDescription = "Eliminar",
                             modifier = Modifier.clickable {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    val wasDeleted = deleteQuizFromFirestore(quizId)
-                                    if (wasDeleted) {
-                                        navigationActions.navigateToHome()
-                                    } else {
-                                        println("No se pudo eliminar el cuestionario")
-                                    }
-                                }
+                                showPopupAreYouSure.value = true
                             }
 
                         )
@@ -311,6 +305,12 @@ fun CustomPopupMenu(
             }
         }
 
+    }
+
+    if (showPopupAreYouSure.value) {
+        CustomPopupAreYouSure(
+            'q', quizId, navigationActions, showPopupAreYouSure
+        )
     }
 }
 
