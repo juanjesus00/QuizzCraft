@@ -72,6 +72,9 @@ class loginbacked : ViewModel() {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
+                            if(FirebaseAuth.getInstance().currentUser?.isEmailVerified == false){
+                                sendVerificationRegisterEmail()
+                            }
                             Log.d("Loginbackend", "Inicio de sesión exitoso")
                             onSuccess()
 
@@ -230,6 +233,9 @@ class loginbacked : ViewModel() {
                         val userRef = db.collection("Usuarios").document(uid!!)
                         userRef.get().addOnSuccessListener { document ->
                             if (document.exists()) {
+                                if(FirebaseAuth.getInstance().currentUser?.isEmailVerified == false){
+                                    sendVerificationRegisterEmail()
+                                }
                                 Log.d("loginGoogle", "El usuario ya existe")
                             } else {
 
