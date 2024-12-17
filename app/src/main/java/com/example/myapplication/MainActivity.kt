@@ -1,16 +1,17 @@
 package com.example.myapplication
 
+import SplashVideo.SplashViewModel
+import SplashVideo.VideoSplashScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import carga.LoadingScreen
-import com.google.firebase.FirebaseApp
-import com.google.firebase.appcheck.ktx.appCheck
-import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
 import routes.NavigationActions
 import routes.Routes
 import uiLogin.LoginScreen
@@ -26,7 +27,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val navigationActions = NavigationActions(navController)
-            NavHost(navController = navController, startDestination = Routes.HOME){
+            val splashViewModel = ViewModelProvider(this)[SplashViewModel::class.java]
+
+            NavHost(navController = navController, startDestination = Routes.SPLASH){
+                composable(Routes.SPLASH) {
+                    VideoSplashScreen (viewModel = splashViewModel){
+
+                        navController.navigate(Routes.HOME){
+                            launchSingleTop = true
+                            popUpTo(Routes.SPLASH){inclusive = true}
+                        }
+                    }
+                }
                 composable(Routes.HOME){ MyComposeApp(navigationActions, navController) }
                 composable(Routes.LOGIN) { LoginScreen(navigationActions) }
                 composable(Routes.SING_IN) { RegisterScreen(navigationActions) }

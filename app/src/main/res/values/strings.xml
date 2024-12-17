@@ -52,4 +52,6 @@
     <string name="developers">Desarrolladores</string>
     <string name="about_version">Versión: </string>
     <string name="are_you_sure_deletequiz">¿Estas seguro de eliminar este cuestionario?</string>
+    <string name="delete_user">Eliminar usuario</string>
+    <string name="are_you_sure_deleteuser">¿Estas seguro de eliminar el usuario?</string>
 </resources>
