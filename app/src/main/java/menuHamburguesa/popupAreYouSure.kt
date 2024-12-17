@@ -98,8 +98,8 @@ fun TypeButton(type: Char, option: Char, userOrquizId: String, navigationActions
         },
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (type == 'a') Color(0xFFCC4C4C) else Color(
-                0xFF4CCC4C
+            containerColor = if (type == 'a') Color(0xFF4CCC4C) else Color(
+                0xFFCC4C4C
             )
         ),
         modifier = Modifier.padding(10.dp)
