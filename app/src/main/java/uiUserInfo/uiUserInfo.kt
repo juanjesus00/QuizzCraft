@@ -2,7 +2,6 @@ package uiUserInfo
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -11,8 +10,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +47,7 @@ import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
 import languagesBack.getStringByName
+import menuHamburguesa.CustomPopupAreYouSure
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
@@ -76,6 +80,7 @@ fun UserInfo(
     var userEmail by remember { mutableStateOf<String?>(null) }
     var createdQuiz by remember { mutableStateOf<Int?>(null) }
     var passQuiz by remember { mutableStateOf<Int?>(null) }
+    var userId by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModelUser.getInfoUser { user ->
@@ -84,6 +89,7 @@ fun UserInfo(
             userEmail = user?.get("email") as? String
             createdQuiz = user?.get("createdQuiz") as? Int
             passQuiz = user?.get("passQuiz") as? Int
+            userId = user?.get("user_id") as? String
         }
     }
     Column(modifier = modifier) {
@@ -136,7 +142,51 @@ fun UserInfo(
             2.0,
             LocalContext.current
         )
+        Spacer(modifier = Modifier.padding(12.dp))
+        DeleteUserButton(userId, navigationActions)
+
     }
+}
+
+@Composable
+fun DeleteUserButton(userId: String?, navigationActions: NavigationActions) {
+    val showPopupAreYouSure = remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = scaleIn(
+            initialScale = 0.3f,
+            animationSpec = tween(durationMillis = 800)
+        ) + fadeIn(animationSpec = tween(durationMillis = 800))
+    ){
+        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+            Button(
+                shape = RoundedCornerShape(20),
+                onClick = { showPopupAreYouSure.value = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
+            ) {
+                getStringByName(LocalContext.current, "delete_user")?.let {
+                    Text(
+                        it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        fontSize = 20.sp,
+                        color = Color(0xFFB18F4F)
+                    )
+                }
+            }
+        }
+    }
+    if (showPopupAreYouSure.value) {
+        CustomPopupAreYouSure(
+            'u', userId.toString(), navigationActions, showPopupAreYouSure
+        )
+    }
+
 }
 
 @Composable
@@ -197,7 +247,9 @@ fun ImageProfile(
                 .align(Alignment.BottomEnd)
                 .clickable { navigationActions.navigateToEditUser() }
         )
+
     }
+
 }
 
 @Composable

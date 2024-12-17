@@ -52,4 +52,6 @@
     <string name="developers">Developers</string>
     <string name="about_version">Version: </string>
     <string name="are_you_sure_deletequiz">Are you sure to delete this quiz?</string>
+    <string name="delete_user">Delete User</string>
+    <string name="are_you_sure_deleteuser">Are you sure you want to delete the user?</string>
 </resources>

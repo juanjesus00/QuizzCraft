@@ -1,5 +1,6 @@
 package menuHamburguesa
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,9 @@ import kotlinx.coroutines.launch
 import languagesBack.getStringByName
 import quizcraft.deleteQuizFromFirestore
 import routes.NavigationActions
+import uiLogin.loginbacked
 import uiPrincipal.poppinsFamily
+import uiUserInfo.userInfoBack
 
 @Composable
 fun CustomPopupAreYouSure(
@@ -52,7 +55,7 @@ fun CustomPopupAreYouSure(
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.Start
             ) {
-                (if (type == 'q') getStringByName(LocalContext.current, "are_you_sure_deletequiz") else "Aqui pondrias el de usuario")?.let {
+                (if (type == 'q') getStringByName(LocalContext.current, "are_you_sure_deletequiz") else getStringByName(LocalContext.current, "are_you_sure_deleteuser"))?.let {
                     Text(
                         text = it,
                         fontSize = 17.sp,
@@ -77,7 +80,8 @@ fun CustomPopupAreYouSure(
 
 
 @Composable
-fun TypeButton(type: Char, option: Char, userOrquizId: String, navigationActions: NavigationActions, state: MutableState<Boolean>) {
+fun TypeButton(type: Char, option: Char, userOrquizId: String, navigationActions: NavigationActions, state: MutableState<Boolean>, viewmodel: userInfoBack = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    val context = LocalContext.current
     Button(
         onClick = {
             if (option == 'q') {
@@ -92,8 +96,18 @@ fun TypeButton(type: Char, option: Char, userOrquizId: String, navigationActions
                     }
                 }
                 state.value = false
-            } else {
-                /* Aqui pondrias la logica que quieras para el de usuario*/
+            } else if(option == 'u'){
+                if(type == 'a') {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val wasDeleted = viewmodel.deleteUser(context)
+                        if (wasDeleted) {
+                            navigationActions.navigateToHome()
+                        } else {
+                            println("No se pudo eliminar el cuestionario")
+                        }
+                    }
+                }
+                state.value = false
             }
         },
         shape = RoundedCornerShape(10.dp),
