@@ -62,10 +62,9 @@ fun UserInfoScreen(
             .fillMaxSize()
             .background(Color(0xFFE0D4C8))
             .padding(32.dp)
-            .verticalScroll(scrollState)
 
     ) {
-        UserInfo(Modifier.align(Alignment.Center), navigationActions, viewModelUser)
+        UserInfo(Modifier.align(Alignment.Center), navigationActions, viewModelUser, scrollState)
     }
 }
 
@@ -73,7 +72,8 @@ fun UserInfoScreen(
 fun UserInfo(
     modifier: Modifier,
     navigationActions: NavigationActions,
-    viewModelUser: userInfoBack
+    viewModelUser: userInfoBack,
+    scrollState: ScrollState
 ) {
     var profileImageUrl by remember { mutableStateOf<String?>(null) }
     var userName by remember { mutableStateOf<String?>(null) }
@@ -92,7 +92,7 @@ fun UserInfo(
             userId = user?.get("user_id") as? String
         }
     }
-    Column(modifier = modifier) {
+    Column(modifier = modifier.verticalScroll(scrollState)) {
         ImageProfile(
             Modifier.align(Alignment.CenterHorizontally),
             navigationActions,
@@ -144,49 +144,9 @@ fun UserInfo(
         )
         Spacer(modifier = Modifier.padding(12.dp))
         DeleteUserButton(userId, navigationActions)
+        Spacer(modifier = Modifier.padding(12.dp))
 
     }
-}
-
-@Composable
-fun DeleteUserButton(userId: String?, navigationActions: NavigationActions) {
-    val showPopupAreYouSure = remember { mutableStateOf(false) }
-    var isVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        isVisible = true
-    }
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = scaleIn(
-            initialScale = 0.3f,
-            animationSpec = tween(durationMillis = 800)
-        ) + fadeIn(animationSpec = tween(durationMillis = 800))
-    ){
-        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-            Button(
-                shape = RoundedCornerShape(20),
-                onClick = { showPopupAreYouSure.value = true },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
-            ) {
-                getStringByName(LocalContext.current, "delete_user")?.let {
-                    Text(
-                        it,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = poppinsFamily,
-                        fontSize = 20.sp,
-                        color = Color(0xFFB18F4F)
-                    )
-                }
-            }
-        }
-    }
-    if (showPopupAreYouSure.value) {
-        CustomPopupAreYouSure(
-            'u', userId.toString(), navigationActions, showPopupAreYouSure
-        )
-    }
-
 }
 
 @Composable
@@ -336,4 +296,45 @@ fun Field(
             }
         }
     }
+}
+
+@Composable
+fun DeleteUserButton(userId: String?, navigationActions: NavigationActions) {
+    val showPopupAreYouSure = remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = scaleIn(
+            initialScale = 0.3f,
+            animationSpec = tween(durationMillis = (800 * 2.25).toInt())
+        ) + fadeIn(animationSpec = tween(durationMillis = (800 * 2.25).toInt()))
+    ){
+        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+            Button(
+                shape = RoundedCornerShape(20),
+                onClick = { showPopupAreYouSure.value = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
+            ) {
+                getStringByName(LocalContext.current, "delete_user")?.let {
+                    Text(
+                        it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        fontSize = 20.sp,
+                        color = Color(0xFFB18F4F)
+                    )
+                }
+            }
+        }
+    }
+    if (showPopupAreYouSure.value) {
+        CustomPopupAreYouSure(
+            'u', userId.toString(), navigationActions, showPopupAreYouSure
+        )
+    }
+
 }
