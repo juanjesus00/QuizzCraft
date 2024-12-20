@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONObject
 import routes.NavigationActions
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -132,10 +133,8 @@ class loginbacked : ViewModel() {
             _isEmailVerified.value = false
         }
     }
-    suspend fun verifyEmailWithAPI(email: String): Boolean = withContext(Dispatchers.IO){
-
-        /*val apiKey = "07ec1580b54cf97058a3c3446452ad2d"
-
+    suspend fun verifyEmailWithAPI(email: String): Boolean = withContext(Dispatchers.IO) {
+        val apiKey = "15a852747b6b249e078725c6985da185"
         try {
             val url = URL("https://apilayer.net/api/check?access_key=$apiKey&email=$email")
             val connection = url.openConnection() as HttpURLConnection
@@ -145,17 +144,25 @@ class loginbacked : ViewModel() {
             connection.connect()
 
             val responseCode = connection.responseCode
-            connection.disconnect()
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                val inputStream = connection.inputStream
+                val response = inputStream.bufferedReader().use { it.readText() }
+                connection.disconnect()
 
-            // Devuelve `true` si la respuesta es HTTP OK, de lo contrario `false`
-            responseCode == HttpURLConnection.HTTP_OK
+                // Parseamos la respuesta JSON
+                val jsonObject = JSONObject(response)
+                val smtpCheck = jsonObject.optBoolean("smtp_check", false) // True si el correo es válido
+                smtpCheck
+            } else {
+                connection.disconnect()
+                false
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            false // En caso de error, devuelve `false`
-        }*/
-        true
-
+            false
+        }
     }
+
 
 
     fun register(
@@ -168,8 +175,8 @@ class loginbacked : ViewModel() {
     ) = viewModelScope.launch {
         var isCorrectEmail = verifyEmailWithAPI(email)
         var passwordValid = isPasswordValid(password)
+        println(isCorrectEmail)
         if(isCorrectEmail){
-
             if (_loading.value == false) { //no se esta creando usuarios actualmente
                 if (password.length < 6) {
                     Toast.makeText(
