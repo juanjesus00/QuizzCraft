@@ -1,6 +1,7 @@
 package quizcraft
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Composable
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
@@ -215,4 +216,30 @@ fun getQuizzesByLastQuizzesUser(
     if (lastQuizzes.isEmpty()) {
         onResult(emptyList())
     }
+}
+
+fun fetchTopTags(onTagsFetched: (List<Pair<String, Int>>) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("Quizzes")
+        .get()
+        .addOnSuccessListener { documents ->
+            val tagCounts = mutableMapOf<String, Int>()
+
+            for (document in documents) {
+                val tags = document.get("quizTags") as? List<String> ?: emptyList()
+                for (tag in tags) {
+                    tagCounts[tag] = tagCounts.getOrDefault(tag, 0) + 1
+                }
+            }
+
+            val topTags = tagCounts.entries
+                .sortedByDescending { it.value }
+                .take(3)
+                .map { it.toPair() }
+
+            onTagsFetched(topTags)
+        }
+        .addOnFailureListener { exception ->
+            Log.e("Firestore", "Error fetching quizzes", exception)
+        }
 }

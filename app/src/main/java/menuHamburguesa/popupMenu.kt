@@ -1,6 +1,12 @@
 package menuHamburguesa
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,9 +40,6 @@ import androidx.compose.ui.window.Popup
 import routes.NavigationActions
 import com.example.myapplication.R
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import languagesBack.getStringByName
 import quizcraft.deleteQuizFromFirestore
 import uiPrincipal.LanguageManager
@@ -55,6 +58,7 @@ fun CustomPopupMenu(
 ) {
 
     val languageMenuExpanded = remember { mutableStateOf(false) }
+    val showPopupAreYouSure = remember { mutableStateOf(false) }
 
 
     if (expanded) {
@@ -63,114 +67,136 @@ fun CustomPopupMenu(
                 alignment = Alignment.TopEnd,
                 onDismissRequest = onDismissRequest
             ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color(color),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .size(size.dp)
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = scaleIn(
+                        initialScale = 0.3f,
+                        animationSpec = tween(durationMillis = 800)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 800)),
+                    exit = scaleOut(
+                        targetScale = 0.3f,
+                        animationSpec = tween(durationMillis = 800)
+                    ) + fadeOut(animationSpec = tween(durationMillis = 800)),
                 ) {
-                    Column(
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(start = 0.dp),
-                        verticalArrangement = Arrangement.SpaceAround,
-                        horizontalAlignment = Alignment.Start
+                            .background(
+                                Color(color),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .size(size.dp)
                     ) {
-                        if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
-                            getStringByName(LocalContext.current, "login")?.let {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(start = 0.dp),
+                            verticalArrangement = Arrangement.SpaceAround,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
+                                getStringByName(LocalContext.current, "login")?.let {
+                                    popupInformation(
+                                        icon = R.drawable.solar_user_bold,
+                                        text = it,
+                                        navigationActions,
+                                        LocalContext.current
+
+                                    )
+                                }
+                                getStringByName(LocalContext.current, "register")?.let {
+                                    popupInformation(
+                                        icon = R.drawable.ph_sign_in_bold,
+                                        text = it,
+                                        navigationActions,
+                                        LocalContext.current
+
+                                    )
+                                }
+                            } else {
+                                getStringByName(LocalContext.current, "logout")?.let {
+                                    popupInformation(
+                                        icon = R.drawable.log_out,
+                                        text = it,
+                                        navigationActions = navigationActions,
+                                        LocalContext.current
+                                    )
+                                }
+                            }
+                            getStringByName(LocalContext.current, "light_mode")?.let {
                                 popupInformation(
-                                    icon = R.drawable.solar_user_bold,
+                                    icon = R.drawable.ligth_mode,
                                     text = it,
                                     navigationActions,
                                     LocalContext.current
-
                                 )
                             }
-                            getStringByName(LocalContext.current, "register")?.let {
+
+                            getStringByName(LocalContext.current, "about")?.let {
                                 popupInformation(
-                                    icon = R.drawable.ph_sign_in_bold,
+                                    icon = R.drawable.about_icon,
                                     text = it,
                                     navigationActions,
                                     LocalContext.current
-
                                 )
                             }
-                        } else {
-                            getStringByName(LocalContext.current, "logout")?.let {
+
+                            getStringByName(LocalContext.current, "language")?.let {
                                 popupInformation(
-                                    icon = R.drawable.log_out,
+                                    icon = R.drawable.language,
                                     text = it,
                                     navigationActions = navigationActions,
-                                    LocalContext.current
+                                    LocalContext.current,
+                                    onClick = {
+                                        languageMenuExpanded.value = !languageMenuExpanded.value
+                                    },
                                 )
                             }
-                        }
-                        getStringByName(LocalContext.current, "light_mode")?.let {
-                            popupInformation(
-                                icon = R.drawable.ligth_mode,
-                                text = it,
-                                navigationActions,
-                                LocalContext.current
-                            )
-                        }
-                        /*Column(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
 
-                        }*/
-                        getStringByName(LocalContext.current, "language")?.let {
-                            popupInformation(
-                                icon = R.drawable.language,
-                                text = it,
-                                navigationActions = navigationActions,
-                                LocalContext.current,
-                                onClick = {
-                                    println("Antes de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
-                                    languageMenuExpanded.value = !languageMenuExpanded.value
-                                    println("Despues de alternar: languageMenuExpanded = ${languageMenuExpanded.value}")
-                                },
-                            )
-                        }
+                            DropdownMenu(
+                                expanded = languageMenuExpanded.value,
+                                onDismissRequest = { languageMenuExpanded.value = false },
+                                offset = DpOffset(
+                                    245.dp,
+                                    87.dp
+                                ),
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .background(
+                                        color = Color(color)
+                                    )
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        getStringByName(LocalContext.current, "english")?.let {
+                                            Text(
+                                                it, color = Color(0xFFB18F4F)
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        languageMenuExpanded.value = false
+                                        LanguageManager.languageCode = "en"
+                                        println(LanguageManager.languageCode)
 
-                        DropdownMenu(
-                            expanded = languageMenuExpanded.value,
-                            onDismissRequest = { languageMenuExpanded.value = false },
-                            offset = DpOffset(
-                                245.dp,
-                                87.dp
-                            ),
-                            modifier = Modifier
-                                .width(80.dp)
-                                .background(color = Color(color)
+                                    }
                                 )
-                        ) {
-                            DropdownMenuItem(
-                                text = { getStringByName(LocalContext.current, "english")?.let {
-                                    Text(
-                                        it, color = Color(0xFFB18F4F))
-                                } },
-                                onClick = {
-                                    languageMenuExpanded.value = false
-                                    LanguageManager.languageCode = "en"
-                                    println(LanguageManager.languageCode)
+                                DropdownMenuItem(
+                                    text = {
+                                        getStringByName(LocalContext.current, "spanish")?.let {
+                                            Text(
+                                                it, color = Color(0xFFB18F4F)
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        languageMenuExpanded.value = false
+                                        LanguageManager.languageCode = ""
 
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { getStringByName(LocalContext.current, "spanish")?.let {
-                                    Text(
-                                        it, color = Color(0xFFB18F4F))
-                                } },
-                                onClick = {
-                                    languageMenuExpanded.value = false
-                                    LanguageManager.languageCode = ""
+                                    }
+                                )
+                            }
 
-                                }
-                            )
                         }
-
                     }
                 }
             }
@@ -193,7 +219,10 @@ fun CustomPopupMenu(
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        getStringByName(LocalContext.current, "what_option_create_quiz_popup")?.let {
+                        getStringByName(
+                            LocalContext.current,
+                            "what_option_create_quiz_popup"
+                        )?.let {
                             Text(
                                 text = it,
                                 fontSize = 18.sp,
@@ -202,7 +231,10 @@ fun CustomPopupMenu(
                                 color = Color(0xFF212325)
                             )
                         }
-                        getStringByName(LocalContext.current, "select_option_create_quiz_popup")?.let {
+                        getStringByName(
+                            LocalContext.current,
+                            "select_option_create_quiz_popup"
+                        )?.let {
                             popupInformationNavigator(
                                 padding = 0,
                                 text = it,
@@ -211,7 +243,10 @@ fun CustomPopupMenu(
                                 LocalContext.current
                             )
                         }
-                        getStringByName(LocalContext.current, "interaction_option_create_quiz_popup")?.let {
+                        getStringByName(
+                            LocalContext.current,
+                            "interaction_option_create_quiz_popup"
+                        )?.let {
                             popupInformationNavigator(
                                 padding = 10,
                                 text = it,
@@ -226,7 +261,7 @@ fun CustomPopupMenu(
             }
         } else if (type == "CrudQuiz") {
             Popup(
-                alignment = Alignment.CenterEnd, // Posición del popup en la pantalla
+                alignment = Alignment.CenterEnd,
                 onDismissRequest = onDismissRequest
             ) {
                 Box(
@@ -234,7 +269,7 @@ fun CustomPopupMenu(
                         .background(
                             Color(color),
                             shape = RoundedCornerShape(16.dp)
-                        ) // Personaliza el fondo y las esquinas redondeadas
+                        )
                         .size(width = (size / 2).dp, height = size.dp)
                 ) {
                     Column(
@@ -248,14 +283,7 @@ fun CustomPopupMenu(
                             painterResource(id = R.drawable.basura),
                             contentDescription = "Eliminar",
                             modifier = Modifier.clickable {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    val wasDeleted = deleteQuizFromFirestore(quizId)
-                                    if (wasDeleted) {
-                                        navigationActions.navigateToHome()
-                                    } else {
-                                        println("No se pudo eliminar el cuestionario")
-                                    }
-                                }
+                                showPopupAreYouSure.value = true
                             }
 
                         )
@@ -274,6 +302,12 @@ fun CustomPopupMenu(
         }
 
     }
+
+    if (showPopupAreYouSure.value) {
+        CustomPopupAreYouSure(
+            'q', quizId, navigationActions, showPopupAreYouSure
+        )
+    }
 }
 
 @Composable
@@ -290,8 +324,16 @@ fun popupInformationNavigator(
             .size(height = 70.dp, width = 200.dp)
             .clickable {
                 when (text) {
-                    getStringByName(context,"select_option_create_quiz_popup" ) -> navigationActions.navigateToQuizCraft()
-                    getStringByName(context, "interaction_option_create_quiz_popup") -> print("proximamente")
+                    getStringByName(
+                        context,
+                        "select_option_create_quiz_popup"
+                    ) -> navigationActions.navigateToQuizCraft()
+
+                    getStringByName(
+                        context,
+                        "interaction_option_create_quiz_popup"
+                    ) -> print("proximamente")
+
                     else -> print("opcion no valida")
                 }
             }
@@ -328,7 +370,9 @@ fun popupInformation(
     onClick: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -338,11 +382,17 @@ fun popupInformation(
                 .clickable {
                     when (text) {
                         getStringByName(context, "login") -> navigationActions.navigateToLogin()
-                        getStringByName(context, "register") -> navigationActions.navigateToRegister()
+                        getStringByName(
+                            context,
+                            "register"
+                        ) -> navigationActions.navigateToRegister()
+
                         getStringByName(context, "logout") -> {
                             logOut(navigationActions)
                             navigationActions.navigateToHome()
                         }
+
+                        getStringByName(context, "about") -> navigationActions.navigateToAbout()
 
                         getStringByName(context, "language") -> {
                             onClick?.invoke()
@@ -365,5 +415,6 @@ fun logOut(navigationActions: NavigationActions) {
     FirebaseAuth.getInstance().signOut()
     navigationActions.navigateToHome()
 }
+
 
 

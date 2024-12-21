@@ -7,7 +7,7 @@ class NavigationActions (private val navController: NavController){
 
     fun navigateToHome() {
         navController.navigate(Routes.HOME){
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            popUpTo(Routes.HOME) { inclusive = true }
             launchSingleTop = true
         }
     }
@@ -54,5 +54,12 @@ class NavigationActions (private val navController: NavController){
 
     fun navigateToCarga() {
         navController.navigate(Routes.CARGA)
+    }
+
+    fun navigateToAbout() {
+        navController.navigate(Routes.ABOUT)
+    }
+    fun navigateToSplash() {
+        navController.navigate(Routes.SPLASH)
     }
 }

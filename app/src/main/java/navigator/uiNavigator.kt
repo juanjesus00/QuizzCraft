@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,6 +36,7 @@ import menuHamburguesa.CustomPopupMenu
 import model.Quiz
 import quizcraft.searchQuizzesByTag
 import routes.NavigationActions
+import uiLogin.loginbacked
 import uiPrincipal.SharedState
 
 @Composable
@@ -65,10 +68,12 @@ fun uiNavigator(navigationActions: NavigationActions) {
 }
 
 @Composable
-fun printImage(imageResource: Int, description: String, navigationActions: NavigationActions){
+fun printImage(imageResource: Int, description: String, navigationActions: NavigationActions, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()){
     val context = LocalContext.current
-
-
+    val isVerified by viewModel.isEmailVerified.observeAsState(false)
+    LaunchedEffect(Unit) {
+        viewModel.checkIfEmailVerified()
+    }
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -78,19 +83,23 @@ fun printImage(imageResource: Int, description: String, navigationActions: Navig
                 "home" -> {
                     SharedState.isSearchActive = false
                     SharedState.isSearched = false
+                    SharedState.isClickedSuggestion = false
                     header.quizzes.value = emptyList()
                     navigationActions.navigateToHome()
                 }
                 "options" -> {
-                    if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
+                    val user = FirebaseAuth.getInstance().currentUser
+                    if(user == null) {
                         Toast.makeText(context, getStringByName(context, "warning_try_create_a_quiz"), Toast.LENGTH_SHORT).show()
+                    }else if(!isVerified){
+                        Toast.makeText(context, getStringByName(context, "warning_try_create_a_quiz_unverified"), Toast.LENGTH_SHORT).show()
                     } else {
                         expanded = !expanded
                     }
                 }
                 "search" -> {
-                    SharedState.isSearchActive = !SharedState.isSearchActive
-                    SharedState.isSearched = !SharedState.isSearched
+                    SharedState.isSearchActive = true
+                    SharedState.isSearched = true
                 }
                 else -> print("opcion incorrecta")
             }

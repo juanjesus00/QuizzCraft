@@ -12,4 +12,6 @@ object Routes {
     const val GAME = "game/{content}"
     const val RESULT = "result/{correctQuestion}/{wrongQuestion}"
     const val CARGA = "carga"
+    const val ABOUT = "about"
+    const val SPLASH = "splash"
 }

@@ -1,7 +1,10 @@
 package uiResult
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ScrollState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,12 +14,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,38 +35,56 @@ import languagesBack.getStringByName
 import routes.NavigationActions
 import uiPrincipal.poppinsFamily
 
+@SuppressLint("DefaultLocale")
 @Composable
-fun ResultScreen(navigationActions: NavigationActions, scrollState: ScrollState, navController: NavHostController) {
+fun ResultScreen(navigationActions: NavigationActions, navController: NavHostController) {
 
     val navBackStackEntry = remember { navController.currentBackStackEntry }
     val correctQuestions = navBackStackEntry?.arguments?.getString("correctQuestion")?.toInt() ?: 0
     val wrongQuestions = navBackStackEntry?.arguments?.getString("wrongQuestion")?.toInt() ?: 0
+
+    val result = (correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10
+    val formattedresult = String.format("%.2f", result)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFE0D4C8))
             .padding(32.dp)
-            .verticalScroll(scrollState)
 
     ) {
-        Spacer(modifier = Modifier.padding(128.dp))
-        Result(navigationActions, correctQuestions, wrongQuestions)
+
+        var isVisible by remember { mutableStateOf(false) }
+
+        LaunchedEffect(Unit) {
+            isVisible = true
+        }
+
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = scaleIn(
+                initialScale = 0.3f,
+                animationSpec = tween(durationMillis = 800)
+            ) + fadeIn(animationSpec = tween(durationMillis = 800))
+        ) {
+            Result(navigationActions, correctQuestions, wrongQuestions, formattedresult)
+        }
     }
 }
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQuestions: Int) {
-    val result = if (correctQuestions + wrongQuestions > 0) {
-        "%.2f".format((correctQuestions.toDouble() / (correctQuestions + wrongQuestions)) * 10)
-    } else {
-        "0.00"
-    }
+fun Result(
+    navigationActions: NavigationActions,
+    correctQuestions: Int,
+    wrongQuestions: Int,
+    result: String
+) {
+
+
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 128.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -83,22 +107,32 @@ fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQue
             }
             Spacer(modifier = Modifier.padding(8.dp))
             Text(
-                text = "$result", fontWeight = FontWeight.Bold,
+                text = result, fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 64.sp, color = Color(0xFFB18F4F),
                 modifier = Modifier.align(Alignment.Center)
             )
             Text(
-                getStringByName(LocalContext.current, "correct_answers")+" "+"$correctQuestions", fontWeight = FontWeight.Bold,
+                getStringByName(
+                    LocalContext.current,
+                    "correct_answers"
+                ) + " " + "$correctQuestions", fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 18.sp, color = Color(0xFFFFFFFF),
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 96.dp)
             )
             Text(
-                getStringByName(LocalContext.current, "incorrect_answers")+" "+"$wrongQuestions", fontWeight = FontWeight.Bold,
+                getStringByName(
+                    LocalContext.current,
+                    "incorrect_answers"
+                ) + " " + "$wrongQuestions", fontWeight = FontWeight.Bold,
                 fontFamily = poppinsFamily,
                 fontSize = 18.sp, color = Color(0xFFFFFFFF),
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 72.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 72.dp)
             )
 
         }
@@ -111,7 +145,9 @@ fun Result(navigationActions: NavigationActions, correctQuestions: Int, wrongQue
 fun HomeButton(navigationActions: NavigationActions) {
     Button(
         shape = RoundedCornerShape(20),
-        onClick = { navigationActions.navigateToHome() },
+        onClick = {
+            navigationActions.navigateToHome()
+        },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {
         getStringByName(LocalContext.current, "home_button_results")?.let {

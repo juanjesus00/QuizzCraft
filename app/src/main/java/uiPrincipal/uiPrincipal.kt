@@ -19,8 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import carga.LoadingScreen
 import com.example.myapplication.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import header.getHeader
@@ -29,10 +33,13 @@ import navigator.uiNavigator
 import quizcraft.uiQuizCraft
 import routes.NavigationActions
 import routes.Routes
+import uiAbout.AboutScreen
 import uiEditQuiz.EditQuizScreen
 import uiEditUser.EditUserScreen
 import uiGame.GameScreen
 import uiInfoQuiz.InfoQuizScreen
+import uiLogin.LoginScreen
+import uiRegister.RegisterScreen
 import uiResult.ResultScreen
 import uiUserInfo.UserInfoScreen
 
@@ -40,24 +47,24 @@ val jsonString = """
 {
   "questions": [
     {
-      "question": "which of these are management methodologies?",
+      "question": "pregunta1",
       "answer": {
         "answers": [
-          { "respuesta": "Metrica3, King2, Scrum, Lean", "correct": false },
-          { "respuesta": "Metrica3, prince2, Rugby, Lean", "correct": false },
-          { "respuesta": "metrica3, prince2, Scrum, Gangnam", "correct": false },
-          { "respuesta": "Metrica3, Prince2, Scrum, Lean", "correct": true }
+          { "respuesta": "respuesta1", "correct": false },
+          { "respuesta": "respuesta2", "correct": false },
+          { "respuesta": "respuesta3", "correct": false },
+          { "respuesta": "respuesta4", "correct": true }
         ]
       }
     },
     {
-      "question": "de locos y si",
+      "question": "pregunta2",
       "answer": {
         "answers": [
-          { "respuesta": "Metrica3, King2, Scrum, Lean", "correct": false },
-          { "respuesta": "Metrica3, prince2, Rugby, Lean", "correct": true },
-          { "respuesta": "metrica3, prince2, Scrum, Gangnam", "correct": false },
-          { "respuesta": "Metrica3, Prince2, Scrum, Lean", "correct": false }
+          { "respuesta": "respuesta1", "correct": false },
+          { "respuesta": "respuesta2", "correct": true },
+          { "respuesta": "respuesta3", "correct": false },
+          { "respuesta": "respuesta4", "correct": false }
         ]
       }
     }
@@ -74,6 +81,7 @@ val poppinsFamily = FontFamily(
 object SharedState {
     var isSearchActive by mutableStateOf(false)
     var isSearched by mutableStateOf(false)
+    var isClickedSuggestion by mutableStateOf(false)
 }
 
 object LanguageManager {
@@ -149,8 +157,8 @@ fun MyComposeApp(navigationActions: NavigationActions, navController: NavHostCon
             InfoQuizScreen(navigationActions, scrollState = scrollState, navController)
         } else if (currentRoute == Routes.GAME) {
             GameScreen(navigationActions, scrollState = scrollState, 't', navController)
-        } else if (currentRoute == Routes.RESULT) {
-            ResultScreen(navigationActions, scrollState = scrollState, navController)
+        } else if (currentRoute == Routes.ABOUT) {
+            AboutScreen(navigationActions)
         }
     }
 }

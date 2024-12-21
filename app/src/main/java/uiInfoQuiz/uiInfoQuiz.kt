@@ -1,5 +1,10 @@
 package uiInfoQuiz
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,66 +55,90 @@ fun InfoQuizScreen(
     val navBackStackEntry = remember { navController.currentBackStackEntry }
     val quizId = navBackStackEntry?.arguments?.getString("quizId") ?: ""
     var quiz by remember { mutableStateOf<Quiz?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         getQuizById(
             quizId,
             onResult = { result ->
-                println(result)
+                println("Datos cargados: $result")
                 quiz = result.copy()
+                isLoading = false
+                println("isLoading: $isLoading")
             },
             onError = { exception ->
-                // Manejo de errores
-                println("Error al obtener quizzes: ${exception.message}")
+                isLoading = false
             }
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE0D4C8))
-            .padding(32.dp)
-            .verticalScroll(scrollState)
-
-    ) {
+    if (isLoading) {
+        LoadingScreen()
+    } else {
         quiz?.let { loadedQuiz ->
-            InfoQuiz(navigationActions, quiz!!)
-        } ?: LoadingScreen()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFE0D4C8))
+                    .padding(32.dp)
+                    .verticalScroll(scrollState)
+
+            ) {
+                InfoQuiz(navigationActions, loadedQuiz)
+            }
+        }
     }
 }
 
 @Composable
 fun InfoQuiz(navigationActions: NavigationActions, quiz: Quiz) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 128.dp)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(32.dp)
-        ) {
-            ImageQuiz(quiz.quizImageUrl)
-            NameAndTag(quiz.name, quiz.tags)
-        }
-        Spacer(modifier = Modifier.padding(16.dp))
-        getStringByName(LocalContext.current, "description_quiz")?.let {
-            Text(
-                text = "$it:",
-                fontWeight = FontWeight.Bold,
-                fontFamily = poppinsFamily,
-                color = Color.Black,
-                fontSize = 24.sp
+
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(
+            initialAlpha = 0f,
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = LinearOutSlowInEasing
             )
-        }
-        Spacer(modifier = Modifier.padding(8.dp))
-        Text(
-            text = quiz.description,
-            textAlign = TextAlign.Justify
         )
-        Spacer(modifier = Modifier.padding(24.dp))
-        ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally), quiz)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 128.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                ImageQuiz(quiz.quizImageUrl)
+                NameAndTag(quiz.name, quiz.tags)
+            }
+            Spacer(modifier = Modifier.padding(16.dp))
+            getStringByName(LocalContext.current, "description_quiz")?.let {
+                Text(
+                    text = "$it:",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = poppinsFamily,
+                    color = Color.Black,
+                    fontSize = 24.sp
+                )
+            }
+            Spacer(modifier = Modifier.padding(8.dp))
+            Text(
+                text = quiz.description,
+                textAlign = TextAlign.Justify
+            )
+            Spacer(modifier = Modifier.padding(24.dp))
+            ButtonPlay(navigationActions, Modifier.align(Alignment.CenterHorizontally), quiz)
+        }
     }
 }
 
@@ -157,8 +186,9 @@ fun ButtonPlay(navigationActions: NavigationActions, modifier: Modifier, quiz: Q
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(20),
-        onClick = { navigationActions.navigateToGame(quiz.content)
-                  userAddLastQuiz(quiz.quizId)
+        onClick = {
+            navigationActions.navigateToGame(quiz.content)
+            userAddLastQuiz(quiz.quizId)
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
     ) {

@@ -10,9 +10,13 @@
     <string name="light_mode">Light mode</string>
     <string name="language">Language</string>
     <string name="my_quizzes_warning">You must register to be able to create your quizzes!</string>
+    <string name="my_quizzes_warning_unverified">You must VERIFY THE EMAIL to be able to create your questionnaires!</string>
     <string name="recent_quizzes_warning">You must register and play quizzes to have them in recent!</string>
+    <string name="recent_quizzes_warning_unverified">You must VERIFY THE MAIL and play quizzes to keep them recent!</string>
     <string name="warning_try_enter_to_profile">You must register or log in to access your profile</string>
+    <string name="warning_try_enter_to_profile_unverified">You must VERIFY your email to access your profile</string>
     <string name="warning_try_create_a_quiz">You must register or log in to create a quiz</string>
+    <string name="warning_try_create_a_quiz_unverified">You must VERIFY the email to create a quiz</string>
     <string name="result_search">Results:</string>
     <string name="placeholder_search">Write tags to search for example "#maths"</string>
     <string name="what_option_create_quiz_popup">What do you want to do?</string>
@@ -37,4 +41,17 @@
     <string name="spanish">Spanish</string>
     <string name="loading">Loading...</string>
     <string name="loading_loadscreen">LOADING...</string>
+    <string name="new_pass">New password</string>
+    <string name="change_pass">Change password</string>
+    <string name="current_pass">Current password</string>
+    <string name="suggestion_search">result</string>
+    <string name="about">About</string>
+    <string name="quizcraft">QuizCraft</string>
+    <string name="about_quizcraft">A tool designed for those seeking to study more efficiently, leveraging artificial intelligence to transform their study materials into personalized quizzes. Simply upload a file in plain text, PDF, or question-and-answer format, and the application will automatically generate the necessary questions to reinforce your learning. Additionally, you can assess your knowledge by playing the quizzes and receiving a final score that helps you identify your progress and areas for improvement. With QuizCraft, studying becomes more practical, interactive, and fully tailored to your needs.</string>
+    <string name="about_us">About Us</string>
+    <string name="developers">Developers</string>
+    <string name="about_version">Version: </string>
+    <string name="are_you_sure_deletequiz">Are you sure to delete this quiz?</string>
+    <string name="delete_user">Delete User</string>
+    <string name="are_you_sure_deleteuser">Are you sure you want to delete the user?</string>
 </resources>

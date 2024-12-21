@@ -3,11 +3,15 @@ package uiEditUser
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,8 +60,11 @@ import uiPrincipal.poppinsFamily
 import uiUserInfo.userInfoBack
 import java.io.File
 
+
 @Composable
 fun EditUserScreen(navigationActions: NavigationActions, scrollState: ScrollState, viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel(), viewModelUser: userInfoBack = viewModel()) {
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -84,9 +91,14 @@ fun EditUser(
     var userName by remember { mutableStateOf<String?>("")}
     var email by remember { mutableStateOf<String?>("")}
     var password by remember { mutableStateOf("")}
+    var passwordChange by remember { mutableStateOf("")}
     var perfilImage by remember { mutableStateOf(mutableStateOf<Uri?>(null))}
     var showpassword by remember { mutableStateOf<String?>("") }
+    var isopen by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
+        isVisible = true
         viewModelUser.getInfoUser { user ->
             userName = user?.get("userName") as? String
             email = user?.get("email") as? String
@@ -94,22 +106,39 @@ fun EditUser(
         }
     }
 
-    Box(
-        modifier = modifier
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(
+            initialAlpha = 0f,
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = LinearOutSlowInEasing
+            )
+        ) + slideInVertically(
+            initialOffsetY = { fullHeight -> fullHeight / 2 },
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = LinearOutSlowInEasing
+            )
+        )
     ) {
-        Column(modifier = modifier) {
-            Spacer(modifier = Modifier.padding(12.dp))
-            UserField(userName) {userName = it}
-            Spacer(modifier = Modifier.padding(12.dp))
-            EmailField(email) {email = it}
-            Spacer(modifier = Modifier.padding(12.dp))
-            ShowPasswordField(showpassword)
-            Spacer(modifier = Modifier.padding(12.dp))
-            PasswordField(password) {password = it}
-            Spacer(modifier = Modifier.padding(12.dp))
-            photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
-            Spacer(modifier = Modifier.padding(6.dp))
-            CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage)
+        Box(
+            modifier = modifier
+        ) {
+            Column(modifier = modifier) {
+                Spacer(modifier = Modifier.padding(12.dp))
+                UserField(userName) {userName = it}
+                Spacer(modifier = Modifier.padding(12.dp))
+                EmailField(email) {email = it}
+                Spacer(modifier = Modifier.padding(12.dp))
+                ShowPasswordField(showpassword)
+                Spacer(modifier = Modifier.padding(12.dp))
+                ChangePasswordField(password, {password = it}, passwordChange, {passwordChange = it})
+                Spacer(modifier = Modifier.padding(12.dp))
+                photoUploader(image = R.drawable.camara, image2 = R.drawable.galery_icon, size = 128, typeFile = "image/*", perfilImage)
+                Spacer(modifier = Modifier.padding(6.dp))
+                CancelAndAcceptButtons(navigationActions, viewModel, userName, email, password, perfilImage, showpassword, passwordChange)
+            }
         }
     }
 }
@@ -122,7 +151,9 @@ fun CancelAndAcceptButtons(
     userName: String?,
     email: String?,
     password: String,
-    perfilImage: MutableState<Uri?>
+    perfilImage: MutableState<Uri?>,
+    showpassword: String?,
+    passwordChange: String
 ) {
     var context = LocalContext.current
     Row(
@@ -148,14 +179,29 @@ fun CancelAndAcceptButtons(
         Button(
             shape = RoundedCornerShape(20),
             onClick = {
-                viewModel.editUser(
-                    userName = userName.toString(),
-                    email = email.toString(),
-                    password = password,
-                    onSuccess = {navigationActions.navigateToHome()},
-                    context = context,
-                    selectImageUri = perfilImage.value
-                ) },
+                if (passwordChange == ""){
+
+                    viewModel.editUser(
+                        userName = userName.toString(),
+                        email = email.toString(),
+                        password = password,
+                        onSuccess = {navigationActions.navigateToHome()},
+                        context = context,
+                        selectImageUri = perfilImage.value,
+                        showpassword = showpassword,
+                        passwordchange = passwordChange,
+                        navigationActions = navigationActions
+                    )
+                }else if (passwordChange != ""){
+                    viewModel.ChangePassword(
+                        changePassword = passwordChange,
+                        context,
+                        currentPassword = showpassword,
+                        onSuccess = {navigationActions.navigateToHome()},
+                        navigationActions = navigationActions
+                    )
+                }
+                 },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325))
         ) {
             getStringByName(LocalContext.current, "accept_button_text")?.let {
@@ -196,44 +242,116 @@ fun UserField(name: String?, function: (String) -> Unit) {
 }
 
 @Composable
-fun PasswordField(password: String, function: (String) -> Unit) {
-    TextField(
-        value = password,
-        onValueChange = function,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        placeholder = {
-            getStringByName(LocalContext.current, "password")?.let {
-                Text(
-                    text = it,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = poppinsFamily,
-                    color = Color(0xFFC49450)
-                )
-            }
-        },
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true,
-        maxLines = 1,
-    )
+fun ChangePasswordField(password: String, function: (String) -> Unit, passwordchange: String, function2: (String) -> Unit) {
+    var changePass by remember { mutableStateOf(false) }
+    Button(
+        modifier = Modifier,
+        shape = RoundedCornerShape(20),
+        onClick = {changePass = !changePass
+
+                  },
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF212325)),
+        enabled = if(changePass) false else true
+    ) {
+        getStringByName(LocalContext.current, "change_pass")?.let {
+            Text(
+                it,
+                fontWeight = FontWeight.Bold,
+                fontFamily = poppinsFamily,
+                fontSize = 20.sp,
+                color = Color(0xFFB18F4F)
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+
+    Box (modifier = Modifier){
+        TextField(
+            modifier = Modifier
+                .alpha(if (changePass) 1f else 0f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFFFFFFF))
+                .fillMaxWidth(),
+            value = passwordchange,
+            onValueChange = function2,
+            placeholder = {
+                getStringByName(LocalContext.current, "new_pass")?.let {
+                    Text(
+                        text = it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        color = Color(0xFFC49450)
+                    )
+                }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
+            maxLines = 1,
+        )
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+
+    Box (modifier = Modifier.alpha(if(changePass) 0f else 1f)){
+        TextField(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFFFFFFF))
+                .fillMaxWidth(),
+            enabled = if(changePass) false else true,
+            value = password,
+            onValueChange = function,
+            placeholder = {
+                getStringByName(LocalContext.current, "password")?.let {
+                    Text(
+                        text = it,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = poppinsFamily,
+                        color = Color(0xFFC49450)
+                    )
+                }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
+            maxLines = 1
+        )
+    }
+
+
 }
 @Composable
 fun ShowPasswordField(password: String?) {
-    TextField(
-        value = password?:"null",
-        onValueChange = {},
+    var eyeState by remember { mutableStateOf(false) }
+    Button(
+        onClick = {
+                eyeState = !eyeState
+        },
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFFFFF)),
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true,
-        maxLines = 1,
-    )
+            .height(56.dp)
+            .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFEADEE6),
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            (if (eyeState)  password?:"no tienes contraseña" else getStringByName(
+                LocalContext.current, "current_pass"))?.let { Text(text = it, fontSize = 10.sp,fontFamily = poppinsFamily, color = Color(0xFFC49450)) }
+            Box {
+                Image(
+
+                    painter = painterResource(id = if (eyeState) R.drawable.eyeopen else R.drawable.eyeclose),
+                    contentDescription = "Imagen de estado"
+                )
+            }
+        }
+    }
 }
 
 @Composable

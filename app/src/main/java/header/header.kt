@@ -1,19 +1,25 @@
-
-
 package header
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,6 +30,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,9 +59,11 @@ import kotlinx.coroutines.launch
 import languagesBack.getStringByName
 import menuHamburguesa.CustomPopupMenu
 import model.Quiz
+import quizcraft.fetchTopTags
 import quizcraft.searchQuizzesByTag
 import routes.NavigationActions
 import routes.Routes
+import uiLogin.loginbacked
 import uiPrincipal.SharedState
 import uiUserInfo.userInfoBack
 
@@ -62,8 +71,16 @@ var quizzes = mutableStateOf<List<Quiz>>(emptyList())
 
 
 @Composable
-fun getHeader(navigationActions: NavigationActions, navController: NavHostController,  viewModelUser: userInfoBack = viewModel()) {
-
+fun getHeader(
+    navigationActions: NavigationActions,
+    navController: NavHostController,
+    viewModelUser: userInfoBack = viewModel(),
+    viewModel: loginbacked = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    val isVerified by viewModel.isEmailVerified.observeAsState(false)
+    LaunchedEffect(Unit) {
+        viewModel.checkIfEmailVerified()
+    }
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val context = LocalContext.current
     var expanded by remember {
@@ -76,20 +93,47 @@ fun getHeader(navigationActions: NavigationActions, navController: NavHostContro
             .padding(25.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
-    )  {
-        if(!SharedState.isSearchActive || currentRoute != Routes.HOME) {
-            if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
+    ) {
+        if (!SharedState.isSearchActive || currentRoute != Routes.HOME) {
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user == null) {
                 Image(
                     painter = painterResource(id = R.drawable.non_registered_account_icon),
                     contentDescription = "Imagen De ejemplo",
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(100.dp))
-                        .clickable { Toast.makeText(context, getStringByName(context, "warning_try_enter_to_profile"), Toast.LENGTH_SHORT).show()
+                        .clickable {
+                            Toast
+                                .makeText(
+                                    context,
+                                    getStringByName(context, "warning_try_enter_to_profile"),
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+
                         },
                     contentScale = ContentScale.Crop
                 )
-            }else{
+            } else if(!isVerified){
+                Image(
+                    painter = painterResource(id = R.drawable.non_registered_account_icon),
+                    contentDescription = "Imagen De ejemplo",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(100.dp))
+                        .clickable {
+                            Toast
+                                .makeText(
+                                    context,
+                                    getStringByName(context, "warning_try_enter_to_profile_unverified"),
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        },
+                    contentScale = ContentScale.Crop
+                )
+            }else {
                 LaunchedEffect(Unit) {
                     viewModelUser.getInfoUser { url ->
                         profileImageUrl = url?.get("PerfilImage") as? String
@@ -100,7 +144,8 @@ fun getHeader(navigationActions: NavigationActions, navController: NavHostContro
                     model = profileImageUrl,
                     contentDescription = "Foto de perfil",
                     error = painterResource(id = R.drawable.perro_mordor), // Opcional, si tienes una imagen de error
-                    modifier = Modifier.size(60.dp)
+                    modifier = Modifier
+                        .size(60.dp)
                         .clip(RoundedCornerShape(100.dp))
                         .clickable { navigationActions.navigateToUserInfo() },
                     contentScale = ContentScale.Crop
@@ -109,8 +154,9 @@ fun getHeader(navigationActions: NavigationActions, navController: NavHostContro
 
 
 
-            Box{
-                IconButton(onClick = { expanded = true },
+            Box {
+                IconButton(
+                    onClick = { expanded = true },
                 ) {
                     Image(
                         painterResource(id = R.drawable.menu),
@@ -118,12 +164,12 @@ fun getHeader(navigationActions: NavigationActions, navController: NavHostContro
                         modifier = Modifier.size(30.dp)
                     )
                 }
-                Box{
+                Box {
                     CustomPopupMenu(
                         expanded = expanded,
-                        onDismissRequest = {expanded = false},
+                        onDismissRequest = { expanded = false },
                         color = 0xFF212325.toInt(),
-                        size = 150,
+                        size = if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) 175 else 150,
                         type = "header",
                         navigationActions = navigationActions,
                         quizId = ""
@@ -134,50 +180,94 @@ fun getHeader(navigationActions: NavigationActions, navController: NavHostContro
         } else {
             var searchText by remember { mutableStateOf("") }
             val debounceJob = remember { mutableStateOf<Job?>(null) }
+            val suggestions = remember { mutableStateOf(emptyList<Pair<String, Int>>()) }
+
 
             Box(
                 modifier = Modifier
-                    .border(2.dp, Color(0xFFC49450), RoundedCornerShape(20.dp)) // Borde personalizado
+                    .border(
+                        2.dp,
+                        Color(0xFFC49450),
+                        RoundedCornerShape(20.dp)
+                    )
             ) {
-                TextField(
-                    value = searchText,
-                    onValueChange = { newText -> searchText = newText
-                        debounceJob.value?.cancel()
-                        debounceJob.value = CoroutineScope(Dispatchers.Main).launch {
-                            delay(300) // Esperamos 300ms después del último cambio
-                            searchQuizzesByTag(searchText, onResult = { result ->
-                                quizzes.value = result
-                            })
-                        }
-                                    },
-                    label = { getStringByName(LocalContext.current, "placeholder_search")?.let { Text(text = it) } },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = Color(0xFFFFFDFD), shape = RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp)),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedLabelColor = Color(0x80C49450),
-                        unfocusedIndicatorColor = Color.Transparent,
+                Column {
+                    TextField(
+                        value = searchText,
+                        onValueChange = { newText ->
+                            searchText = newText
+                            fetchTopTags() { topTags ->
+                                suggestions.value = topTags
+                            }
+                            SharedState.isClickedSuggestion = true
+                            debounceJob.value?.cancel()
+                            debounceJob.value = CoroutineScope(Dispatchers.Main).launch {
+                                delay(300)
+                                searchQuizzesByTag(searchText, onResult = { result ->
+                                    quizzes.value = result
+                                })
+                            }
+                        },
+                        label = {
+                            getStringByName(
+                                LocalContext.current,
+                                "placeholder_search"
+                            )?.let { Text(text = it) }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = Color(0xFFFFFDFD),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .clip(RoundedCornerShape(20.dp)),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedLabelColor = Color(0x80C49450),
+                            unfocusedIndicatorColor = Color.Transparent,
                         ),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Search
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onSearch = {
-                            searchQuizzesByTag(searchText, onResult = { result ->
-                                quizzes.value = result
-                            })
-                            SharedState.isSearchActive = !SharedState.isSearchActive
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Search
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                searchQuizzesByTag(searchText, onResult = { result ->
+                                    quizzes.value = result
+                                })
+                                SharedState.isSearchActive = false
+                            }
+                        )
+                    )
+
+                    if (suggestions.value.isNotEmpty()) {
+                        AnimatedVisibility(
+                            visible = SharedState.isClickedSuggestion,
+                            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                        ) {
+                            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                                items(suggestions.value) { (tag, count) ->
+                                    Text(
+                                        text = "$tag: $count "+getStringByName(LocalContext.current, "suggestion_search") + if (count > 1) "s" else "",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                searchText = tag
+                                                searchQuizzesByTag(searchText, onResult = { result ->
+                                                    quizzes.value = result
+                                                })
+                                                SharedState.isClickedSuggestion = !SharedState.isClickedSuggestion
+                                                SharedState.isSearchActive = !SharedState.isSearchActive
+                                            }
+                                            .padding(8.dp)
+                                    )
+                                }
+                            }
                         }
-                    ),
-
-                )
+                    }
+                }
             }
-
-
         }
-
     }
 }

@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit
 
 class NebiusService(private val apiKey: String) {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(500, TimeUnit.SECONDS)
-        .readTimeout(500, TimeUnit.SECONDS)
-        .writeTimeout(500, TimeUnit.SECONDS)
+        .connectTimeout(1000, TimeUnit.SECONDS)
+        .readTimeout(1000, TimeUnit.SECONDS)
+        .writeTimeout(1000, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val request: Request = chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $apiKey")
@@ -26,9 +26,6 @@ class NebiusService(private val apiKey: String) {
             val response = chain.proceed(request)
 
             val responseBody = response.body?.string() ?: ""
-            println("Request: ${request.method} ${request.url}")
-            println("Headers: ${request.headers}")
-            println("Body: ${request.body}")
             println("Response: ${response.code} $responseBody")
             // Extraer el contenido usando Gson
             try {
@@ -61,7 +58,9 @@ class NebiusService(private val apiKey: String) {
         val request = NebiusRequest(
             messages = listOf(
                 Message(role = "user", content = prompt) // Rol del mensaje y contenido.
-            )
+            ),
+            temperature = 0.4,
+            maxTokens = 2048
         )
 
         return try {

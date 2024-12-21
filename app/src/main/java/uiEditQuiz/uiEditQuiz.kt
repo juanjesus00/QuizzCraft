@@ -1,5 +1,10 @@
 package uiEditQuiz
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +57,8 @@ fun EditQuizScreen(
     var quiz by remember { mutableStateOf<Quiz?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
+
+
     LaunchedEffect(Unit) {
         getQuizById(
             quizId,
@@ -68,18 +75,19 @@ fun EditQuizScreen(
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE0D4C8))
-            .padding(32.dp)
-            .verticalScroll(scrollState)
+    if (isLoading) {
+        LoadingScreen()
+    } else {
+        quiz?.let { loadedQuiz ->
 
-    ) {
-        if (isLoading) {
-            LoadingScreen()
-        } else {
-            quiz?.let { loadedQuiz ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFE0D4C8))
+                    .padding(32.dp)
+                    .verticalScroll(scrollState)
+
+            ) {
                 EditQuiz(
                     Modifier
                         .align(Alignment.TopCenter)
@@ -87,12 +95,7 @@ fun EditQuizScreen(
                     navigationActions,
                     loadedQuiz
                 )
-            } ?: Text(
-                text = "No se encontró el quiz.",
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 18.sp,
-                color = Color.Red
-            )
+            }
         }
     }
 }
@@ -103,43 +106,65 @@ fun EditQuiz(modifier: Modifier, navigationActions: NavigationActions, quiz: Qui
     var tags by remember { mutableStateOf(quiz.tags.joinToString(separator = ", ")) }
     var description by remember { mutableStateOf(quiz.description) }
     var quizImageUrl by remember { mutableStateOf(quiz.description) }
+    var isVisible by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = modifier
-    ) {
-        Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-            getStringByName(LocalContext.current, "title_quiz_create_quiz")?.let {
-                InsertTexField(text = name, inputLabel = it, size = 56) {
-                    name = it
-                }
-            }
-            FileUploader3(
-                image = R.drawable.camara,
-                size = 128,
-                typeFile = "image/*",
-                onImageUrlReady = { url -> quizImageUrl = url })
-            getStringByName(LocalContext.current, "tags")?.let {
-                InsertTexField(
-                    text = tags,
-                    inputLabel = it,
-                    size = 56
-                ) { tags = it }
-            }
-            getStringByName(LocalContext.current, "description_quiz")?.let {
-                InsertTexField(
-                    text = description,
-                    inputLabel = it,
-                    size = 150
-                ) { description = it }
-            }
-            CancelAndAcceptButtons(
-                navigationActions,
-                quiz.quizId,
-                name,
-                tags,
-                description,
-                quizImageUrl
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(
+            initialAlpha = 0f, // Comienza completamente invisible
+            animationSpec = tween(
+                durationMillis = 1000, // Duración de 3 segundos
+                easing = LinearOutSlowInEasing // Efecto de animación suave
             )
+        ) + slideInVertically(
+            initialOffsetY = { fullHeight -> fullHeight / 2 },
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = LinearOutSlowInEasing
+            )
+        )
+    ) {
+        Box(
+            modifier = modifier
+        ) {
+            Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+                getStringByName(LocalContext.current, "title_quiz_create_quiz")?.let {
+                    InsertTexField(text = name, inputLabel = it, size = 56) {
+                        name = it
+                    }
+                }
+                FileUploader3(
+                    image = R.drawable.camara,
+                    size = 128,
+                    typeFile = "image/*",
+                    onImageUrlReady = { url -> quizImageUrl = url })
+                getStringByName(LocalContext.current, "tags")?.let {
+                    InsertTexField(
+                        text = tags,
+                        inputLabel = it,
+                        size = 56
+                    ) { tags = it }
+                }
+                getStringByName(LocalContext.current, "description_quiz")?.let {
+                    InsertTexField(
+                        text = description,
+                        inputLabel = it,
+                        size = 150
+                    ) { description = it }
+                }
+                CancelAndAcceptButtons(
+                    navigationActions,
+                    quiz.quizId,
+                    name,
+                    tags,
+                    description,
+                    quizImageUrl
+                )
+            }
         }
     }
 }
