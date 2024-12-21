@@ -148,7 +148,6 @@ class loginbacked : ViewModel() {
                 val inputStream = connection.inputStream
                 val response = inputStream.bufferedReader().use { it.readText() }
                 connection.disconnect()
-
                 // Parseamos la respuesta JSON
                 val jsonObject = JSONObject(response)
                 val smtpCheck = jsonObject.optBoolean("smtp_check", false) // True si el correo es válido
