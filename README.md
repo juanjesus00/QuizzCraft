@@ -14,6 +14,7 @@ Herramienta diseñada para quienes buscan estudiar de manera más eficiente, apr
 2. [Requisitos Previos](#requisitos-previos)
 3. [Instalación y Configuración](#instalación-y-configuración)
 4. [Roadmap](#roadmap)
+5. [Apk](#apk)
 
 ---
 
@@ -73,4 +74,10 @@ Herramienta diseñada para quienes buscan estudiar de manera más eficiente, apr
 ## RoadMap
 
 ![image](https://github.com/user-attachments/assets/8a7df88b-016d-4a71-9b9a-82438b953ec8)
+
+---
+
+## Apk
+
+https://alumnosulpgc-my.sharepoint.com/:u:/g/personal/antonio_sanchez120_alu_ulpgc_es/EUw1iiKRH3dLiEt0uuR28t0BV-JYW6PefDQ9Vktf0_T_hw?e=E3UqaH
 
