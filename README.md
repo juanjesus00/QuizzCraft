@@ -4,8 +4,6 @@
     <img src="https://github.com/user-attachments/assets/776d435c-a703-4516-89e7-48e6451d49e6" alt="Logo">
 </p>
 
-![logo](https://github.com/user-attachments/assets/776d435c-a703-4516-89e7-48e6451d49e6)
-
 Herramienta diseñada para quienes buscan estudiar de manera más eficiente, aprovechando la inteligencia artificial para convertir su material de estudio en cuestionarios personalizados. Solo necesitas subir un archivo en formato texto plano, PDF o con preguntas y respuestas, y la aplicación generará automáticamente las preguntas necesarias para reforzar tu aprendizaje. Además, podrás evaluar tus conocimientos jugando los cuestionarios y obteniendo una nota final que te permitirá identificar tus avances y áreas de mejora. Con QuizCraft, estudiar se vuelve más práctico, interactivo y completamente adaptado a tus necesidades.
 
 ---
